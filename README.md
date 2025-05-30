@@ -84,12 +84,12 @@ If you would like to cite our work, please use:
 
 ```
 @article{jiawei2024large,
-  title={Large language models as urban residents: An llm agent framework for personal mobility generation},
-  author={JIAWEI, WANG and Jiang, Renhe and Yang, Chuang and Wu, Zengqing and Shibasaki, Ryosuke and Koshizuka, Noboru and Xiao, Chuan and others},
-  journal={Advances in Neural Information Processing Systems},
-  volume={37},
-  pages={124547--124574},
-  year={2024}
+  title="Large language models as urban residents: An llm agent framework for personal mobility generation",
+  author="Wang, Jiawei and Jiang, Renhe and Yang, Chuang and Wu, Zengqing and Shibasaki, Ryosuke and Koshizuka, Noboru and Xiao, Chuan and others",
+  journal="Advances in Neural Information Processing Systems",
+  volume="37",
+  pages="124547--124574",
+  year="2024"
 }
 ```
 
