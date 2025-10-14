@@ -52,5 +52,6 @@ if __name__ == "__main__":
             P.init_retriever()
         # mobility generation
         mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset])
+        break
 
     print("done")

@@ -3,6 +3,8 @@
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg)](https://github.com/agiresearch/OpenAGI/blob/main/LICENSE)
 
 
+https://platform.openai.com/api-keys
+
 # (NeurIPS' 24) Large Language Models as Urban Residents: An LLM Agent Framework for Personal Mobility Generation
 
 ## 📖 Description
