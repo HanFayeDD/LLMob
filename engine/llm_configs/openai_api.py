@@ -44,7 +44,7 @@ class RateLimiter:
         elapsed_time = current_time - self.last_call_time
 
         if elapsed_time < self.interval * num_requests:
-            remaining_time = self.interval * num_requests - elapsed_tim
+            remaining_time = self.interval * num_requests - elapsed_time
             await asyncio.sleep(remaining_time)
 
         self.last_call_time = time.time()
@@ -106,7 +106,7 @@ class OpenAIGPTAPI(BaseGPTAPI, RateLimiter):
 
     def __init__(self):
         self.__init_openai(CONFIG)
-        self.llm = openai
+        self.llm:openai = openai
         self.model = CONFIG.openai_api_model
         self.auto_max_tokens = True
         self._cost_manager = CostManager()

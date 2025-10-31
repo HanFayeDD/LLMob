@@ -3,7 +3,7 @@ Person class to store necessary information about a person in the simulation.
 """
 
 from engine.utilities.retrieval_helper import *
-
+from engine.llm_configs.openai_api import OpenAIGPTAPI as LLM
 
 class Person:
     def __init__(self, name, model, person_id=-10):
@@ -12,7 +12,7 @@ class Person:
         self.test_routine_list = None  # list of testing routines
         self.name = name
         self.city_area = None
-        self.llm = model
+        self.llm:LLM = model
         self.cat = None
         self.id = person_id
         self.domain_knowledge = None

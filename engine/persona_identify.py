@@ -1,10 +1,11 @@
 from engine.llm_configs.gpt_structure import *
 from engine.utilities.process_tools import *
+from engine.agent import *
 
 root_directory = "./engine/"
 
 
-def identify(person, candidate_num=10):
+def identify(person:Person, candidate_num=10):
     neg_routines = person.neg_routines
     i_template = root_directory + "/prompt_template/init.txt"
     role_template = root_directory + "/prompt_template/roles.txt"

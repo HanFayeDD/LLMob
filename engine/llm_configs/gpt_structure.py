@@ -4,9 +4,10 @@ Description: Wrapper functions for calling OpenAI APIs.
 """
 import json
 import re
-
 from openai import OpenAI
+from engine.llm_configs.openai_api import OpenAIGPTAPI as LLM
 import openai
+from engine.llm_configs.config import CONFIG
 import time
 
 def temp_sleep(seconds=0.1):
@@ -147,13 +148,13 @@ def generate_prompt(curr_input, prompt_lib_file):
     return cleaned_prompt.strip()
 
 
-def execute_prompt(prompt, llm, objective, history=None, temperature=0.6):
+def execute_prompt(prompt, llm:LLM, objective, history=None, temperature=0.6):
     print(f"==============={objective}=========================")
 
     response = None
     while response is None:
         try:
-            client = OpenAI()
+            client = OpenAI(api_key=CONFIG.openai_api_key, base_url=CONFIG.openai_api_base)
             if history is None:
                 response = client.chat.completions.create(
                     model=llm.model,
@@ -161,12 +162,14 @@ def execute_prompt(prompt, llm, objective, history=None, temperature=0.6):
                         {"role": "user", "content": prompt}
                     ],
                     temperature=temperature,
+                    timeout=120
                 )
             else:
                 response = client.chat.completions.create(
                     model=llm.model,
                     messages=history,
-                    temperature=temperature
+                    temperature=temperature,
+                    timeout=120
                 )
         except Exception as e:
             print(e)
