@@ -29,7 +29,7 @@ def init_log():
     console_handler.setLevel(logging.INFO)  # 控制台记录INFO及以上级别
 
     # 设置日志格式
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
     file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
 
