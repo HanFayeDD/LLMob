@@ -4,8 +4,9 @@ from dotenv import load_dotenv
 def load_env()->None:
     load_dotenv()
 
-def get_env(k:str)->str:
+def get_env(k:str, default:str)->str:
     res = os.getenv(k)
     if res is None:
-        raise ValueError(f"{k} not found in env")
+        # raise ValueError(f"{k} not found in env")
+        return default
     return res 
