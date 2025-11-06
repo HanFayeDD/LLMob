@@ -3,7 +3,7 @@ Person class to store necessary information about a person in the simulation.
 """
 
 from engine.utilities.retrieval_helper import *
-from engine.llm_configs.openai_api import OpenAIGPTAPI as LLM
+from engine.llm_configs.ollama_api import OllamaAPI as LLM
 
 class Person:
     def __init__(self, name, model, person_id=-10):

@@ -1,4 +1,4 @@
-from engine.llm_configs.openai_api import OpenAIGPTAPI as LLM
+from engine.llm_configs.ollama_api import OllamaAPI as LLM
 from engine.trajectory_generate import *
 from engine.persona_identify import *
 from engine.agent import *
@@ -44,7 +44,8 @@ if __name__ == "__main__":
             P = Person(name=k, model=LLM(), person_id=k)
             P.train_routine_list, P.test_routine_list, P.attribute, P.cat, P.domain_knowledge, P.neg_routines, P.activity_area, P.area_freq,  P.loc_cat = \
                 att[0], att[1], att[2],  att[4], att[5], att[6], att[7], att[8], att[11]
-
+        
+        print(P.llm.ask("1+1等于多少"))
         # identify the pattern of the person based on self-consistency
         P = identify(P)
         # # initialize the retriever

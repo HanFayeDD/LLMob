@@ -5,7 +5,7 @@ Description: Wrapper functions for calling OpenAI APIs.
 import json
 import re
 from openai import OpenAI
-from engine.llm_configs.openai_api import OpenAIGPTAPI as LLM
+from engine.llm_configs.ollama_api import OllamaAPI as LLM
 import openai
 from engine.llm_configs.config import CONFIG
 import time

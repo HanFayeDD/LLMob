@@ -60,10 +60,16 @@ class Config(metaclass=Singleton):
     def __init__(self, yaml_file=default_yaml_file):
         self._configs = {}
         self._init_with_config_files_and_env(self._configs, yaml_file)
+        
+        # 新增：读取LLM提供商配置
+        self.llm_provider = self._get("LLM_PROVIDER", "openai") # 默认为openai
+        
+        # --- OpenAI 相关配置 ---
         self.global_proxy = self._get("GLOBAL_PROXY")
         self.openai_api_key = self._get("OPENAI_API_KEY")
-        if not self.openai_api_key or "YOUR_API_KEY" == self.openai_api_key:
-            raise NotConfiguredException("Set OPENAI_API_KEY first")
+        # 仅在需要使用OpenAI时才校验API Key
+        if self.llm_provider == "openai" and (not self.openai_api_key or "YOUR_API_KEY" == self.openai_api_key):
+            raise NotConfiguredException("Set OPENAI_API_KEY first when LLM_PROVIDER is 'openai'")
 
         self.openai_api_base = self._get("OPENAI_API_BASE")
         if not self.openai_api_base or "YOUR_API_BASE" == self.openai_api_base:
@@ -77,7 +83,12 @@ class Config(metaclass=Singleton):
         self.openai_api_rpm = self._get("RPM", 3)
         self.openai_api_model = self._get("OPENAI_API_MODEL", "gpt-4")
         self.max_tokens_rsp = self._get("MAX_TOKENS", 2048)
+        
+        # --- Ollama 相关配置 (新增) ---
+        self.ollama_api_base = self._get("OLLAMA_API_BASE")
+        self.ollama_api_model = self._get("OLLAMA_API_MODEL")
 
+        # --- 通用配置 ---
         self.max_budget = self._get("MAX_BUDGET", 100.0)
         self.total_cost = 0.0
         self.update_costs = self._get("UPDATE_COSTS", True)
@@ -111,6 +122,13 @@ class Config(metaclass=Singleton):
 
 
 CONFIG = Config()
-print("OPENAI_API_KEY:", CONFIG.openai_api_key)
-print("OPENAI_API_BASE:", CONFIG.openai_api_base)
-print("OPENAI_API_MODEL:", CONFIG.openai_api_model)
+
+# 更新打印信息，使其能反映当前选择
+print("LLM Provider:", CONFIG.llm_provider)
+if CONFIG.llm_provider == "openai":
+    print("OPENAI_API_KEY:", CONFIG.openai_api_key)
+    print("OPENAI_API_BASE:", CONFIG.openai_api_base)
+    print("OPENAI_API_MODEL:", CONFIG.openai_api_model)
+elif CONFIG.llm_provider == "ollama":
+    print("OLLAMA_API_BASE:", CONFIG.ollama_api_base)
+    print("OLLAMA_API_MODEL:", CONFIG.ollama_api_model)
