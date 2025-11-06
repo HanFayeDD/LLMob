@@ -1,10 +1,11 @@
+import json
 from typing import Optional
 from langchain.messages import AIMessage
 from langchain_community.chat_models import ChatOllama
 from pydantic import BaseModel, Field
-
+import re
 from utils.config import get_env
-
+import logging
 
 class ChatBot:
     def __init__(self) -> None:
@@ -44,14 +45,61 @@ class ChatBot:
         return str(response)
 
     def ask_one_with_struct_output(self, q: str, struct: BaseModel) -> BaseModel:
+        # struct_desc = self._parse_basemodel_to_dictstr(struct)["description"]
+        struct_properties = self._parse_basemodel_to_dictstr(struct)["properties"]
+        pattern = """
+        现在需要从我给出的文本中提取出结构化数据。
+        结构化数据的字段名称、字段类型、字段描述如下:{}
+        待处理的文本内容如下：{}
+        以json格式返回最终的提取结果
         """
-        使用 LangChain 的结构化输出能力，返回 Pydantic 模型实例。
-        """
-        model_with_structure = self.model.with_structured_output(struct)
-        response = model_with_structure.invoke(q)
-        print(type(response))
+        prompt = pattern.format(struct_properties, q)
+        response = self._parse_jsonresponse_to_dict(self.ask_one(prompt))
+        self._compare_basemodel_with_dict(struct, response)
         return response
+    
+    def _compare_basemodel_with_dict(self, model: BaseModel, d: dict) -> bool:
+        """_summary_
+           比较basemodel的schema和dict的schema是否一致
+            只比较字段名称和数据类型
+        Args:
+            model (BaseModel): _description_
+            d (dict): _description_
 
+        """
+        schema = model.model_json_schema()
+        props = schema.get("properties", {})
+        propnames = []
+        proptypes = []
+        for name, prop in props.items():
+            propnames.append(name)
+            proptypes.append(prop.get("type", ""))
+        print(propnames)
+        print(proptypes)
+        
+    
+    def _parse_jsonresponse_to_dict(self, s:str)->dict:
+        json_match = re.search(r'```json\s*({.*?})\s*```', s.strip(), re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(1))
+        else:
+            logging.warning("no json response found in the response")
+            return {}
+
+    def _parse_basemodel_to_dictstr(self, model: BaseModel) -> dict:
+        schema = model.model_json_schema()
+        return {
+        "description": schema.get("description", ""),
+        "properties": {
+            name: {
+                "type": prop.get("type", ""),
+                "description": prop.get("description", "")
+            }
+            for name, prop in schema.get("properties", {}).items()
+        },
+        "required": schema.get("required", [])
+    }
+        
 
 # 示例：定义一个结构化返回的 Pydantic 模型
 class AnswerSchema(BaseModel):
