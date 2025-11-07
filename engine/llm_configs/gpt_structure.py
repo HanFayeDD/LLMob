@@ -148,9 +148,29 @@ def generate_prompt(curr_input, prompt_lib_file):
     return cleaned_prompt.strip()
 
 
+def execute_prompt_ollama(prompt, llm:LLM, objective, history=None, temperature=0.6):
+    response = None
+    while response is None:
+        try:
+            if history is None:
+                response = llm.completion(messages=[{"role": "user", "content": prompt}])
+            else:
+                response = llm.completion(messages=history)
+        except Exception as e:
+            print(e)
+            print('Retrying...')
+            time.sleep(2)
+    answer = response.get("choices")[0].get("message").get("content")
+    return answer.strip()
+
+
+
 def execute_prompt(prompt, llm:LLM, objective, history=None, temperature=0.6):
     print(f"==============={objective}=========================")
 
+    if CONFIG.llm_provider == "ollama":
+        return execute_prompt_ollama(prompt, llm, objective, history, temperature)
+    
     response = None
     while response is None:
         try:

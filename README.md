@@ -3,6 +3,13 @@
 [![Code License](https://img.shields.io/badge/Code%20License-Apache_2.0-green.svg)](https://github.com/agiresearch/OpenAGI/blob/main/LICENSE)
 
 
+# screenshots
+```python
+print(P.llm.ask("1+1等于多少"), end="\n########\n")  
+print(P.llm.ask_batch(["1+1等于多少", "1+2等于多"]),end="\n########\n")
+```
+![alt text](assets/image.png)
+
 https://platform.openai.com/api-keys
 
 # (NeurIPS' 24) Large Language Models as Urban Residents: An LLM Agent Framework for Personal Mobility Generation
