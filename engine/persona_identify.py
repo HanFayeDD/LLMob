@@ -13,6 +13,7 @@ def identify(person:Person, candidate_num=10):
     e_template1 = root_directory + "/prompt_template/eval.txt"
     # extract the basic information of the person from the history routine
     domain_knowledge = person.domain_knowledge  # extract_knowledge(person)
+    ## 候选角色、候选角色描述
     roles = {}
     demo = ""
     with open(role_template, 'r') as file:
@@ -61,6 +62,7 @@ def identify(person:Person, candidate_num=10):
         except Exception as e:
             print("Attribute extraction error: ", e)
             continue
+    ## 得到每个候选角色的打分
     scores_dict = score_from_rating(person, att_hub, e_template1, metric="rate", neg_routines=neg_routines)
 
     max_score = 0
@@ -83,6 +85,7 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
     r = 0
     for att in att_hub:
         r += 1
+        ## 使用本人的多少个移动路径打分
         for i in range(min(30, len(person.train_routine_list))):
             train_route = person.train_routine_list[
                 i]

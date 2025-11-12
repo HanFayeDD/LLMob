@@ -51,6 +51,7 @@ if __name__ == "__main__":
         
         
         # identify the pattern of the person based on self-consistency
+        ## 填充P的attribute字段
         P = identify(P)
         # # initialize the retriever
         if args.mode == 0:

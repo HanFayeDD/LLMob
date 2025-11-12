@@ -161,8 +161,20 @@ def execute_prompt_ollama(prompt, llm:LLM, objective, history=None, temperature=
             print('Retrying...')
             time.sleep(2)
     answer = response.get("choices")[0].get("message").get("content")
+    if objective == "init role...":
+        answer = execute_prompt_ollama_fake_output(objective)
     return answer.strip()
 
+
+def execute_prompt_ollama_fake_output(objective):
+    return """
+        student: you typically travel to and from educational institutions at similar times.
+
+        teacher: you typically travel to and from educational institutions at similar times.
+
+        office worker: you have a fixed morning and evening commute, often heading to office districts or commercial centers.
+
+        """
 
 
 def execute_prompt(prompt, llm:LLM, objective, history=None, temperature=0.6):
