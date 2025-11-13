@@ -4,6 +4,14 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
+view_state = pdk.ViewState(
+        latitude=35.69,
+        longitude=139.703,
+        bearing=0,
+        pitch=20,
+        zoom=5,
+)
+
 def load_loc_map():
     """_summary_
         load loc_map.pkl and reverse k and v
@@ -42,10 +50,9 @@ def get_acticity_list(id:int):
             tmp[1].append(parse_place_time(pos))
         res.append(tmp)
     return res 
-        
-if __name__ == "__main__":
-    loc_map = load_loc_map()
-    acticity_list = get_acticity_list(1784)
+
+def plot_route(acticity_list:list, loc_map:dict):
+    global view_state
     df = []
     for oneday in acticity_list:
         day, acts = oneday[0], oneday[1]
@@ -75,16 +82,71 @@ if __name__ == "__main__":
         pickable=True,
         auto_highlight=True,
     )
-    view_state = pdk.ViewState(
-        latitude=35.69,
-        longitude=139.703,
-        bearing=0,
-        pitch=20,
-        zoom=5,
-    )
     TOOLTIP_TEXT = {"html": "{day}<br />起点： {b_hour} {b_name} <br />终点：{e_hour} {e_name}",
                     "style": {"backgroundColor": "steelblue", "color": "white"}}
-    r = pdk.Deck(arc_layer, initial_view_state=view_state, tooltip=TOOLTIP_TEXT)
-    st.pydeck_chart(r, width='stretch', use_container_width=True)
+    return arc_layer
+    
+def plot_bar(acticity_list:list, loc_map:dict):
+    global view_state
+    dcnt = dict()
+    dtime = dict()
+    for oneday in acticity_list:
+        day, acts = oneday[0], oneday[1]
+        for i in range(len(acts)):
+            pos, hour = acts[i][0], acts[i][1]
+            if pos not in dcnt:
+                dcnt[pos] = 1
+                dtime[pos] = [day+"-"+hour]
+            else:
+                dcnt[pos] += 1
+                dtime[pos].append(day+"-"+hour)
+    data = []
+    for k, v in dcnt.items():
+        try:
+            pos_wj = loc_map[k]
+            data.append([k, v, pos_wj[0], pos_wj[1], "".join(dtime.get(k, []))])
+        except:
+            continue
+    colnames = ["name", "cnt", "wd", "jd", "time"]
+    df = pd.DataFrame(data, columns=colnames)
+    COLOR_BREWER_BLUE_SCALE = [
+        [240, 249, 232],
+        [204, 235, 197],
+        [168, 221, 181],
+        [123, 204, 196],
+        [67, 162, 202],
+        [8, 104, 172]
+    ]
+    hm_layer = pdk.Layer(
+        "HeatmapLayer",
+        data=df,
+        opacity=0.9,
+        get_position=["jd", "wd"],
+        aggregation=pdk.types.String("MEAN"),
+        color_range=COLOR_BREWER_BLUE_SCALE,
+        threshold=1,
+        get_weight="cnt",
+        pickable=True,
+    )
+    return hm_layer
+        
+    
+            
+if __name__ == "__main__":
+    loc_map = load_loc_map()
+    acticity_list = get_acticity_list(6171)
+    arc_layer =plot_route(acticity_list, loc_map)
+    hm_layer =plot_bar(acticity_list, loc_map)
+    r = pdk.Deck(
+        layers=[arc_layer, hm_layer],
+        initial_view_state=view_state,
+        map_provider="mapbox",
+        map_style=pdk.map_styles.CARTO_LIGHT,
+        tooltip={"html": "{day}<br />起点： {b_hour} {b_name} <br />终点：{e_hour} {e_name}",
+                    "style": {"backgroundColor": "steelblue", "color": "white"}}
+    )
+    st.pydeck_chart(r)
+    
+    
     
     
