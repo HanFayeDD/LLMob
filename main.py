@@ -35,10 +35,19 @@ def load_loc_map():
 
 
 def get_acticity_list(id:int):
+    global available1921, available2019, available2021
     def parse_place_time(text:str):
         place, time = text.split(" at ")
         return (place.strip(), time.strip())
-    person = pickle.load(open(rf"data\2019\{id}.pkl", "rb"))
+    if id in available1921:
+        person = pickle.load(open(rf"data\20192021\{id}.pkl", "rb"))
+    elif id in available2019:
+        person = pickle.load(open(rf"data\2019\{id}.pkl", "rb"))
+    elif id in available2021:
+        person = pickle.load(open(rf"data\2021\{id}.pkl", "rb"))
+    else:
+        st.error(f"{id} data is not found.")
+        
     actyls = person[0] + person[1]
     res = []
     for ele in actyls:
@@ -130,13 +139,44 @@ def plot_bar(acticity_list:list, loc_map:dict):
     )
     return hm_layer
         
-    
+available1921 = [1004, 1032, 1172, 1184, 13, 1310, 1431, 1481, 1492, 1556, 1568, 1626, 1775, 1784, 1874, 1883,
+                    1974, 2078, 225, 2266, 2337, 2356, 2402, 2513, 2542, 2610, 2680, 2683, 2721, 2956, 317, 323, 3255,
+                    3282, 3453, 3534, 3599, 3637, 3638, 3781, 3784, 4007, 4105, 439, 4396, 4768, 5252, 5326, 540,
+                    5449, 5551, 573, 5765, 606, 6144, 6157, 6249, 638, 6581, 6615, 6670, 6814, 6863, 6973, 6998, 7228,
+                    7259, 835, 934]
+available2019 = [2575, 1481, 1784, 2721, 638, 7626, 1626, 7266, 1568, 2078, 2610, 1908, 2683, 1883, 3637, 225, 914,
+                    6863, 6670, 323, 3282, 2390, 2337, 4396, 7259, 1310, 3802, 1522, 1219, 1004, 4105, 540,
+                    6157, 1556, 2266, 13, 1874, 317, 2513, 3255, 934, 3599, 1775, 606, 3033, 3784, 5252, 3365, 6581,
+                    6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
+                    1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
+                    2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
+available2021 = [1481, 1784, 2721, 638,  7626, 13,   47,    107, 225,  323,  392,  413,  439,  540,  572, 606, 638, 643, 789,
+                    1032, 1172, 1345, 1481, 1503, 1556, 1568, 1626, 1745, 1775, 6863, 7015, 7068, 7626, 7936,
+                    1784, 1874, 1883, 1920, 2078, 2337, 2482, 2513, 2610, 2650, 2721, 2956, 3282, 3494, 3599, 3638,
+                    3656, 4105, 4396, 4768, 4947, 5106, 5252, 5326, 6027, 6144, 6204, 6581, 6697, 7982]
             
 if __name__ == "__main__":
+    # 添加侧边栏
+    with st.sidebar:
+        st.title("用户ID输入")
+        user_id = st.number_input(
+            "请输入用户ID", 
+            min_value=1, 
+            value=6171,  # 默认值设为6171
+            step=1
+        )
+        
+        
+
+    with st.sidebar:
+        st.write(f"2019:\n{available2019}\n2021\n{available2021}\n20192021\n{available1921} ")
+    
+    
+    
     loc_map = load_loc_map()
-    acticity_list = get_acticity_list(6171)
-    arc_layer =plot_route(acticity_list, loc_map)
-    hm_layer =plot_bar(acticity_list, loc_map)
+    acticity_list = get_acticity_list(user_id)  # 使用用户输入的ID
+    arc_layer = plot_route(acticity_list, loc_map)
+    hm_layer = plot_bar(acticity_list, loc_map)
     r = pdk.Deck(
         layers=[arc_layer, hm_layer],
         initial_view_state=view_state,
@@ -146,7 +186,6 @@ if __name__ == "__main__":
                     "style": {"backgroundColor": "steelblue", "color": "white"}}
     )
     st.pydeck_chart(r)
-    
     
     
     
