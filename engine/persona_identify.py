@@ -7,7 +7,7 @@ root_directory = "./engine/"
 
 def identify(person:Person, candidate_num=10):
     ## 候选角色个数
-    candidate_num = 3
+    candidate_num = 1
     neg_routines = person.neg_routines
     i_template = root_directory + "/prompt_template/init.txt"
     role_template = root_directory + "/prompt_template/roles.txt"

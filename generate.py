@@ -48,7 +48,7 @@ if __name__ == "__main__":
         # print(P.llm.ask("1+1等于多少"), end="\n########\n")
         
         # print(P.llm.ask_batch(["1+1等于多少", "1+2等于多少"]), end="\n########\n")
-        
+        # print(P.cat)
         
         # identify the pattern of the person based on self-consistency
         ## 填充P的attribute字段

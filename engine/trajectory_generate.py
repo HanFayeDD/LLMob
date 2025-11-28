@@ -55,20 +55,23 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         prompt = generate_prompt(curr_input, infer_template)
         max_trial = 10
         trial = 0
-        while trial < max_trial:
+        running = True
+        while running and trial < max_trial:
             contents = execute_prompt(prompt, person.llm,
                                       objective=f"one_shot_infer_response_{len(results) + 1}/{len(person.test_routine_list)}_{trial}")
             try:
-                print(f"contents\n{contents}")
+                if trial == 0:
+                    print(f"prompt\n{prompt}")
+                print(f"contents before\n{contents}")
                 contents = filter_json_part(contents)
-                print(f"contents\n{contents}")
+                print(f"contents after\n{contents}")
                 res = json.loads(contents)
-                print(f"res\n{res}")
                 ## 一些清洗与校验
-                
-                valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
+                # valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
+                valid_generation_v2(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
+                running = False
             except Exception as e:
-                print(e)
+                print("Error: " + str(e))
                 trial += 1
                 continue
             break

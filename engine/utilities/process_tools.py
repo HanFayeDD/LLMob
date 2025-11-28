@@ -2,7 +2,7 @@ import numpy as np
 from geopy.distance import geodesic
 import pandas as pd
 from datetime import datetime
-
+from collections import defaultdict
 import json
 import os
 import re
@@ -272,7 +272,7 @@ def valid_generation(person, traj):
             except Exception as e:
                 clean_loc = clean_loc.split("#")[0] + str(1)
                 print(clean_loc)
-            if "Home" in clean_loc or "home" in clean_loc:
+            if "Home" == clean_loc or "home" == clean_loc:
                 k += 2
                 continue
             try:
@@ -302,6 +302,41 @@ def valid_generation(person, traj):
 
     return True
 
+def valid_generation_v2(person, traj):
+    cat = person.cat
+    traj_acts = clean_traj(traj)
+    loc_times = traj_acts.split(" at ")
+    
+    locs = []
+    times = []
+    acts = defaultdict(int)
+    
+    k = 0
+    if len(loc_times) % 2 != 0:
+        raise ValueError("len(loc_times) % 2 != 0:")
+    while k < len(loc_times):
+        loc = loc_times[k].replace(".", "")
+        t = loc_times[k+1].replace(".", "")
+
+        if "Home" == loc or "home" == loc:
+                k += 2
+                continue
+        
+        loc_withno_num = loc.split("#")[0].strip()
+        
+        if loc_withno_num not in cat:
+            raise ValueError("loc_withno_num not in cat")
+        
+        locs.append(loc)
+        times.append(t)
+        acts[cat[loc_withno_num]] += 1
+        k += 2
+        
+    return True
+        
+        
+        
+
 def filter_json_part(s: str) -> str:
     """_summary_
         提取出```包裹的json部分
@@ -310,20 +345,12 @@ def filter_json_part(s: str) -> str:
     Returns:
         str: 提取出的纯JSON字符串
     """
-    json_start_marker = "```json"
-    json_end_marker = "```"
+    s = s.replace("```", "")
+    s = s.replace("json", "")
+
+    left = s.find("{")
+    right = s.find("}")
     
-    # 检查是否存在 ```json 标记
-    if json_start_marker in s:
-        # 1. 找到起始标记的位置，并加上标记本身的长度，得到内容的起始点
-        start_index = s.find(json_start_marker) + len(json_start_marker)
-        
-        # 2. 从内容起始点往后找，找到第一个结束标记 ``` 的位置
-        end_index = s.find(json_end_marker, start_index)
-        
-        # 3. 如果找到了结束标记
-        if end_index != -1:
-            # 截取中间的部分，并去除首尾空白（换行符等）
-            return s[start_index+1:end_index].strip()
-            
-    return s
+    s = s[left:right+1]
+    
+    return s.strip()
