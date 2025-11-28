@@ -45,9 +45,9 @@ if __name__ == "__main__":
             P.train_routine_list, P.test_routine_list, P.attribute, P.cat, P.domain_knowledge, P.neg_routines, P.activity_area, P.area_freq,  P.loc_cat = \
                 att[0], att[1], att[2],  att[4], att[5], att[6], att[7], att[8], att[11]
         
-        print(P.llm.ask("1+1等于多少"), end="\n########\n")
+        # print(P.llm.ask("1+1等于多少"), end="\n########\n")
         
-        print(P.llm.ask_batch(["1+1等于多少", "1+2等于多少"]), end="\n########\n")
+        # print(P.llm.ask_batch(["1+1等于多少", "1+2等于多少"]), end="\n########\n")
         
         
         # identify the pattern of the person based on self-consistency

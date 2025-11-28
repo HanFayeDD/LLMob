@@ -38,14 +38,16 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
 
         hint = ""  # add condition prompt for conditional generation, i.e., pandemic condition
         curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, hint]
-
+        ## 动机推断prompt
         prompt = generate_prompt(curr_input, describe_mot_template)
+        ## 根据demo，结合地点类型信息，获取相似地点推荐
         area = retrieve_loc(person, demo)
         motivation = execute_prompt(prompt, person.llm, objective=f"Think about motivation")
         motivation = first2second(motivation)
         his_routine = his_routine[1:] + [test_route]
         weekday = find_detail_weekday(date_)
         hint = ""
+        ## 动机驱动生成轨迹
         if motivation is not None:
             curr_input = [person.attribute, motivation, date_, ',  '.join(area), weekday, demo,
                           motivation_ways[mode],
@@ -57,7 +59,13 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
             contents = execute_prompt(prompt, person.llm,
                                       objective=f"one_shot_infer_response_{len(results) + 1}/{len(person.test_routine_list)}_{trial}")
             try:
+                print(f"contents\n{contents}")
+                contents = filter_json_part(contents)
+                print(f"contents\n{contents}")
                 res = json.loads(contents)
+                print(f"res\n{res}")
+                ## 一些清洗与校验
+                
                 valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
             except Exception as e:
                 print(e)
@@ -73,6 +81,8 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
+        ## 只产生一天的
+        break
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:
         pickle.dump(results, f)

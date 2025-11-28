@@ -256,13 +256,16 @@ def valid_generation(person, traj):
     cat = person.cat
     traj_acts = clean_traj(traj)
     loc_times = traj_acts.split(" at ")
+    ## 具体地点
     locs = []
     times = []
+    ## 活动类型
     acts = []
     k = 0
 
     while k < len(loc_times):
         loc_times[k] = loc_times[k].replace(".", "")
+        ## 地点
         if k % 2 == 0:
             try:
                 clean_loc = loc_times[k]
@@ -288,6 +291,7 @@ def valid_generation(person, traj):
             if acts[-1] == ('Outdoors & Recreation',):
                 print(loc_times[k])
                 assert False
+        ## 时间
         else:
             times.append(loc_times[k].split(" ")[0])
         k += 1
@@ -297,3 +301,29 @@ def valid_generation(person, traj):
     assert len(locs) > 0
 
     return True
+
+def filter_json_part(s: str) -> str:
+    """_summary_
+        提取出```包裹的json部分
+    Args:
+        s (str): llm输出的原始字符串
+    Returns:
+        str: 提取出的纯JSON字符串
+    """
+    json_start_marker = "```json"
+    json_end_marker = "```"
+    
+    # 检查是否存在 ```json 标记
+    if json_start_marker in s:
+        # 1. 找到起始标记的位置，并加上标记本身的长度，得到内容的起始点
+        start_index = s.find(json_start_marker) + len(json_start_marker)
+        
+        # 2. 从内容起始点往后找，找到第一个结束标记 ``` 的位置
+        end_index = s.find(json_end_marker, start_index)
+        
+        # 3. 如果找到了结束标记
+        if end_index != -1:
+            # 截取中间的部分，并去除首尾空白（换行符等）
+            return s[start_index+1:end_index].strip()
+            
+    return s

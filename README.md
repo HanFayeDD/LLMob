@@ -52,6 +52,7 @@ Real:  Activities at 2019-12-31: Convenience Store#358 at 10:10:00, City Hall#21
 done
 ➜ LLMob git:(ollama) **Rating: 6/10**
 https://platform.openai.com/api-keys
+```
 
 # (NeurIPS' 24) Large Language Models as Urban Residents: An LLM Agent Framework for Personal Mobility Generation
 

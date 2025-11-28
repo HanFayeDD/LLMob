@@ -6,6 +6,8 @@ root_directory = "./engine/"
 
 
 def identify(person:Person, candidate_num=10):
+    ## 候选角色个数
+    candidate_num = 3
     neg_routines = person.neg_routines
     i_template = root_directory + "/prompt_template/init.txt"
     role_template = root_directory + "/prompt_template/roles.txt"
@@ -81,12 +83,27 @@ def identify(person:Person, candidate_num=10):
 
 
 def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
+    """_summary_
+        对于att_hub中的每一个hub（一个hub对应一个候选角色），用正样例和负样例进行打分。
+        正样本得分＋，负样本得分-，返回得分字典
+    Args:
+        person (_type_): _description_
+        att_hub (_type_): _description_
+        e_template (_type_): _description_
+        metric (_type_): _description_
+        neg_routines (_type_, optional): _description_. Defaults to None.
+
+    Returns:
+        _type_: _description_
+    """
     scores_dict = {}
     r = 0
     for att in att_hub:
         r += 1
         ## 使用本人的多少个移动路径打分
-        for i in range(min(30, len(person.train_routine_list))):
+        MINNUM = 1
+        ## 正样本得分
+        for i in range(min(MINNUM, len(person.train_routine_list))):
             train_route = person.train_routine_list[
                 i]
             train_route = train_route.split(": ")[-1]
@@ -107,7 +124,8 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
                     continue
                 break
         if person.neg_routines is not None:
-            for i in range(len(person.neg_routines)):
+            ## 负样本得分
+            for i in range(min(MINNUM, len(person.neg_routines))):
                 train_route = person.neg_routines[i]
                 train_route = train_route.split(": ")[-1]
                 curr_input = [att, train_route]

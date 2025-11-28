@@ -174,11 +174,24 @@ class TemporalRetriever:
 
 
 def retrieve_loc(person, route):
+    """_summary_
+        基于类别的地点联想推荐
+        为了防止 Prompt 过长或推荐过多重复信息，代码限制了每个类别最多推荐 7 个地点。
+    Args:
+        person (_type_): _description_
+        route (_type_): _description_
+                
+    Returns:
+        _type_: _description_
+        返回一个字符串列表 area，包含了与参考路径中地点类型相似的一组候选地点。这些地点随后会被放入 Prompt 中（在 mob_gen 函数里），提示 LLM：“你可以去这些地方”。
+    """
     area = []
+    ## 提取地点名称
     loc_in_retrieve = route.split(": ")[1].replace(",", " at ").split(" at ")[::2]
     selected_loc_cat = {}
     for loc in loc_in_retrieve:
         loc = loc.lstrip().rstrip()
+        ## 地点名称对应的类别
         c = person.loc_cat[loc.split("#")[0]]
         for k, v in person.area_freq.items():
             k = k.replace(".", "")
