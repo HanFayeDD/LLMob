@@ -25,7 +25,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
     results = {}
     reals = {}
     his_routine = person.train_routine_list[-person.top_k_routine:]
-    for test_route in person.test_routine_list[:]:
+    for idx, test_route in enumerate(person.test_routine_list[:]):
         date_ = test_route.split(": ")[0].split(" ")[-1]
         # get motivation
         consecutive_past_days = check_consecutive_dates(his_routine, date_)
@@ -86,7 +86,8 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
         ## 只产生一天的
-        break
+        if idx == 1:
+            break
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:
         pickle.dump(results, f)
