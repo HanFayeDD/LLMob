@@ -1,6 +1,7 @@
 from engine.llm_configs.gpt_structure import *
 from engine.utilities.process_tools import *
 from engine.agent import *
+import logging
 
 root_directory = "./engine/"
 
@@ -76,8 +77,8 @@ def identify(person:Person, candidate_num=10):
         if sum(scores) > max_score:
             max_score = sum(scores)
             final_att = att
-    print("final att: ", final_att)
-    print("final score: ", max_score)
+    logging.info(f"final att: {final_att}")
+    logging.info(f"final score: {max_score}")
     person.attribute = final_att
     return person
 
@@ -119,6 +120,7 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
                         scores_dict[att] = [score]
                     else:
                         scores_dict[att].append(score)
+                    logging.info(f"eval...{r}/{len(att_hub)} positive:{i+1} score:{score}")
                 except Exception as e:
                     print("Score extraction error: ", e)
                     continue
@@ -141,6 +143,7 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
                             scores_dict[att] = [-score]
                         else:
                             scores_dict[att].append(-score)
+                        logging.info(f"eval...{r}/{len(att_hub)} negative:{i+1} score:{score}")
                     except Exception as e:
                         print("Score extraction error: ", e)
                         continue

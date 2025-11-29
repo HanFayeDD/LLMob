@@ -75,19 +75,20 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 print("Error: " + str(e))
                 trial += 1
                 continue
-            break
         if trial >= max_trial:
             res = {"plan": demo.split(": ")[-1]}
         logging.info(contents)
         print("Motivation: ", motivation)
         print("Real: ", test_route)
         reals[date_] = test_route
-        results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
+        if trial < max_trial:
+            results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
+        else:
+            results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
         ## 只产生一天的
-        if idx == 1:
-            break
+        logging.info(f"Generated{date_}: {results[date_]}")
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:
         pickle.dump(results, f)

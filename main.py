@@ -86,12 +86,15 @@ def get_acticity_list(id:int, tag:DataTags=DataTags.ALL):
     
     res = []
     for ele in actyls:
-        tmp = [None, []]
-        p1, p2 = ele.split(": ")
-        p1 = p1[-10:]
-        tmp[0] = p1
-        for pos in p2.split(","):
-            tmp[1].append(parse_place_time(pos))
+        try:
+            tmp = [None, []]
+            p1, p2 = ele.split(": ")
+            p1 = p1[-10:]
+            tmp[0] = p1
+            for pos in p2.split(","):
+                tmp[1].append(parse_place_time(pos))
+        except:
+            continue
         res.append(tmp)
     return res 
 

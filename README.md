@@ -105,9 +105,13 @@ LLMob is an intuitive framework that builds reasoning logic for LLMs in the cont
   - Key: `location name`  
   - Value: `activity category`
 ![alt text](assets/image-1.png)
-
+![alt text](assets/image-2.png)
+![alt text](assets/image-3.png)
 ## TODO
-add langsmith to observe
+- add langsmith to observe
+- 预聚类，而不是打分。直接进入生成阶段
+- valid_generation_v2完善检测逻辑
+  
 
 ## ⚙️ Usage
 
