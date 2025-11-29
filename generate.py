@@ -2,6 +2,7 @@ from engine.llm_configs.ollama_api import OllamaAPI as LLM
 from engine.trajectory_generate import *
 from engine.persona_identify import *
 from engine.agent import *
+from utils.logger import init_log
 import argparse
 import random
 
@@ -13,6 +14,7 @@ parser.add_argument('--mode', type=int,
 parser.add_argument('--seed', type=int, default=123)
 
 if __name__ == "__main__":
+    init_log()
     args = parser.parse_args()
     random.seed(args.seed)
 

@@ -106,6 +106,9 @@ LLMob is an intuitive framework that builds reasoning logic for LLMs in the cont
   - Value: `activity category`
 ![alt text](assets/image-1.png)
 
+## TODO
+add langsmith to observe
+
 ## ⚙️ Usage
 
 To get started with LLMob, follow these steps:

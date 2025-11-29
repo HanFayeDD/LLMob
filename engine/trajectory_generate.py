@@ -2,6 +2,7 @@ from engine.prompt_template.prompt_paths import *
 from engine.utilities.process_tools import *
 from engine.llm_configs.gpt_structure import *
 from engine.utilities.retrieval_helper import *
+import logging
 import os
 import pickle
 
@@ -77,7 +78,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
             break
         if trial >= max_trial:
             res = {"plan": demo.split(": ")[-1]}
-        print(contents)
+        logging.info(contents)
         print("Motivation: ", motivation)
         print("Real: ", test_route)
         reals[date_] = test_route
