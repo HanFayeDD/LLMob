@@ -69,6 +69,8 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 res = json.loads(contents)
                 ## 一些清洗与校验
                 # valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
+                if not valid_time(res["plan"]):
+                    raise ValueError("len(res[\"plan\"]) == 0")
                 valid_generation_v2(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
                 running = False
             except Exception as e:
@@ -89,6 +91,8 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
             person.retriever.nodes.append(reals[date_])
         ## 只产生一天的
         logging.info(f"Generated{date_}: {results[date_]}")
+        if idx == 10:
+            break
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:
         pickle.dump(results, f)

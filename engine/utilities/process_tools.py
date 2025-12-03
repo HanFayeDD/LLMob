@@ -7,7 +7,7 @@ import json
 import os
 import re
 import time
-
+from typing import List
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -302,6 +302,26 @@ def valid_generation(person, traj):
 
     return True
 
+
+def valid_time(ls:List):
+    def convert_time(t:str):
+        try:
+            _ = datetime.strptime(t.strip('.'), '%H:%M:%S')
+        except:
+            _ = datetime.strptime(t.strip('.'), '%H:%M')
+    for pos_time in ls:
+        try:
+            tmp = pos_time.split(" at ")
+            pos = tmp[0].strip()
+            if "#" not in pos:
+                raise ValueError()
+            t = tmp[1].strip().strip(".")
+            convert_time(t)
+        except:  
+            return False
+    return True
+    
+
 def valid_generation_v2(person, traj):
     cat = person.cat
     traj_acts = clean_traj(traj)
@@ -331,7 +351,7 @@ def valid_generation_v2(person, traj):
         times.append(t)
         acts[cat[loc_withno_num]] += 1
         k += 2
-        
+          
     return True
         
         
