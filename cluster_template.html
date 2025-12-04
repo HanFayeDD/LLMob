@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Mobility Clustering Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+        #chart {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        #info-panel {
+            width: 300px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+        }
+        .tooltip {
+            position: absolute;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .cluster-list {
+            margin-top: 20px;
+        }
+        .cluster-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 4px solid #ccc;
+            background: #fafafa;
+        }
+        .cluster-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .person-tag {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin: 2px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mobility Trajectory Clustering Results</h1>
+    
+    <div class="container">
+        <div id="chart"></div>
+        
+        <div id="info-panel">
+            <h3>Cluster Details</h3>
+            <p>Hover over a point to see details.</p>
+            <div id="selected-info">
+                <strong>Person ID:</strong> <span id="p-id">-</span><br>
+                <strong>Cluster:</strong> <span id="p-cluster">-</span><br>
+                <strong>Activities:</strong> <br><span id="p-activities" style="font-size:0.85em; color:#666;">-</span>
+            </div>
+            
+            <div class="cluster-list" id="cluster-list-container">
+                <!-- Cluster lists will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // =========================================================
+        // Mock Data (This would come from the Python script output)
+        // =========================================================
+        // Using the logic from the prompt:
+        // Cluster 0: Food/Leisure lovers (Person A, D)
+        // Cluster 1: Service/Gov users (Person B, E)
+        // Cluster 2: Shoppers (Person C)
+        const data = <marker></marker>;
+
+        // =========================================================
+        // Visualization Logic
+        // =========================================================
+        
+        const width = 600;
+        const height = 500;
+        const margin = { top: 20, right: 20, bottom: 30, left: 40 };
+
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("viewBox", `0 0 ${width} ${height}`)
+            .style("max-width", "100%")
+            .style("height", "auto");
+
+        // Scales
+        const xExtent = d3.extent(data, d => d.x);
+        const yExtent = d3.extent(data, d => d.y);
+        
+        // Add some padding to the scales
+        const xScale = d3.scaleLinear()
+            .domain([xExtent[0] - 0.2, xExtent[1] + 0.2])
+            .range([margin.left, width - margin.right]);
+
+        const yScale = d3.scaleLinear()
+            .domain([yExtent[0] - 0.2, yExtent[1] + 0.2])
+            .range([height - margin.bottom, margin.top]);
+
+        const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+        // Axes
+        svg.append("g")
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale).ticks(5))
+            .attr("opacity", 0.5);
+
+        svg.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(yScale).ticks(5))
+            .attr("opacity", 0.5);
+
+        // Tooltip
+        const tooltip = d3.select("#tooltip");
+
+        // Points
+        svg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(d.x))
+            .attr("cy", d => yScale(d.y))
+            .attr("r", 8)
+            .attr("fill", d => colorScale(d.cluster))
+            .attr("stroke", "white")
+            .attr("stroke-width", 2)
+            .style("cursor", "pointer")
+            .on("mouseover", function(event, d) {
+                d3.select(this).transition().duration(100).attr("r", 12);
+                
+                tooltip.transition().duration(200).style("opacity", .9);
+                tooltip.html(`<strong>${d.id}</strong><br>Cluster ${d.cluster}`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+                
+                // Update Side Panel
+                document.getElementById("p-id").innerText = d.id;
+                document.getElementById("p-cluster").innerText = d.cluster;
+                document.getElementById("p-activities").innerText = d.details;
+            })
+            .on("mouseout", function(d) {
+                d3.select(this).transition().duration(100).attr("r", 8);
+                tooltip.transition().duration(500).style("opacity", 0);
+            });
+
+        // Legend (Clusters)
+        const clusters = [...new Set(data.map(d => d.cluster))].sort();
+        
+        const legend = svg.append("g")
+            .attr("transform", `translate(${width - 100}, ${margin.top})`);
+
+        clusters.forEach((cluster, i) => {
+            const g = legend.append("g")
+                .attr("transform", `translate(0, ${i * 20})`);
+            
+            g.append("rect")
+                .attr("width", 12)
+                .attr("height", 12)
+                .attr("fill", colorScale(cluster));
+            
+            g.append("text")
+                .attr("x", 20)
+                .attr("y", 10)
+                .text(`Cluster ${cluster}`)
+                .style("font-size", "12px")
+                .attr("alignment-baseline", "middle");
+        });
+
+        // =========================================================
+        // Populate Cluster List in Panel
+        // =========================================================
+        const listContainer = document.getElementById("cluster-list-container");
+        const groupedData = d3.group(data, d => d.cluster);
+
+        // Sort keys manually to ensure order
+        const sortedKeys = Array.from(groupedData.keys()).sort();
+
+        sortedKeys.forEach(key => {
+            const values = groupedData.get(key);
+            const div = document.createElement("div");
+            div.className = "cluster-group";
+            div.style.borderLeftColor = colorScale(key);
+            
+            let peopleHtml = values.map(v => `<span class="person-tag">${v.id}</span>`).join("");
+            
+            div.innerHTML = `
+                <div class="cluster-title" style="color:${colorScale(key)}">Cluster ${key}</div>
+                <div>${peopleHtml}</div>
+            `;
+            listContainer.appendChild(div);
+        });
+
+    </script>
+</body>
+</html>
