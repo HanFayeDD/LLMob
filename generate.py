@@ -40,7 +40,9 @@ if __name__ == "__main__":
         '2021': 'abnormal',
         '20192021': 'normal_abnormal'
     }
-    for k in data[args.dataset]:
+    for idx, k in enumerate(data[args.dataset]):
+        if idx <= 1:
+            continue
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
             P = Person(name=k, model=LLM(), person_id=k)
@@ -50,7 +52,7 @@ if __name__ == "__main__":
             # cat>>>"Train Station": "Travel & Transport"
             # domain_knowledge>>> " During weekday, you usually travel over 20 kilometers a day, you usually begin your daily trip at 07:30:00 and end your daily trip at 23:30:00, you usually visit Convenience Store#2322 at the beginning of the day and go to Chinese Restaurant#1190 before returning home.  During weekend, you usually travel over 10 kilometers a day, you usually begin your daily trip at 12:50:00 and end your daily trip at 17:00:00, you usually visit Convenience Store#2322 at the beginning of the day and go to Historic Site#2502 before returning home. You usually visit Convenience Store#2322 at 07:30:00, Platform#1120 at 08:00:00, Platform#670 at 08:00:00, Convenience Store#4011 at 20:30:00, Historic Site#2176 at 07:30:00",
             # neg_routines>>>
-            # activity_area>>> "Convenience Store#2322"
+            # activity_area>>> "Convenience Store#2322" 频次比较高的在这个列表里。还有一个是全部的
             # area_freq>>>"Convenience Store#2322": 247
             # loc_cat>>>"Stadium": "Arts & Entertainment"
             P.train_routine_list, P.test_routine_list, P.attribute, P.cat, P.domain_knowledge, P.neg_routines, P.activity_area, P.area_freq,  P.loc_cat = \
@@ -69,6 +71,8 @@ if __name__ == "__main__":
             P.init_retriever()
         # mobility generation
         mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset])
-        break
+        if idx+1 == 15:
+            break
+        logging.info(f"Person {idx+1} done")
 
     print("done")

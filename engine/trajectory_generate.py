@@ -45,7 +45,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         area = retrieve_loc(person, demo)
         motivation = execute_prompt(prompt, person.llm, objective=f"Think about motivation")
         motivation = first2second(motivation)
-        his_routine = his_routine[1:] + [test_route]
+        his_routine = his_routine[1:] + [test_route] ## 会更新his_routine，从而导致跟新demo
         weekday = find_detail_weekday(date_)
         hint = ""
         ## 动机驱动生成轨迹
@@ -63,9 +63,9 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
             try:
                 if trial == 0:
                     print(f"prompt\n{prompt}")
-                print(f"contents before\n{contents}")
+                # print(f"contents before\n{contents}")
                 contents = filter_json_part(contents)
-                print(f"contents after\n{contents}")
+                logging.info(f"contents after\n{contents}")
                 res = json.loads(contents)
                 ## 一些清洗与校验
                 # valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
@@ -86,15 +86,18 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         print("Motivation: ", motivation)
         print("Real: ", test_route)
         reals[date_] = test_route
+        logging.info(f"\ndemo:{demo}")
         if trial < max_trial:
             results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
+            logging.info(f"result is generated")
         else:
-            results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]
+            results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]  ##会不会有逗号的区别
+            logging.info(f"result is from demo")
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
         ## 只产生一天的
         logging.info(f"Generated{date_}: {results[date_]}")
-        if idx == 10:
+        if idx == 5:
             break
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:

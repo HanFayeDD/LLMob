@@ -40,20 +40,23 @@ def identify(person:Person, candidate_num=10):
             for c in contents.split("\n"):
                 if c:
                     role, description = c.split(": ")
-                    roles[role] = description
-                    break
+                    roles[role.strip()] = description.strip()
+                    
         except Exception as e:
             print("Role extraction error: ", e)
             continue
         break
+    logging.info(f"after init role: {roles}")
 
     att_hub = []
     for role, description in roles.items():
         role = role.split("#")[0]
         description_first_view = f"I am a {role} in this urban neighborhood," + description.replace("you ", "I ")
         description_first_view = description_first_view.replace("your ", "my ")
+        ## description, domain_knowledge为第二人称
         curr_input = [role, description, domain_knowledge, ', '.join(person.activity_area[5:]), description_first_view]
         prompt = generate_prompt(curr_input, i_template)
+        ## 回答是第一人称
         contents = execute_prompt(prompt, person.llm,
                                   objective=f"Describe patterns ...", history=None)
         try:
@@ -62,6 +65,7 @@ def identify(person:Person, candidate_num=10):
             answers = first2second(answers)
             person.attribute = answers
             att_hub.append(answers)
+            logging.info(f"role:{role}\ndescription:{description}\nattribute:{answers}")
         except Exception as e:
             print("Attribute extraction error: ", e)
             continue
@@ -125,7 +129,7 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
                     print("Score extraction error: ", e)
                     continue
                 break
-        if person.neg_routines is not None:
+        if person.neg_routines is not None and False:
             ## 负样本得分
             for i in range(min(MINNUM, len(person.neg_routines))):
                 train_route = person.neg_routines[i]
