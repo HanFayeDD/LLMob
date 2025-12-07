@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 from collections import defaultdict
 import json
+import logging
 import os
 import re
 import time
@@ -302,6 +303,18 @@ def valid_generation(person, traj):
 
     return True
 
+def valid_place(ls:list, area:dict):
+    area = set(area)
+    for pos_time in ls:
+        try:
+            tmp = pos_time.split(" at ")
+            pos = tmp[0].strip()
+            if pos not in area:
+                logging.info(f"{pos} not in recommeded area")
+                raise ValueError(f"{pos} not in recommeded area")
+        except:
+            return False
+    return True
 
 def valid_time(ls:List):
     def convert_time(t:str):
@@ -372,5 +385,33 @@ def filter_json_part(s: str) -> str:
     right = s.find("}")
     
     s = s[left:right+1]
-    
+    s = s.replace(" #", "#")
     return s.strip()
+
+import pickle
+import re 
+
+
+def load_pickle(file_path):
+    with open(file_path, 'rb') as f:
+        data = pickle.load(f)
+    return data  
+
+def revert_dict(d:dict):
+    res = dict()
+    for k, v in d.items():
+        res[v] = k 
+    return res 
+
+def get_w_j(text):
+    '''
+        Liquor Store (36.310, 139.970)
+    '''
+    pattern = r'\d+\.\d+'
+    # 查找所有匹配的数字
+    numbers = re.findall(pattern, text)
+    # 输出结果
+    if len(numbers) != 2:
+        print(text)
+        raise ValueError()
+    return float(numbers[0]), float(numbers[1])

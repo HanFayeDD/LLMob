@@ -11,7 +11,7 @@ class Person:
         self.train_routine_list = None  # list of training routines
         self.test_routine_list = None  # list of testing routines
         self.name = name
-        self.city_area = None
+        self.activity_area = None
         self.llm:LLM = model
         self.cat = None
         self.id = person_id

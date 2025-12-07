@@ -68,12 +68,12 @@ def identify(person:Person, candidate_num=10):
     ## 得到每个候选角色的打分
     scores_dict = score_from_rating(person, att_hub, e_template1, metric="rate", neg_routines=neg_routines)
 
-    max_score = 0
+    max_score = -float('inf')
     final_att = ""
     print(person.id)
     for att, scores in scores_dict.items():
-        print("selection score: ", sum(scores))
-        print("candidate att: ", att)
+        logging.info(f"selection score:{sum(scores)}")
+        logging.info(f"candidate att:{att}")
         if sum(scores) > max_score:
             max_score = sum(scores)
             final_att = att

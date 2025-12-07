@@ -44,6 +44,15 @@ if __name__ == "__main__":
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
             P = Person(name=k, model=LLM(), person_id=k)
+            # train_routine_list>>>
+            # test_routine_list>>>
+            # attribute>>>none
+            # cat>>>"Train Station": "Travel & Transport"
+            # domain_knowledge>>> " During weekday, you usually travel over 20 kilometers a day, you usually begin your daily trip at 07:30:00 and end your daily trip at 23:30:00, you usually visit Convenience Store#2322 at the beginning of the day and go to Chinese Restaurant#1190 before returning home.  During weekend, you usually travel over 10 kilometers a day, you usually begin your daily trip at 12:50:00 and end your daily trip at 17:00:00, you usually visit Convenience Store#2322 at the beginning of the day and go to Historic Site#2502 before returning home. You usually visit Convenience Store#2322 at 07:30:00, Platform#1120 at 08:00:00, Platform#670 at 08:00:00, Convenience Store#4011 at 20:30:00, Historic Site#2176 at 07:30:00",
+            # neg_routines>>>
+            # activity_area>>> "Convenience Store#2322"
+            # area_freq>>>"Convenience Store#2322": 247
+            # loc_cat>>>"Stadium": "Arts & Entertainment"
             P.train_routine_list, P.test_routine_list, P.attribute, P.cat, P.domain_knowledge, P.neg_routines, P.activity_area, P.area_freq,  P.loc_cat = \
                 att[0], att[1], att[2],  att[4], att[5], att[6], att[7], att[8], att[11]
         

@@ -69,8 +69,11 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 res = json.loads(contents)
                 ## 一些清洗与校验
                 # valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
+                ## loc_map中是这样的('Liquor Store (36.310, 139.970)', 'Liquor Store#1'
+                if not valid_place(res["plan"], person.area_freq):
+                    raise ValueError("place is not valid")
                 if not valid_time(res["plan"]):
-                    raise ValueError("len(res[\"plan\"]) == 0")
+                    raise ValueError("time is not valid")
                 valid_generation_v2(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
                 running = False
             except Exception as e:

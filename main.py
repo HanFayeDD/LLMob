@@ -6,6 +6,8 @@ import streamlit as st
 from enum import Enum
 import os 
 
+st.set_page_config(layout="wide")
+
 view_state = pdk.ViewState(
         latitude=35.69,
         longitude=139.703,
@@ -106,6 +108,9 @@ def plot_route(acticity_list:list, loc_map:dict):
         for i in range(len(acts)-1):
             try:
                 begin, end = acts[i], acts[i+1]
+                # begin[0] = begin[0].replace(" #", "#")
+                # end0] = begin[0].replace(" #", "#")
+                
                 bpos, bhour = loc_map[begin[0]], begin[1]
                 epos, ehour = loc_map[end[0]], end[1]
             except:
@@ -200,7 +205,7 @@ if __name__ == "__main__":
         user_id = st.number_input(
             "请输入用户ID", 
             min_value=1, 
-            value=6171,  # 默认值设为6171
+            value=2575,  # 默认值设为6171
             step=1
         )
         
@@ -227,7 +232,7 @@ if __name__ == "__main__":
     
     cols = st.columns(2)
     with cols[0]:
-        st.title(f"用户{user_id}的轨迹TESTTRUTH")
+        st.title(f"TESTTRUTH")
         acticity_list = get_acticity_list(user_id, DataTags.TESTTRUTH)  # 使用用户输入的ID
         arc_layer = plot_route(acticity_list, loc_map)
         hm_layer = plot_htmap(acticity_list, loc_map)
@@ -242,7 +247,7 @@ if __name__ == "__main__":
         st.pydeck_chart(r)
     
     with cols[1]:
-        st.title(f"用户{user_id}轨迹TESTGENERATED")
+        st.title(f"TESTGENERATED")
         acticity_list = get_acticity_list(user_id, DataTags.TESTGENERATED)  # 使用用户输入的ID
         arc_layer = plot_route(acticity_list, loc_map)
         hm_layer = plot_htmap(acticity_list, loc_map)
