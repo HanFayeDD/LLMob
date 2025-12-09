@@ -41,7 +41,7 @@ if __name__ == "__main__":
         '20192021': 'normal_abnormal'
     }
     for idx, k in enumerate(data[args.dataset]):
-        if idx <= 1:
+        if idx+1 <= 15:
             continue
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
@@ -71,8 +71,8 @@ if __name__ == "__main__":
             P.init_retriever()
         # mobility generation
         mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset])
-        if idx+1 == 15:
-            break
+        # if idx+1 == 15:
+        #     break
         logging.info(f"Person {idx+1} done")
 
     print("done")
