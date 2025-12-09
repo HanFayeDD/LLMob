@@ -24,7 +24,7 @@ class OllamaAPI(BaseGPTAPI):
 
         # Ollama通常在本地运行，不需要复杂的速率限制，但如果需要也可以实现
         # RateLimiter.__init__(self, rpm=...) 
-        print("here")
+        print(f"ollama {CONFIG.ollama_api_model} laoded")
 
     def __del__(self):
         """

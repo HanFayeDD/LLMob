@@ -84,6 +84,11 @@ class Config(metaclass=Singleton):
         self.openai_api_model = self._get("OPENAI_API_MODEL", "gpt-4")
         self.max_tokens_rsp = self._get("MAX_TOKENS", 2048)
         
+        # POE
+        self.poe_api_base = self._get("POE_API_BASE")
+        self.poe_api_model = self._get("POE_API_MODEL")
+        self.poe_api_key = self._get("POE_API_KEY")
+        
         # --- Ollama 相关配置 (新增) ---
         self.ollama_api_base = self._get("OLLAMA_API_BASE")
         self.ollama_api_model = self._get("OLLAMA_API_MODEL")

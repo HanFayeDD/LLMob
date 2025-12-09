@@ -57,6 +57,8 @@ https://platform.openai.com/api-keys
 ![alt text](assets/cd5e5ff8037ce55c2a03f2b910f39205.png)
 ![alt text](assets/image-4.png)
 
+https://ilovn.com/2025/12/01/ollama-tutorial/
+
 
 # (NeurIPS' 24) Large Language Models as Urban Residents: An LLM Agent Framework for Personal Mobility Generation
 

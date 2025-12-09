@@ -180,7 +180,7 @@ def execute_prompt_ollama_fake_output(objective):
 def execute_prompt(prompt, llm:LLM, objective, history=None, temperature=0.6):
     print(f"==============={objective}=========================")
 
-    if CONFIG.llm_provider == "ollama":
+    if CONFIG.llm_provider in ["ollama", "poe"] :
         return execute_prompt_ollama(prompt, llm, objective, history, temperature)
     
     response = None

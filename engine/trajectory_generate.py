@@ -5,7 +5,7 @@ from engine.utilities.retrieval_helper import *
 import logging
 import os
 import pickle
-
+from collections import defaultdict
 
 def mob_gen(person, mode=0, scenario_tag="normal"):
     infer_template = "./engine/prompt_template/one-shot_infer_mot.txt"
@@ -26,6 +26,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
     reals = {}
     his_routine = person.train_routine_list[-person.top_k_routine:]
     for idx, test_route in enumerate(person.test_routine_list[:]):
+        cho = defaultdict(int)
         date_ = test_route.split(": ")[0].split(" ")[-1]
         # get motivation
         consecutive_past_days = check_consecutive_dates(his_routine, date_)
@@ -90,14 +91,17 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         if trial < max_trial:
             results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
             logging.info(f"result is generated")
+            cho["generated"] += 1
         else:
             results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]  ##会不会有逗号的区别
             logging.info(f"result is from demo")
+            cho["from_demo"] += 1
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
         ## 只产生一天的
+        logging.info(f"{cho}")
         logging.info(f"Generated{date_}: {results[date_]}")
-        if idx == 5:
+        if idx == 10:
             break
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:

@@ -1,4 +1,4 @@
-from engine.llm_configs.ollama_api import OllamaAPI as LLM
+from engine.llm_configs.poe_api import PoeAPI 
 from engine.trajectory_generate import *
 from engine.persona_identify import *
 from engine.agent import *
@@ -45,7 +45,7 @@ if __name__ == "__main__":
             continue
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
-            P = Person(name=k, model=LLM(), person_id=k)
+            P = Person(name=k, model=PoeAPI(), person_id=k)
             # train_routine_list>>>
             # test_routine_list>>>
             # attribute>>>none
