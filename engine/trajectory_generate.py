@@ -7,6 +7,49 @@ import os
 import pickle
 from collections import defaultdict
 
+# ==============================================================================
+# [新增] Critic 模块：用于语义逻辑检查
+# ==============================================================================
+def semantic_critic(llm, plan_json, date_str):
+    """
+    使用 LLM 检查轨迹的语义逻辑合理性（软约束）。
+    返回: None (通过) 或 错误描述字符串 (不通过)
+    """
+    critic_prompt_template = """
+    Role: You are an urban logic inspector.
+    Task: Review the following daily activity plan for a resident.
+    Date: {date}
+    Plan: {plan}
+    
+    Checklist:
+    1. Are the venues likely to be open at these times? (e.g., Banks are closed at night)
+    2. Is the sequence of activities logical? (e.g., Sleeping usually happens at home/hotel)
+    3. Is the duration of stay reasonable?
+    
+    Output:
+    - If the plan is reasonable, output exactly: "Pass"
+    - If there are logical errors, briefly explain the specific error in one sentence.
+    """
+    
+    # 格式化 plan 为易读字符串
+    plan_str = ", ".join(plan_json)
+    prompt = critic_prompt_template.format(date=date_str, plan=plan_str)
+    
+    try:
+        # 调用 LLM 进行检查，这里复用传入的 llm 对象
+        feedback = execute_prompt(prompt, llm, objective="Critic_Check", temperature=0.0)
+        if "Pass" in feedback:
+            return None
+        else:
+            return feedback
+    except Exception as e:
+        print(f"Critic Error: {e}")
+        return None # 如果 Critic 挂了，默认放行，避免卡死
+
+# ==============================================================================
+# 主生成逻辑
+# ==============================================================================
+
 def mob_gen(person, mode=0, scenario_tag="normal"):
     infer_template = "./engine/prompt_template/one-shot_infer_mot.txt"
     # mode = 0 for learning based retrieval, 1 for evolving based retrieval
@@ -25,8 +68,9 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
     results = {}
     reals = {}
     his_routine = person.train_routine_list[-person.top_k_routine:]
+    cho = defaultdict(int)
+    
     for idx, test_route in enumerate(person.test_routine_list[:]):
-        cho = defaultdict(int)
         date_ = test_route.split(": ")[0].split(" ")[-1]
         # get motivation
         consecutive_past_days = check_consecutive_dates(his_routine, date_)
@@ -41,68 +85,117 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         hint = ""  # add condition prompt for conditional generation, i.e., pandemic condition
         curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, hint]
         ## 动机推断prompt
-        prompt = generate_prompt(curr_input, describe_mot_template)
+        prompt_mot = generate_prompt(curr_input, describe_mot_template)
         ## 根据demo，结合地点类型信息，获取相似地点推荐
         area = retrieve_loc(person, demo)
-        motivation = execute_prompt(prompt, person.llm, objective=f"Think about motivation")
+        motivation = execute_prompt(prompt_mot, person.llm, objective=f"Think about motivation")
         motivation = first2second(motivation)
         his_routine = his_routine[1:] + [test_route] ## 会更新his_routine，从而导致跟新demo
         weekday = find_detail_weekday(date_)
         hint = ""
+        
         ## 动机驱动生成轨迹
         if motivation is not None:
             curr_input = [person.attribute, motivation, date_, ',  '.join(area), weekday, demo,
                           motivation_ways[mode],
                           hint]
-        prompt = generate_prompt(curr_input, infer_template)
-        max_trial = 10
+        
+        # 生成基础 Prompt
+        base_prompt = generate_prompt(curr_input, infer_template)
+        
+        max_trial = 5 # 适当减少尝试次数，因为现在有了修正机制，效率应该更高
         trial = 0
         running = True
+        
+        # [新增] 用于存储反思反馈的变量
+        feedback_instruction = "" 
+        
         while running and trial < max_trial:
-            contents = execute_prompt(prompt, person.llm,
+            # [修改] 构造当前轮次的 Prompt：基础 Prompt + (可能的) 反思修正指令
+            current_prompt = base_prompt + feedback_instruction
+            
+            contents = execute_prompt(current_prompt, person.llm,
                                       objective=f"one_shot_infer_response_{len(results) + 1}/{len(person.test_routine_list)}_{trial}")
+            
+            error_msgs = [] # 收集本轮的所有错误
+            
             try:
                 if trial == 0:
-                    print(f"prompt\n{prompt}")
-                # print(f"contents before\n{contents}")
+                    print(f"Initial prompt sent.")
+                
                 contents = filter_json_part(contents)
                 logging.info(f"contents after\n{contents}")
                 res = json.loads(contents)
-                ## 一些清洗与校验
-                # valid_generation(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
-                ## loc_map中是这样的('Liquor Store (36.310, 139.970)', 'Liquor Store#1'
+                
+                # ==========================================
+                # [修改] 增强校验与 Critic 介入 (Reflexion Loop)
+                # ==========================================
+                
+                # 1. 硬约束检查 (Hard Constraints)
                 if not valid_place(res["plan"], person.area_freq):
-                    raise ValueError("place is not valid")
+                    error_msgs.append("Error: Some locations in the plan are invalid or do not match the area frequency.")
+                
                 if not valid_time(res["plan"]):
-                    raise ValueError("time is not valid")
-                valid_generation_v2(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
-                running = False
+                    error_msgs.append("Error: Time sequence is invalid (e.g., end time is earlier than start time, or format is wrong).")
+                
+                # 2. 软约束检查 (Soft Constraints / Semantic Critic)
+                # 只有当硬约束通过时，才进行昂贵的语义检查，节省 Token
+                if not error_msgs:
+                    semantic_error = semantic_critic(person.llm, res["plan"], date_)
+                    if semantic_error:
+                        error_msgs.append(f"Logic Error: {semantic_error}")
+
+                # 3. 判定结果
+                if not error_msgs:
+                    # 所有检查通过
+                    valid_generation_v2(person, f"Activities at {date_}: " + ', '.join(res["plan"]))
+                    running = False # 退出循环
+                else:
+                    # 发现错误，触发异常以进入 except 块进行反思处理
+                    raise ValueError(" | ".join(error_msgs))
+
             except Exception as e:
-                print("Error: " + str(e))
+                print(f"Trial {trial} Failed. Reason: {str(e)}")
+                
+                # [新增] 生成反思指令 (Reflexion)
+                # 告诉 LLM 它上次生成了什么，以及为什么错了
+                feedback_instruction = f"\n\n[System Feedback - Self-Correction Required]\n" \
+                                       f"Your previous generated plan was: {contents}\n" \
+                                       f"It contained the following errors: {str(e)}\n" \
+                                       f"Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format."
+                
                 trial += 1
                 continue
+        
+        # 循环结束后的处理
         if trial >= max_trial:
+            # 如果多次修正仍失败，回退到 Demo
             res = {"plan": demo.split(": ")[-1]}
+            logging.warning(f"Max retries reached for {date_}. Fallback to demo.")
+
         logging.info(contents)
         print("Motivation: ", motivation)
         print("Real: ", test_route)
         reals[date_] = test_route
         logging.info(f"\ndemo:{demo}")
+        
         if trial < max_trial:
             results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
             logging.info(f"result is generated")
             cho["generated"] += 1
         else:
-            results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]  ##会不会有逗号的区别
+            results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]
             logging.info(f"result is from demo")
             cho["from_demo"] += 1
+            
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
-        ## 只产生一天的
-        logging.info(f"{cho}")
+            
         logging.info(f"Generated{date_}: {results[date_]}")
         if idx == 10:
             break
+            
+    logging.info(f"{cho}")
     # dump pkl
     with open(generation_path + "results.pkl", "wb") as f:
         pickle.dump(results, f)

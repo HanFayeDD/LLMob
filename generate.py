@@ -41,7 +41,7 @@ if __name__ == "__main__":
         '20192021': 'normal_abnormal'
     }
     for idx, k in enumerate(data[args.dataset]):
-        if idx+1 <= 15:
+        if False:
             continue
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
@@ -74,5 +74,5 @@ if __name__ == "__main__":
         # if idx+1 == 15:
         #     break
         logging.info(f"Person {idx+1} done")
-
+        break
     print("done")

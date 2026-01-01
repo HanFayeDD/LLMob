@@ -148,7 +148,7 @@ def generate_prompt(curr_input, prompt_lib_file):
     return cleaned_prompt.strip()
 
 
-def execute_prompt_ollama(prompt, llm:LLM, objective, history=None, temperature=0.6):
+def execute_prompt_ollama_poe(prompt, llm:LLM, objective, history=None, temperature=0.6):
     response = None
     while response is None:
         try:
@@ -181,7 +181,7 @@ def execute_prompt(prompt, llm:LLM, objective, history=None, temperature=0.6):
     print(f"==============={objective}=========================")
 
     if CONFIG.llm_provider in ["ollama", "poe"] :
-        return execute_prompt_ollama(prompt, llm, objective, history, temperature)
+        return execute_prompt_ollama_poe(prompt, llm, objective, history, temperature)
     
     response = None
     while response is None:

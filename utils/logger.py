@@ -1,8 +1,8 @@
 import logging
 import os
-
-import logging
+from datetime import datetime
 from logging.handlers import RotatingFileHandler
+import glob
 
 
 def init_log():
@@ -11,8 +11,11 @@ def init_log():
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
-    # 设置日志文件路径
-    log_file_path = os.path.join(log_dir, "app.log")
+    # 生成带日期和序号的新日志文件名
+    current_date = datetime.now().strftime("%Y%m%d")
+    existing_logs = glob.glob(os.path.join(log_dir, f"{current_date}_*.log"))
+    log_number = len(existing_logs) + 1
+    log_file_path = os.path.join(log_dir, f"{current_date}_{log_number}.log")
 
     # 创建Logger实例
     logger = logging.getLogger()
