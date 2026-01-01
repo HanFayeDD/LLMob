@@ -316,12 +316,40 @@ def valid_place(ls:list, area:dict):
             return False
     return True
 
-def valid_time(ls:List):
-    def convert_time(t:str):
+def valid_place_return(ls:list, area:dict):
+    area = set(area)
+    res = []
+    for pos_time in ls:
         try:
-            _ = datetime.strptime(t.strip('.'), '%H:%M:%S')
+            tmp = pos_time.split(" at ")
+            pos = tmp[0].strip()
+            if pos not in area:
+                res.append(pos)
         except:
-            _ = datetime.strptime(t.strip('.'), '%H:%M')
+            continue 
+    return res 
+
+def valid_time_return(ls:list):
+    res = []
+    for pos_time in ls:
+        try:
+            tmp = pos_time.split(" at ")
+            pos = tmp[0].strip()
+            if "#" not in pos:
+                continue
+            t = tmp[1].strip().strip(".")
+            convert_time(t)
+        except:
+            res.append(t) 
+    return res             
+        
+def convert_time(t:str):
+    try:
+        _ = datetime.strptime(t.strip('.'), '%H:%M:%S')
+    except:
+        _ = datetime.strptime(t.strip('.'), '%H:%M')
+
+def valid_time(ls:List):
     for pos_time in ls:
         try:
             tmp = pos_time.split(" at ")

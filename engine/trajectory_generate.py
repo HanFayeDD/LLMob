@@ -103,6 +103,8 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
         # 生成基础 Prompt
         base_prompt = generate_prompt(curr_input, infer_template)
         
+        logging.info(f"base_prompt\n{base_prompt}")
+        
         max_trial = 5 # 适当减少尝试次数，因为现在有了修正机制，效率应该更高
         trial = 0
         running = True
@@ -115,7 +117,11 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
             current_prompt = base_prompt + feedback_instruction
             
             contents = execute_prompt(current_prompt, person.llm,
-                                      objective=f"one_shot_infer_response_{len(results) + 1}/{len(person.test_routine_list)}_{trial}")
+                                      objective=f"one_shot_infer_response_{len(results) + 1}/{len(person.test_routine_list)}_{trial}/{max_trial}")
+            
+            if len(feedback_instruction) > 0:
+                logging.info(f"current_prompt\n{current_prompt}")    
+        
             
             error_msgs = [] # 收集本轮的所有错误
             
@@ -132,15 +138,21 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 # ==========================================
                 
                 # 1. 硬约束检查 (Hard Constraints)
-                if not valid_place(res["plan"], person.area_freq):
-                    error_msgs.append("Error: Some locations in the plan are invalid or do not match the area frequency.")
+                if (res_place := valid_place_return(res["plan"], person.area_freq)):
+                    error_msgs.append(f"Error: Some locations({res_place}) in the plan are invalid or do not match the area frequency.")
+
+                if (res_time := valid_time_return(res["plan"])):
+                    error_msgs.append(f"Error: Time sequence{res_time} is invalid (e.g., end time is earlier than start time, or format is wrong).")
+
+                # if  valid_place(res["plan"], person.area_freq):
+                #     error_msgs.append("Error: Some locations in the plan are invalid or do not match the area frequency.")
                 
-                if not valid_time(res["plan"]):
-                    error_msgs.append("Error: Time sequence is invalid (e.g., end time is earlier than start time, or format is wrong).")
+                # if not valid_time(res["plan"]):
+                #     error_msgs.append("Error: Time sequence is invalid (e.g., end time is earlier than start time, or format is wrong).")
                 
                 # 2. 软约束检查 (Soft Constraints / Semantic Critic)
                 # 只有当硬约束通过时，才进行昂贵的语义检查，节省 Token
-                if not error_msgs:
+                if not error_msgs and False:
                     semantic_error = semantic_critic(person.llm, res["plan"], date_)
                     if semantic_error:
                         error_msgs.append(f"Logic Error: {semantic_error}")
@@ -155,7 +167,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                     raise ValueError(" | ".join(error_msgs))
 
             except Exception as e:
-                print(f"Trial {trial} Failed. Reason: {str(e)}")
+                logging.info(f"Trial {trial}/{max_trial} Failed. Reason: {str(e)}")
                 
                 # [新增] 生成反思指令 (Reflexion)
                 # 告诉 LLM 它上次生成了什么，以及为什么错了
@@ -164,6 +176,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                                        f"It contained the following errors: {str(e)}\n" \
                                        f"Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format."
                 
+                logging.info(f"feedback:{feedback_instruction}")
                 trial += 1
                 continue
         
