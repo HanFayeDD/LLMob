@@ -15,23 +15,12 @@ def semantic_critic(llm, plan_json, date_str):
     使用 LLM 检查轨迹的语义逻辑合理性（软约束）。
     返回: None (通过) 或 错误描述字符串 (不通过)
     """
-    critic_prompt_template = """
-    Role: You are an urban logic inspector.
-    Task: Review the following daily activity plan for a resident.
-    Date: {date}
-    Plan: {plan}
     
-    Checklist:
-    1. Are the venues likely to be open at these times? (e.g., Banks are closed at night)
-    2. Is the sequence of activities logical? (e.g., Sleeping usually happens at home/hotel)
-    3. Is the duration of stay reasonable?
-    
-    Output:
-    - If the plan is reasonable, output exactly: "Pass"
-    - If there are logical errors, briefly explain the specific error in one sentence.
-    """
+    with open("engine\prompt_template\critic.txt") as f:
+        critic_prompt_template = f.read().strip()
     
     # 格式化 plan 为易读字符串
+    # todo:是不是可以添加星期几
     plan_str = ", ".join(plan_json)
     prompt = critic_prompt_template.format(date=date_str, plan=plan_str)
     
@@ -152,7 +141,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 
                 # 2. 软约束检查 (Soft Constraints / Semantic Critic)
                 # 只有当硬约束通过时，才进行昂贵的语义检查，节省 Token
-                if not error_msgs and False:
+                if not error_msgs and True:
                     semantic_error = semantic_critic(person.llm, res["plan"], date_)
                     if semantic_error:
                         error_msgs.append(f"Logic Error: {semantic_error}")

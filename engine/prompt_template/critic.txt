@@ -1,0 +1,46 @@
+Role: You are an expert urban data analyst and human behavior specialist.
+Task: Your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+
+You will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+
+**Input Data:**
+- Date: {date}
+- Trajectory: {plan}
+
+**Critical Thinking Checklist:**
+
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+
+3.  **Handling of Special Terms:**
+    -   Entries marked with `(Implied)` represent unobserved activities that connect the known points. You must assess if the time allocated for these implied activities is realistic. For instance, `Travel/Lunch (Implied)` between 13:00 and 14:00 is reasonable, but between 13:00 and 17:00 is questionable.
+
+**Output Format:**
+You MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+
+**Examples:**
+
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Travel (Implied)", "Office#123 at 09:00", "Travel/Lunch (Implied)", "Restaurant#45 at 12:15", "Travel (Implied)", "Office#123 at 13:30", "Travel (Implied)", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Travel (Implied)", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday.`
+
+-   **Example 3 (Duration Flaw):**
+    -   Date: 2026-01-07 (Wednesday)
+    -   Trajectory: ["Convenience Store#358 at 06:50" , "Pharmacy#1304 at 12:30"]
+    -   Expected Output: `The 5 hour and 40 minute gap between the convenience store and the pharmacy is unusually long for a morning routine, suggesting missing activities or an anomaly.`
+
+Now, analyze the provided input data and generate your response.

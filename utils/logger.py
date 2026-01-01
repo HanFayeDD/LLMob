@@ -25,7 +25,7 @@ def init_log():
     file_handler = RotatingFileHandler(
         log_file_path, maxBytes=50*1024*1024, backupCount=1, encoding="utf-8"  # 每个文件5MB，保留3个备份
     )
-    file_handler.setLevel(logging.DEBUG)  # 文件记录DEBUG及以上级别
+    file_handler.setLevel(logging.INFO)  # 文件记录DEBUG及以上级别
 
     # 创建控制台处理器
     console_handler = logging.StreamHandler()
