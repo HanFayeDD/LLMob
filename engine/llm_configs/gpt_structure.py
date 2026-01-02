@@ -2,6 +2,7 @@
 File: gpt_structure.py
 Description: Wrapper functions for calling OpenAI APIs.
 """
+import functools
 import json
 import re
 from openai import OpenAI
@@ -9,6 +10,72 @@ from engine.llm_configs.ollama_api import OllamaAPI as LLM
 import openai
 from engine.llm_configs.config import CONFIG
 import time
+import os
+
+
+# ============================================================================
+# #####################[LOGGING DECORATOR SETUP] #############################
+# ============================================================================
+
+# 全局变量，用于存储当前日志文件的路径
+CURRENT_LOG_FILE = None
+
+def set_current_log_file(filename):
+    """
+    设置当前日志文件的路径。
+    如果目录不存在，会自动创建。
+    """
+    global CURRENT_LOG_FILE
+    if filename:
+        # 确保目录存在
+        directory = os.path.dirname(filename)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory)
+    CURRENT_LOG_FILE = filename
+
+def log_execution(func):
+    """
+    装饰器：记录函数的 objective, prompt 和返回结果 result 到指定文件。
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        # 执行原始函数
+        result = func(*args, **kwargs)
+        
+        # 如果设置了日志文件，则进行记录
+        if CURRENT_LOG_FILE:
+            try:
+                # 解析参数
+                # execute_prompt 的签名是: (prompt, llm, objective, history=None, temperature=0.6)
+                # prompt 是第 1 个参数 (index 0)
+                # objective 是第 3 个参数 (index 2)
+                
+                prompt_content = "N/A"
+                objective_content = "N/A"
+
+                # 获取 prompt
+                if len(args) > 0:
+                    prompt_content = args[0]
+                elif 'prompt' in kwargs:
+                    prompt_content = kwargs['prompt']
+
+                # 获取 objective
+                if len(args) > 2:
+                    objective_content = args[2]
+                elif 'objective' in kwargs:
+                    objective_content = kwargs['objective']
+
+                with open(CURRENT_LOG_FILE, 'a', encoding='utf-8') as f:
+                    f.write(f"{'='*20} START RECORD {'='*20}\n")
+                    f.write(f"[Objective]:\n{objective_content}\n\n")
+                    f.write(f"[Prompt]:\n{prompt_content}\n\n")
+                    f.write(f"[Result]:\n{result}\n")
+                    f.write(f"{'='*20} END RECORD {'='*20}\n\n")
+            except Exception as e:
+                print(f"Logging failed: {e}")
+        
+        return result
+    return wrapper
 
 def temp_sleep(seconds=0.1):
     time.sleep(seconds)
@@ -176,7 +243,7 @@ def execute_prompt_ollama_fake_output(objective):
 
         """
 
-
+@log_execution
 def execute_prompt(prompt, llm:LLM, objective, history=None, temperature=0.6):
     print(f"==============={objective}=========================")
 

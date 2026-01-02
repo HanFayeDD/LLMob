@@ -5,6 +5,7 @@ from engine.agent import *
 from utils.logger import init_log
 import argparse
 import random
+import engine.llm_configs.gpt_structure as gpt_structure
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str,
@@ -43,6 +44,8 @@ if __name__ == "__main__":
     for idx, k in enumerate(data[args.dataset]):
         if False:
             continue
+        log_filename = f"chathistory/{idx}.txt"
+        gpt_structure.set_current_log_file(log_filename)
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
             P = Person(name=k, model=PoeAPI(), person_id=k)
@@ -71,8 +74,7 @@ if __name__ == "__main__":
             P.init_retriever()
         # mobility generation
         mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset])
-        # if idx+1 == 15:
-        #     break
         logging.info(f"Person {idx+1} done")
-        break
+        if idx+1 == 2:
+            break
     print("done")

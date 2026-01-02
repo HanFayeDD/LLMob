@@ -1,11 +1,15 @@
+Critic
+!<INPUT 0>! datetime
+!<INPUT 1>! traj
+<commentblockmarker>###</commentblockmarker>
 Role: You are an expert urban data analyst and human behavior specialist.
 Task: Your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
 
 You will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
 
 **Input Data:**
-- Date: {date}
-- Trajectory: {plan}
+- Date: !<INPUT 0>!
+- Trajectory: !<INPUT 1>!
 
 **Critical Thinking Checklist:**
 
@@ -30,17 +34,17 @@ You MUST respond with a JSON object. Do not add any text before or after the JSO
 
 -   **Example 1 (Plausible):**
     -   Date: 2026-01-05 (Monday)
-    -   Trajectory: ["Home at 08:00", "Travel (Implied)", "Office#123 at 09:00", "Travel/Lunch (Implied)", "Restaurant#45 at 12:15", "Travel (Implied)", "Office#123 at 13:30", "Travel (Implied)", "Home at 18:00"]
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
     -   Expected Output: `"Pass"`
 
 -   **Example 2 (Temporal Flaw):**
     -   Date: 2026-01-06 (Tuesday)
-    -   Trajectory: ["Restaurant#50 at 22:00", "Travel (Implied)", "Bank#789 at 23:00"]
-    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday.`
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
 
 -   **Example 3 (Duration Flaw):**
     -   Date: 2026-01-07 (Wednesday)
     -   Trajectory: ["Convenience Store#358 at 06:50" , "Pharmacy#1304 at 12:30"]
-    -   Expected Output: `The 5 hour and 40 minute gap between the convenience store and the pharmacy is unusually long for a morning routine, suggesting missing activities or an anomaly.`
+    -   Expected Output: `"The 5 hour and 40 minute gap between the convenience store and the pharmacy is unusually long for a morning routine, suggesting missing activities or an anomaly."`
 
 Now, analyze the provided input data and generate your response.

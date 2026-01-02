@@ -15,14 +15,14 @@ def semantic_critic(llm, plan_json, date_str):
     使用 LLM 检查轨迹的语义逻辑合理性（软约束）。
     返回: None (通过) 或 错误描述字符串 (不通过)
     """
+    critic_prompt_template_path = r"engine\prompt_template\critic.txt"
     
-    with open("engine\prompt_template\critic.txt") as f:
-        critic_prompt_template = f.read().strip()
+    ipt_data = [date_str, plan_json]
+    
+    prompt = generate_prompt(ipt_data, critic_prompt_template_path)
     
     # 格式化 plan 为易读字符串
     # todo:是不是可以添加星期几
-    plan_str = ", ".join(plan_json)
-    prompt = critic_prompt_template.format(date=date_str, plan=plan_str)
     
     try:
         # 调用 LLM 进行检查，这里复用传入的 llm 对象
