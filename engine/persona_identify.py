@@ -8,7 +8,7 @@ root_directory = "./engine/"
 
 def identify(person:Person, candidate_num=10):
     ## 候选角色个数
-    candidate_num = 1
+    candidate_num = 10
     neg_routines = person.neg_routines
     i_template = root_directory + "/prompt_template/init.txt"
     role_template = root_directory + "/prompt_template/roles.txt"
@@ -18,6 +18,7 @@ def identify(person:Person, candidate_num=10):
     domain_knowledge = person.domain_knowledge  # extract_knowledge(person)
     ## 候选角色、候选角色描述
     roles = {}
+    roles_k = []
     demo = ""
     with open(role_template, 'r') as file:
         for line in file:
@@ -26,19 +27,19 @@ def identify(person:Person, candidate_num=10):
                 demo += line
                 demo += "\n"
                 roles[key.strip()] = value.strip()
+                roles_k.append(key.strip())
             if len(roles) == candidate_num:
                 break
     # add role from gpt
-    curr_input = [domain_knowledge, demo]
+    curr_input = [domain_knowledge, demo, "、".join(roles_k)]
     prompt = generate_prompt(curr_input, infer_role_template)
     while True:
         try:
             contents = execute_prompt(prompt, person.llm,
                                       objective=f"init role...", history=None)
-            print(prompt, end="\n#############\n")
-            print(contents)
             for c in contents.split("\n"):
                 if c:
+                    c = c.replace("*", "")
                     role, description = c.split(": ")
                     roles[role.strip()] = description.strip()
                     

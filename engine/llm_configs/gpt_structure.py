@@ -32,6 +32,8 @@ def set_current_log_file(filename):
         if directory and not os.path.exists(directory):
             os.makedirs(directory)
     CURRENT_LOG_FILE = filename
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write("")
 
 def log_execution(func):
     """
@@ -228,8 +230,6 @@ def execute_prompt_ollama_poe(prompt, llm:LLM, objective, history=None, temperat
             print('Retrying...')
             time.sleep(2)
     answer = response.get("choices")[0].get("message").get("content")
-    if objective == "init role...":
-        answer = execute_prompt_ollama_fake_output(objective)
     return answer.strip()
 
 

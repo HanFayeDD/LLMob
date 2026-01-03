@@ -39,7 +39,7 @@ def semantic_critic(llm, plan_json, date_str):
 # 主生成逻辑
 # ==============================================================================
 
-def mob_gen(person, mode=0, scenario_tag="normal"):
+def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
     infer_template = "./engine/prompt_template/one-shot_infer_mot.txt"
     # mode = 0 for learning based retrieval, 1 for evolving based retrieval
     describe_mot_template = "./engine/" + motivation_infer_prompt_paths[mode]
@@ -141,7 +141,7 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 
                 # 2. 软约束检查 (Soft Constraints / Semantic Critic)
                 # 只有当硬约束通过时，才进行昂贵的语义检查，节省 Token
-                if not error_msgs and True:
+                if not error_msgs and critic_check:
                     semantic_error = semantic_critic(person.llm, res["plan"], date_)
                     if semantic_error:
                         error_msgs.append(f"Logic Error: {semantic_error}")
@@ -160,12 +160,13 @@ def mob_gen(person, mode=0, scenario_tag="normal"):
                 
                 # [新增] 生成反思指令 (Reflexion)
                 # 告诉 LLM 它上次生成了什么，以及为什么错了
-                feedback_instruction = f"\n\n[System Feedback - Self-Correction Required]\n" \
+                if critic_check:
+                    feedback_instruction = f"\n\n[System Feedback - Self-Correction Required]\n" \
                                        f"Your previous generated plan was: {contents}\n" \
                                        f"It contained the following errors: {str(e)}\n" \
                                        f"Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format."
                 
-                logging.info(f"feedback:{feedback_instruction}")
+                    logging.info(f"feedback:{feedback_instruction}")
                 trial += 1
                 continue
         

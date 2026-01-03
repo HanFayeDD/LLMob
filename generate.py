@@ -14,6 +14,8 @@ parser.add_argument('--mode', type=int,
                     default=0)  # mode = 0 for learning based retrieval, 1 for evolving based retrieval
 parser.add_argument('--seed', type=int, default=123)
 
+parser.add_argument('--critic', type=int, default=1)
+
 if __name__ == "__main__":
     init_log()
     args = parser.parse_args()
@@ -73,8 +75,9 @@ if __name__ == "__main__":
         if args.mode == 0:
             P.init_retriever()
         # mobility generation
-        mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset])
+        mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic)
         logging.info(f"Person {idx+1} done")
-        if idx+1 == 2:
+        break
+        if idx+1 == 3:
             break
     print("done")
