@@ -1,6 +1,6 @@
 ## todo
-- add record
-- change critic prompt way
+- add record done 
+- change critic prompt way done
 - 命令行设置对比实验（默认参数）
 
 ## 对比试验

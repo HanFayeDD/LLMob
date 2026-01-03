@@ -44,7 +44,7 @@ if __name__ == "__main__":
     for idx, k in enumerate(data[args.dataset]):
         if False:
             continue
-        log_filename = f"chathistory/{idx}.txt"
+        log_filename = f"chathistory/{k}.txt"
         gpt_structure.set_current_log_file(log_filename)
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
