@@ -107,9 +107,10 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
     for att in att_hub:
         r += 1
         ## 使用本人的多少个移动路径打分
-        MINNUM = 1
+        MINNUM_POS = 9
+        MINNUM_NEG = 3
         ## 正样本得分
-        for i in range(min(MINNUM, len(person.train_routine_list))):
+        for i in range(min(MINNUM_POS, len(person.train_routine_list))):
             train_route = person.train_routine_list[
                 i]
             train_route = train_route.split(": ")[-1]
@@ -130,9 +131,9 @@ def score_from_rating(person, att_hub, e_template, metric, neg_routines=None):
                     print("Score extraction error: ", e)
                     continue
                 break
-        if person.neg_routines is not None and False:
+        if person.neg_routines is not None and True:
             ## 负样本得分
-            for i in range(min(MINNUM, len(person.neg_routines))):
+            for i in range(min(MINNUM_NEG, len(person.neg_routines))):
                 train_route = person.neg_routines[i]
                 train_route = train_route.split(": ")[-1]
                 curr_input = [att, train_route]

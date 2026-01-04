@@ -1,7 +1,8 @@
 ## todo
 - add record done 
 - change critic prompt way done
-- 命令行设置对比实验（默认参数）
+- 命令行设置对比实验（默认参数）done
+- init role prompt done
 
 ## 对比试验
 - 有无critic

@@ -44,7 +44,7 @@ if __name__ == "__main__":
         '20192021': 'normal_abnormal'
     }
     for idx, k in enumerate(data[args.dataset]):
-        if False:
+        if idx <= 8:
             continue
         log_filename = f"chathistory/{k}.txt"
         gpt_structure.set_current_log_file(log_filename)
@@ -71,6 +71,10 @@ if __name__ == "__main__":
         # identify the pattern of the person based on self-consistency
         ## 填充P的attribute字段
         P = identify(P)
+        with open(r"persona_result/results.txt", "a") as f:
+            f.write(f"{idx}-{k}\n{P.attribute}\n")  
+        # break
+        continue      
         # # initialize the retriever
         if args.mode == 0:
             P.init_retriever()
