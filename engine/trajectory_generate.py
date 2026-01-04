@@ -195,7 +195,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
             person.retriever.nodes.append(reals[date_])
             
         logging.info(f"Generated{date_}: {results[date_]}")
-        if idx == 10:
+        if idx == 5:
             break
             
     logging.info(f"{cho}")

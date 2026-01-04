@@ -16,9 +16,29 @@ parser.add_argument('--seed', type=int, default=123)
 
 parser.add_argument('--critic', type=int, default=1)
 
+parser.add_argument('--loadpersona', type=int, default=1)
+
+def load_persona_mid_result():
+    '''
+    laod_persona_mid_result 的 Docstring
+    use gemini-2.5-flash-lite
+    '''
+    try:
+        with open(r"persona_result\results.txt", "r") as f:
+            content = f.readlines()
+            content = [x.strip() for x in content]
+            res = dict()
+            for i in range(0, len(content), 2):
+                res[int(content[i].split("-")[1])] = content[i+1]
+            return res
+    except Exception as e:
+        print(e)
+        return dict()
+
 if __name__ == "__main__":
     init_log()
     args = parser.parse_args()
+    print(f"args:\n{args}")
     random.seed(args.seed)
 
     available1921 = [1004, 1032, 1172, 1184, 13, 1310, 1431, 1481, 1492, 1556, 1568, 1626, 1775, 1784, 1874, 1883,
@@ -43,9 +63,14 @@ if __name__ == "__main__":
         '2021': 'abnormal',
         '20192021': 'normal_abnormal'
     }
+    
+    
+    persona_dict = load_persona_mid_result()
+    # print(persona_dict)
+    
     for idx, k in enumerate(data[args.dataset]):
-        if idx <= 8:
-            continue
+        # if idx <= 8:
+        #     continue
         log_filename = f"chathistory/{k}.txt"
         gpt_structure.set_current_log_file(log_filename)
         with open(folder + str(k) + ".pkl", "rb") as f:
@@ -70,12 +95,19 @@ if __name__ == "__main__":
         
         # identify the pattern of the person based on self-consistency
         ## 填充P的attribute字段
-        P = identify(P)
-        with open(r"persona_result/results.txt", "a") as f:
-            f.write(f"{idx}-{k}\n{P.attribute}\n")  
-        # break
-        continue      
+        if args.loadpersona == 1:
+            if k in persona_dict:
+                P.attribute = persona_dict[k]
+            else:
+                exit()
+        else:
+            P = identify(P)
+        # with open(r"persona_result/results.txt", "a") as f:
+        #     f.write(f"{idx}-{k}\n{P.attribute}\n")  
+        # # break
+        # continue      
         # # initialize the retriever
+        print(f"{P.attribute}")
         if args.mode == 0:
             P.init_retriever()
         # mobility generation
