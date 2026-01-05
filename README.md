@@ -26,3 +26,5 @@ python evaluate.py --dataset 2021 --mode 1
 python generate.py --dataset 20192021 --mode 1 
 python evaluate.py --dataset 20192021 --mode 1 
 ```
+
+## 实验结果

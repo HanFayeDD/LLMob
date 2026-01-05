@@ -112,8 +112,8 @@ if __name__ == "__main__":
             P.init_retriever()
         # mobility generation
         mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic)
-        logging.info(f"Person {idx+1} done")
-        break
-        if idx+1 == 3:
+        logging.info(f"Person {idx}/{k} done")
+        # break
+        if idx+1 == 20:
             break
     print("done")

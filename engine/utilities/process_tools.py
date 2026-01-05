@@ -443,3 +443,26 @@ def get_w_j(text):
         print(text)
         raise ValueError()
     return float(numbers[0]), float(numbers[1])
+
+def date_to_weekday(date_str):
+    """
+    将"YYYY-MM-DD"格式的日期字符串转换为对应的英文星期几
+    
+    Args:
+        date_str (str): 格式为"YYYY-MM-DD"的日期字符串
+        
+    Returns:
+        str: 对应的英文星期几（如"Monday", "Tuesday"等）
+    """
+    # 定义星期几的英文名称列表
+    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", 
+                "Friday", "Saturday", "Sunday"]
+    
+    # 将字符串转换为datetime对象
+    date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+    
+    # 获取星期几的索引（0=Monday, 6=Sunday）
+    weekday_index = date_obj.weekday()
+    
+    # 返回对应的英文星期几
+    return weekdays[weekday_index]

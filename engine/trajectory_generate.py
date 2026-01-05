@@ -58,9 +58,14 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
     reals = {}
     his_routine = person.train_routine_list[-person.top_k_routine:]
     cho = defaultdict(int)
+    cho["generated"] = 0 
+    cho["from_demo"] = 0
     
+    MAX_DAYS = 14
+    try_times = 0
     for idx, test_route in enumerate(person.test_routine_list[:]):
         date_ = test_route.split(": ")[0].split(" ")[-1]
+        week_day = date_to_weekday(date_)
         # get motivation
         consecutive_past_days = check_consecutive_dates(his_routine, date_)
         if mode == 0:
@@ -87,7 +92,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         if motivation is not None:
             curr_input = [person.attribute, motivation, date_, ',  '.join(area), weekday, demo,
                           motivation_ways[mode],
-                          hint]
+                          hint, week_day]
         
         # 生成基础 Prompt
         base_prompt = generate_prompt(curr_input, infer_template)
@@ -107,6 +112,8 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
             
             contents = execute_prompt(current_prompt, person.llm,
                                       objective=f"one_shot_infer_response_{len(results) + 1}/{len(person.test_routine_list)}_{trial}/{max_trial}")
+            
+            try_times += 1
             
             if len(feedback_instruction) > 0:
                 logging.info(f"current_prompt\n{current_prompt}")    
@@ -195,8 +202,12 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
             person.retriever.nodes.append(reals[date_])
             
         logging.info(f"Generated{date_}: {results[date_]}")
-        if idx == 5:
+        # break
+        if idx == MAX_DAYS-1:
             break
+        
+    with open(r"./cho.txt", "a") as f:
+        f.write(f"{person.name}-{MAX_DAYS}-{try_times}/{max_trial}-{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\ngenerated:{cho['generated']}\nfrom_demo:{cho['from_demo']}\n")
             
     logging.info(f"{cho}")
     # dump pkl
