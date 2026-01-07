@@ -13,7 +13,15 @@
 - 推荐地点算法
 - 保存pattern中间结果，保证实验可复现性质 done
 
-
+## eval
+### SD
+![alt text](<SD Distribute (deplot).png>)
+### SI
+![alt text](<SI Distribute (deplot).png>)
+### DARD
+![alt text](<DARD Distribute (deplot).png>)
+### STVD
+![alt text](<STVD Distribute (deplot).png>)
 
 ```bash
 git clone https://github.com/Wangjw6/LLMob.git
