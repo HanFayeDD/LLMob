@@ -5,7 +5,7 @@ import math
 from datetime import datetime
 from math import sin, cos, asin, sqrt, radians
 import os
-
+import matplotlib.pyplot as plt 
 import argparse
 
 
@@ -170,10 +170,11 @@ class Evaluation(object):
         self.args = args
 
     def arr_to_distribution(self, arr, Min, Max, bins):
+        ## 得到计数与下边界
         distribution, base = np.histogram(arr[arr <= Max], bins=bins, range=(Min, Max))
         m = np.array([len(arr[arr > Max])], dtype='int64')
         distribution = np.hstack((distribution, m))
-        return distribution, base[:-1]
+        return distribution, base
 
     def get_js_divergence(self, p1, p2):
         #TODO：绘制概率分布
@@ -191,8 +192,11 @@ class Evaluation(object):
         MIN = 0
         MAX = 10
         bins = math.ceil(MAX - MIN)
-        r_list, _ = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
+        r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
+        self.draw_fr_distribution(f_list, r_list, sep, "SD")
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
         r_list = r_list / (r_list.sum() + 1e-9) # 归一化
         f_list = f_list / (f_list.sum() + 1e-9)
         JSD = self.get_js_divergence(r_list, f_list)
@@ -223,8 +227,11 @@ class Evaluation(object):
         bins = 1000
         r = (np.array(r) - MIN) / (MAX - MIN)
         f = (np.array(f) - MIN) / (MAX - MIN)
-        r_list, _ = self.arr_to_distribution(r, 0, 1, bins)
+        r_list, sep = self.arr_to_distribution(r, 0, 1, bins)
         f_list, _ = self.arr_to_distribution(f, 0, 1, bins)
+        self.draw_fr_distribution(f_list, r_list, sep, "DARD")
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
 
@@ -251,8 +258,11 @@ class Evaluation(object):
         bins = 400 #TODO 分箱参数
         r = (np.array(r) - MIN) / (MAX - MIN)
         f = (np.array(f) - MIN) / (MAX - MIN)
-        r_list, _ = self.arr_to_distribution(np.array(r), 0, 1, bins)
+        r_list, sep = self.arr_to_distribution(np.array(r), 0, 1, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
+        self.draw_fr_distribution(f_list, r_list, sep, "STVD")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
 
@@ -262,11 +272,34 @@ class Evaluation(object):
         MIN = 0
         MAX = 12
         bins = math.ceil(MAX - MIN)
-        r_list, _ = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
+        r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
+        self.draw_fr_distribution(f_list, r_list, sep, "SI")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
-
+    
+    def draw_fr_distribution(self, f, r, sep, figname):
+        """_summary_
+            f、r、sep长度相同。本质是单变量绘图
+        Args:
+            f (_type_): _description_
+            r (_type_): _description_
+            sep (_type_): _description_
+        """
+        import seaborn as sns 
+        sns.set_theme(style="darkgrid")
+        sns.kdeplot(f, label="Generated")
+        sns.kdeplot(r, label="Real")
+        plt.xlabel("Value")
+        plt.ylabel("Kde Density")
+        plt.legend()
+        plt.title(f"{figname} Distribute (deplot)", fontsize=20)
+        plt.savefig(f"{figname} Distribute (deplot).png")
+        plt.tight_layout()
+        plt.show()
+    
     def get_JSD(self, real, fake):
         """_summary_
 
@@ -367,6 +400,10 @@ def eval(dataset='normal', mode=0):
     duration_jsd_dict[mode] = duration_jsd
     st_act_jsd_dict[mode] = st_act_jsd
     st_loc_jsd_dict[mode] = st_loc_jsd
+    print(type(distance_step))
+    print(type(duration_jsd))
+    print(type(st_act_jsd))
+    print(type(st_loc_jsd))
 
     print(f"{scenario}")
     # Print evaluation results
