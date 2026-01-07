@@ -106,6 +106,8 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         # [新增] 用于存储反思反馈的变量
         feedback_instruction = "" 
         
+        last_pass_with_no_critic = None
+        
         while running and trial < max_trial:
             # [修改] 构造当前轮次的 Prompt：基础 Prompt + (可能的) 反思修正指令
             current_prompt = base_prompt + feedback_instruction
@@ -149,6 +151,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
                 # 2. 软约束检查 (Soft Constraints / Semantic Critic)
                 # 只有当硬约束通过时，才进行昂贵的语义检查，节省 Token
                 if not error_msgs and critic_check:
+                    last_pass_with_no_critic = res["plan"]
                     semantic_error = semantic_critic(person.llm, res["plan"], date_)
                     if semantic_error:
                         error_msgs.append(f"Logic Error: {semantic_error}")
@@ -179,8 +182,11 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         
         # 循环结束后的处理
         if trial >= max_trial:
-            # 如果多次修正仍失败，回退到 Demo
-            res = {"plan": demo.split(": ")[-1]}
+            # 开启critic且有成功通过硬性校验的
+            if last_pass_with_no_critic is not None:
+                res = {"plan": last_pass_with_no_critic}
+            else:
+                res = {"plan": demo.split(": ")[-1]}
             logging.warning(f"Max retries reached for {date_}. Fallback to demo.")
 
         logging.info(contents)
@@ -189,9 +195,11 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         reals[date_] = test_route
         logging.info(f"\ndemo:{demo}")
         
-        if trial < max_trial:
+        if trial < max_trial or last_pass_with_no_critic is not None:
             results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
             logging.info(f"result is generated")
+            if last_pass_with_no_critic:
+                logging.info(f"critic is on.use last_pass_with_no_critic as result")
             cho["generated"] += 1
         else:
             results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]
