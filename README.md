@@ -1,13 +1,19 @@
-## todo
+## TODO
 - add record done 
 - change critic prompt way done
 - 命令行设置对比实验（默认参数）done
 - init role prompt done
+- llm as judge
+- 绘制概率分布
+- 分箱参数
+- DARD和STVD的数字化很奇怪
 
 ## 对比试验
-- 有无critic
+- 有无critic done
 - 推荐地点算法
-- 保存pattern中间结果，保证实验可复现性质
+- 保存pattern中间结果，保证实验可复现性质 done
+
+
 
 ```bash
 git clone https://github.com/Wangjw6/LLMob.git

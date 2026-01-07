@@ -90,9 +90,9 @@ def obtain_analysis_traj(data):
             traj = traj.replace(", ", "")
         traj_acts = clean_traj(traj)
         loc_times = traj_acts.split(" at ")
-        locs = []
-        times = []
-        acts = []
+        locs = [] ## 地点
+        times = [] ## 时间
+        acts = [] ## 活动类别
         k = 0
         while k < len(loc_times):
             loc_times[k] = loc_times[k].replace(".", "")
@@ -131,9 +131,9 @@ def obtain_analysis_traj(data):
             lat_lng = [float(loc_with_lat_lng_.split(", ")[1]), float(loc_with_lat_lng_.split(", ")[2])]
             loc_id = pos_map[loc_with_lat_lng]
             t = times_interval[i]
-            traj_id.append([loc_id, t])
-            traj_act_t.append([acts[i], t])
-            traj_lat_lng.append([lat_lng[0], lat_lng[1], t])
+            traj_id.append([loc_id, t]) ## 地点id、时间间隙
+            traj_act_t.append([acts[i], t]) ## 活动类型、时间间隙
+            traj_lat_lng.append([lat_lng[0], lat_lng[1], t]) ## 经纬度、时间间隙
         traj_ids.append(traj_id)
         traj_act_ts.append(traj_act_t)
         traj_lat_lngs.append(traj_lat_lng)
@@ -147,6 +147,11 @@ p2id = {'Travel & Transport': 0, 'Food': 1, 'Shop & Service': 2,
 
 
 def transfer(data):
+    '''
+    transfer 的 Docstring
+    return [时间间隔, 类型ID, (纬度, 经度)]
+    :param data: 说明
+    '''
     transfer_data = []
     locs_id = data[0]
     lat_lngs = data[1]
@@ -171,6 +176,7 @@ class Evaluation(object):
         return distribution, base[:-1]
 
     def get_js_divergence(self, p1, p2):
+        #TODO：绘制概率分布
         p1 = p1 / (p1.sum() + 1e-9)
         p2 = p2 / (p2.sum() + 1e-9)
         m = (p1 + p2) / 2
@@ -178,19 +184,22 @@ class Evaluation(object):
         return js
 
     def distance_one_step(self, p1, p2):
-        f = [geodistance(i[2][0], i[2][1], u[index][2][0], u[index][2][1]) for u in p1 for index, i in enumerate(u[1:])]
+        ## u是一天的轨迹
+        ## 错开计算
+        f = [geodistance(i[2][0], i[2][1], u[index][2][0], u[index][2][1]) for u in p1 for index, i in enumerate(u[1:])] 
         r = [geodistance(i[2][0], i[2][1], u[index][2][0], u[index][2][1]) for u in p2 for index, i in enumerate(u[1:])]
         MIN = 0
         MAX = 10
         bins = math.ceil(MAX - MIN)
         r_list, _ = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        r_list = r_list / (r_list.sum() + 1e-9)
+        r_list = r_list / (r_list.sum() + 1e-9) # 归一化
         f_list = f_list / (f_list.sum() + 1e-9)
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
 
     def st_act_jsd(self, p1, p2):
+        # TODO:DARD和STVD的数字化很奇怪
         st_act_dict = {}
         for u in p1:
             for i in u:
@@ -200,6 +209,7 @@ class Evaluation(object):
             for i in u:
                 if str(i[0]) + '_' + str(i[1]) not in st_act_dict:
                     st_act_dict[str(i[0]) + '_' + str(i[1])] = len(st_act_dict)
+        # st_act_dict: 为每个轨迹点创建键：str(时间间隔) + '_' + str(活动ID)（活动ID 通过 p2id 映射）。将所有键映射到唯一ID
         f, r = [], []
         for u in p1:
             for i in u:
@@ -209,6 +219,7 @@ class Evaluation(object):
                 r.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
         MIN = np.min(r + f)
         MAX = np.max(r + f)
+        #TODO 分箱参数
         bins = 1000
         r = (np.array(r) - MIN) / (MAX - MIN)
         f = (np.array(f) - MIN) / (MAX - MIN)
@@ -218,6 +229,7 @@ class Evaluation(object):
         return JSD
 
     def st_loc_jsd(self, p1, p2):
+        # TODO:DARD和STVD的数字化很奇怪
         st_act_dict = {}
         for u in p1:
             for i in u:
@@ -236,7 +248,7 @@ class Evaluation(object):
                 r.append(st_act_dict[str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1])])
         MIN = np.min(r + f)
         MAX = np.max(r + f)
-        bins = 400
+        bins = 400 #TODO 分箱参数
         r = (np.array(r) - MIN) / (MAX - MIN)
         f = (np.array(f) - MIN) / (MAX - MIN)
         r_list, _ = self.arr_to_distribution(np.array(r), 0, 1, bins)
@@ -256,10 +268,21 @@ class Evaluation(object):
         return JSD
 
     def get_JSD(self, real, fake):
-        duration_jsd = self.duration_jsd(real, fake)
-        distance_step = self.distance_one_step(real, fake)
-        st_act_jsd = self.st_act_jsd(real, fake)
-        st_loc_jsd = self.st_loc_jsd(real, fake)
+        """_summary_
+
+        Args:
+            real (_type_): _description_
+            fake (_type_): _description_
+
+        Returns:
+            _type_: _description_
+            SI SD DARD STVD 
+            SI、SD计算方法类似
+        """
+        duration_jsd = self.duration_jsd(real, fake) # 时长
+        distance_step = self.distance_one_step(real, fake) # 距离
+        st_act_jsd = self.st_act_jsd(real, fake) # 时间 + 活动类型
+        st_loc_jsd = self.st_loc_jsd(real, fake) # 时间 + 经纬度
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 
 
@@ -317,6 +340,7 @@ def eval(dataset='normal', mode=0):
             pass
 
     # Prepare data for evaluation
+    # [时间间隔, 活动类型ID, (纬度, 经度)]
     gen_data, real_data = {}, {}
     for p in person_to_test:
         gen_key = f"{p}_{mode}"
@@ -332,22 +356,29 @@ def eval(dataset='normal', mode=0):
     evaluation = Evaluation(None)
     duration_jsd_dict, st_act_jsd_dict = {}, {}
     distance_step_dict, st_loc_jsd_dict = {}, {}
-
+    print(len(gen_data[mode])) ## 长度为多少天的轨迹数量
+    print(len(real_data[mode]))
     # Compute evaluation metrics
+    print(real_data[mode][0])
+    print(gen_data[mode][0])
+    
     duration_jsd, distance_step, st_act_jsd, st_loc_jsd = evaluation.get_JSD(real_data[mode], gen_data[mode])
+    distance_step_dict[mode] = distance_step
     duration_jsd_dict[mode] = duration_jsd
     st_act_jsd_dict[mode] = st_act_jsd
-    distance_step_dict[mode] = distance_step
     st_loc_jsd_dict[mode] = st_loc_jsd
 
     print(f"{scenario}")
     # Print evaluation results
+    
+    #TODO：LLM as judge
+    
     print(
         f"{mode}: "
-        f"SD: {np.mean(distance_step_dict[mode]):.4f}, "
-        f"SI: {np.mean(duration_jsd_dict[mode]):.4f}, "
-        f"DARD: {np.mean(st_act_jsd_dict[mode]):.4f}, "
-        f"STVD: {np.mean(st_loc_jsd_dict[mode]):.4f}"
+        f"SD: {np.mean(distance_step_dict[mode]):.4f}, " # 评估轨迹中相邻点之间地理距离的分布相似性
+        f"SI: {np.mean(duration_jsd_dict[mode]):.4f}, "  # 评估轨迹中相邻点之间时间间隔（持续时间）的分布相似性
+        f"DARD: {np.mean(st_act_jsd_dict[mode]):.4f}, " # 评估空间-时间-活动的联合分布相似性
+        f"STVD: {np.mean(st_loc_jsd_dict[mode]):.4f}" # 评估空间-时间-位置的联合分布相似性。
     )
     print()
 
@@ -365,3 +396,32 @@ if __name__ == '__main__':
 
     # Call the eval function with parsed arguments
     eval(dataset=args.dataset, mode=args.mode)
+
+# 1. SD (Spatial Distance, distance_step)
+# 含义: 评估轨迹中相邻点之间地理距离的分布相似性。
+# 计算过程:
+# 对每个轨迹，计算相邻点之间的距离（使用 geodistance 函数，基于经纬度计算球面距离，单位为公里）。
+# 将距离值分箱（bins=10，范围 0-10km），生成直方图分布。
+# 使用 JSD 比较真实数据和生成数据的距离分布。
+# 示例: 对于您的轨迹数据，计算如 "Baseball Stadium#244 at 12:00" 到 "Convenience Store#7139 at 13:30" 之间的距离。
+# 2. SI (Spatial-temporal Interval, duration_jsd)
+# 含义: 评估轨迹中相邻点之间时间间隔（持续时间）的分布相似性。
+# 计算过程:
+# 对每个轨迹，计算相邻点的时间差（分钟），乘以10并四舍五入（duration 函数）。
+# 将时间间隔分箱（bins=12，范围 0-12），生成直方图分布。
+# 使用 JSD 比较真实数据和生成数据的时间间隔分布。
+# 示例: 对于 "12:00" 到 "13:30"，时间差为 90 分钟，转换为 900（乘10后）。
+# 3. DARD (Dynamic Activity Representation Distance, st_act_jsd)
+# 含义: 评估空间-时间-活动的联合分布相似性。
+# 计算过程:
+# 为每个轨迹点创建键：str(时间间隔) + '_' + str(活动ID)（活动ID 通过 p2id 映射）。
+# 将所有键映射到唯一ID，生成分布（bins=1000，归一化到 0-1）。
+# 使用 JSD 比较真实数据和生成数据的联合分布。
+# 示例: 对于 "Baseball Stadium#244 at 12:00"，键可能为 "时间间隔_活动ID"，如 "0_244"（假设时间间隔从0开始）。
+# 4. STVD (Spatial-temporal Variation Distance, st_loc_jsd)
+# 含义: 评估空间-时间-位置的联合分布相似性。
+# 计算过程:
+# 为每个轨迹点创建键：str(时间间隔) + '_' + str(纬度) + '_' + str(经度)。
+# 将所有键映射到唯一ID，生成分布（bins=400，归一化到 0-1）。
+# 使用 JSD 比较真实数据和生成数据的联合分布。
+# 示例: 对于 "Baseball Stadium#244 at 12:00"，键为 "时间间隔_纬度_经度"，如 "0_39.123_-77.456"。
