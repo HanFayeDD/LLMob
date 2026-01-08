@@ -71,8 +71,8 @@ if __name__ == "__main__":
     for idx, k in enumerate(data[args.dataset]):
         # if idx <= 8:
         #     continue
-        if k != 2721:
-            continue
+        # if k != 2721:
+        #     continue
         log_filename = f"chathistory/{k}.txt"
         gpt_structure.set_current_log_file(log_filename)
         with open(folder + str(k) + ".pkl", "rb") as f:

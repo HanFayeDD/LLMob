@@ -338,6 +338,7 @@ def llm_as_judge_one_day(id, judge, date_, t, f):
         except:
             continue
         break
+    print(score)
     return score
         
 
@@ -434,7 +435,7 @@ def eval(dataset='normal', mode=0):
     print(f"{scenario}")
     # Print evaluation results
     
-    #TODO：LLM as judge
+    #LLM as judge
     llmjudge = LLMJudge()
     if args.llmjudge:
         for k in real_traj:
@@ -460,6 +461,8 @@ def eval(dataset='normal', mode=0):
         print("LLM Judge Result:")
         for k in llm_judge_result:
             print(f"{k} mean score {np.mean(llm_judge_result[k]):.4f}")
+            with open(f"llm_judge_result.txt", "a") as f:
+                f.write(f"{k}\n{llm_judge_result[k]}\n{np.mean(llm_judge_result[k]):.4f}\n")
     
     print(
         f"{mode}: "

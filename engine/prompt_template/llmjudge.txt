@@ -2,21 +2,50 @@ Rate the similarity between two trajectories given the date context
 !<INPUT 0>! date and day
 !<INPUT 1>! real trajectory
 !<INPUT 2>! generated trajectory
+现在你是一位人类移动行为分析专家。我将提供特定日期的背景信息、一条真实的轨迹（Ground Truth）和一条生成的轨迹。
+
+**背景信息:** 2019-10-20 (周日)
+**真实轨迹:** 2019-10-20 活动: Park#223 at 12:00, Convenience Store#2322 at 12:20, Park#3588 at 12:30, Platform#1190 at 12:50, Ramen Restaurant#4705 at 13:50, Hospital#876 at 14:50, Platform#483 at 16:20, ATM#233 at 16:50, Furniture Store#722 at 17:00, Bookstore#1092 at 18:00.
+**生成轨迹:** 2019-10-20 活动: Convenience Store#2322 at 12:50, Historic Site#2502 at 13:30, Public Art#99 at 14:30, Bookstore#305 at 15:30, Ramen Restaurant#2062 at 16:30, Chinese Restaurant#1190 at 17:00
+
+请评估生成轨迹与真实轨迹之间的**语义相似度**。
+
+**评估准则:**
+1. **忽略具体地点ID:** 不要比较具体的地点名称或ID（例如不要纠结于 "Park#223" 和 "Park#3588" 的区别）。只关注地点的**类别/类型**（例如都视为“公园”）。
+2. **灵活的时间与顺序:** 不要严格强制要求时间戳完全一致或访问顺序完全相同。相反，请评估生成轨迹是否反映了**相似的日常活动模式或主题**（例如，都是“休闲下午”、“外出办事”或“外出就餐”）。
+3. **语义重叠:** 寻找相似的地点类型（例如，如果真实轨迹有“拉面店”，生成轨迹有“中餐馆”，请将它们视为语义相似的“餐饮/食物”类）。
+4. **整体氛围:** 生成的轨迹是否像是同一个人在同一天（例如周日）可能做出的合理的替代计划？
+
+**评分标准 (0-10):**
+- **8-10:** 高度语义重叠。生成轨迹捕捉到了用户活动模式的本质（例如都涉及购物和吃饭），即使顺序或具体店铺不同。
+- **5-7:** 中等相似度。一些关键活动类型匹配（例如都去了餐厅），但整体意图略有不同。
+- **0-4:** 低相似度。活动类型完全不相关（例如：真实轨迹是医院和工作，生成轨迹是酒吧和夜店）。
+
+**输出格式:**
+Rating: <填写0到10之间的数字>
+Reason: <简要解释评分理由，重点关注地点类型的语义匹配和生活方式模式，忽略具体ID和严格的时间对应。>
 <commentblockmarker>###</commentblockmarker>
-Now you act as an expert trajectory analyst. You are provided with the context of a specific date, a real trajectory (ground truth), and a generated trajectory. 
+Act as an expert human mobility analyst. You are provided with the context of a specific date, a real trajectory (ground truth), and a generated trajectory.
 
-Context: !<INPUT 0>!
-Real Trajectory: !<INPUT 1>!
-Generated Trajectory: !<INPUT 2>!
+**Date:** !<INPUT 0>!
+**Real Trajectory:** !<INPUT 1>!
+**Generated Trajectory:** !<INPUT 2>!
 
-Please compare the Generated Trajectory against the Real Trajectory. Consider the following factors in your evaluation:
-1. **Sequence of Activities:** Do the activities occur in a similar order?
-2. **Location Types:** Are the types of locations (e.g., Office, Shrine, Restaurant) consistent or semantically similar?
-3. **Timing:** Do the timestamps align reasonably well?
-4. **Completeness:** Does the generated trajectory capture the main stops of the real one?
+Please evaluate the semantic similarity of the Generated Trajectory against the Real Trajectory. 
 
-On a scale of 0 to 10, where 0 indicates completely different/unrelated trajectories and 10 indicates an identical or nearly perfect match, rate the similarity of the generated trajectory to the real one.
+**Evaluation Guidelines:**
+1. **Ignore Specific Location IDs:** Do not compare specific location names or IDs (e.g., "Park#223" vs "Park#3588"). Treat them simply as "Outdoor" or "Relax". Focus purely on the **Category/Type** of the location.
+2. **Flexible Timing & Sequence:** Do not strictly enforce the exact timestamp or the rigid order of visits. Instead, evaluate if the generated trajectory reflects a **similar daily lifestyle pattern or theme** (e.g., "a leisure afternoon," "running errands," "dining out").
+3. **Semantic Overlap:** Look for the presence of similar location types (e.g., if the real trajectory has a Ramen Restaurant and the generated one has a Chinese Restaurant, consider them similar as "Dining/Food").
+4. **Overall Vibe:** Does the generated trajectory make sense as a plausible alternative plan for the same person on that specific day (!<INPUT 0>!)?
 
-Output format:
+**Scoring Criteria (0-10):**
+- **8-10:** High semantic overlap. The generated trajectory captures the essence of the user's activity pattern (e.g., both involve shopping and eating), even if the order or specific shops differ.
+- **5-7:** Moderate similarity. Some key activity types match (e.g., both visit a restaurant), but the overall intent differs slightly.
+- **0-4:** Low similarity. The activity types are completely unrelated (e.g., Real: Hospital & Work vs. Generated: Bar & Club).
+
+Please output strictly in accordance with the format provided.
+
+**Output Format:**
 Rating: <fill in a number between 0 and 10>
-Reason: <explain your rating based on the comparison of locations, time, and sequence>
+Reason: <Briefly explain the rating based on the semantic match of location types and lifestyle patterns, ignoring specific IDs and strict timing.>
