@@ -13,7 +13,7 @@ from engine.utilities.process_tools import *
 from engine.llm_configs.gpt_structure import *
 from engine.utilities.retrieval_helper import *
 import engine.llm_configs.gpt_structure as gpt_structure
-
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 def invert_dict(d):
     return {value: key for key, value in d.items()}
@@ -325,14 +325,14 @@ class Evaluation(object):
         st_loc_jsd = self.st_loc_jsd(real, fake) # 时间 + 经纬度
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 
-def llm_as_judge_one_day(judge, date_, t, f):
+def llm_as_judge_one_day(id, judge, date_, t, f):
     week_day = date_to_weekday(date_)
     critic_prompt_template_path = r"engine\prompt_template\llmjudge.txt"
     ipt_data = [f"{date_}(is {week_day})", t, f]
     prompt = generate_prompt(ipt_data, critic_prompt_template_path)
     while True:
         contents = execute_prompt(prompt, judge, 
-                                  objective=f"llm judge...{date_}")
+                                  objective=f"llm judge...{id}/{date_}")
         try:
             score = int(re.search(r'\d+', contents).group())
         except:
@@ -452,7 +452,7 @@ def eval(dataset='normal', mode=0):
             for date_ in real_traj[k]:
                 t = real_traj[k][date_]
                 f = gen_traj[k][date_]
-                res = llm_as_judge_one_day(llmjudge, date_, t, f)
+                res = llm_as_judge_one_day(k, llmjudge, date_, t, f)
                 llm_judge_result[k].append(res)
                 sum_score += res
                 size += 1
