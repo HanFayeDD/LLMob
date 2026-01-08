@@ -7,6 +7,12 @@ from math import sin, cos, asin, sqrt, radians
 import os
 import matplotlib.pyplot as plt 
 import argparse
+from engine.llm_configs.poe_api import PoeAPI as LLMJudge
+from engine.prompt_template.prompt_paths import *
+from engine.utilities.process_tools import *
+from engine.llm_configs.gpt_structure import *
+from engine.utilities.retrieval_helper import *
+import engine.llm_configs.gpt_structure as gpt_structure
 
 
 def invert_dict(d):
@@ -319,10 +325,21 @@ class Evaluation(object):
         st_loc_jsd = self.st_loc_jsd(real, fake) # 时间 + 经纬度
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 
-def llm_as_judge_one_day(date_, t, f):
-    return 1
-
-
+def llm_as_judge_one_day(judge, date_, t, f):
+    week_day = date_to_weekday(date_)
+    critic_prompt_template_path = r"engine\prompt_template\llmjudge.txt"
+    ipt_data = [f"{date_}(is {week_day})", t, f]
+    prompt = generate_prompt(ipt_data, critic_prompt_template_path)
+    while True:
+        contents = execute_prompt(prompt, judge, 
+                                  objective=f"llm judge...{date_}")
+        try:
+            score = int(re.search(r'\d+', contents).group())
+        except:
+            continue
+        break
+    return score
+        
 
 def eval(dataset='normal', mode=0):
     # Load required data
@@ -418,6 +435,7 @@ def eval(dataset='normal', mode=0):
     # Print evaluation results
     
     #TODO：LLM as judge
+    llmjudge = LLMJudge()
     if args.llmjudge:
         for k in real_traj:
             if k not in gen_traj:
@@ -429,10 +447,12 @@ def eval(dataset='normal', mode=0):
         sum_score = 0
         for k in person_to_test:
             llm_judge_result[k] = []
+            log_filename = f"chathistory/{k}_llmjudge.txt"
+            gpt_structure.set_current_log_file(log_filename)
             for date_ in real_traj[k]:
                 t = real_traj[k][date_]
                 f = gen_traj[k][date_]
-                res = llm_as_judge_one_day(date_, t, f)
+                res = llm_as_judge_one_day(llmjudge, date_, t, f)
                 llm_judge_result[k].append(res)
                 sum_score += res
                 size += 1
