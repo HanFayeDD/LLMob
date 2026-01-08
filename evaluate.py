@@ -177,7 +177,6 @@ class Evaluation(object):
         return distribution, base
 
     def get_js_divergence(self, p1, p2):
-        #TODO：绘制概率分布
         p1 = p1 / (p1.sum() + 1e-9)
         p2 = p2 / (p2.sum() + 1e-9)
         m = (p1 + p2) / 2
@@ -289,16 +288,18 @@ class Evaluation(object):
             sep (_type_): _description_
         """
         import seaborn as sns 
+        plt.figure(dpi=400)
         sns.set_theme(style="darkgrid")
         sns.kdeplot(f, label="Generated")
         sns.kdeplot(r, label="Real")
         plt.xlabel("Value")
         plt.ylabel("Kde Density")
         plt.legend()
-        plt.title(f"{figname} Distribute (deplot)", fontsize=20)
-        plt.savefig(f"{figname} Distribute (deplot).png")
+        plt.title(f"{figname} Distribution (kdeplot)", fontsize=20)
         plt.tight_layout()
-        plt.show()
+        plt.savefig(f"{figname} Distribute (kdeplot).png")
+        # plt.show()
+        plt.close()
     
     def get_JSD(self, real, fake):
         """_summary_
@@ -317,6 +318,10 @@ class Evaluation(object):
         st_act_jsd = self.st_act_jsd(real, fake) # 时间 + 活动类型
         st_loc_jsd = self.st_loc_jsd(real, fake) # 时间 + 经纬度
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
+
+def llm_as_judge_one_day(date_, t, f):
+    return 1
+
 
 
 def eval(dataset='normal', mode=0):
@@ -347,9 +352,11 @@ def eval(dataset='normal', mode=0):
     ground_truth_path = ground_truth_paths[scenario]
     gen_path = generated_paths[scenario]
     folders = [d for d in os.listdir(ground_truth_path) if os.path.isdir(os.path.join(ground_truth_path, d))]
+    real_traj = dict()
     # Process ground truth data
     for f in folders:
         person = load_pickle(os.path.join(ground_truth_path, f + '/results.pkl'))
+        real_traj[f] = person
         person_id = f
         test_traj_ids, test_lat_lngs, test_act_ts = obtain_analysis_traj(person)
 
@@ -360,6 +367,7 @@ def eval(dataset='normal', mode=0):
         person_to_test.append(person_id)
 
     # Load generated data
+    gen_traj = {}
     gen = {}
     for p in person_to_test:
         gen_key = f"{p}_{mode}"
@@ -367,6 +375,7 @@ def eval(dataset='normal', mode=0):
         try:
             result_path = os.path.join(gen_path, p, 'results.pkl')
             res = load_pickle(result_path)
+            gen_traj[p] = res 
             res_traj_ids, res_traj_lat_lngs, res_traj_acts = obtain_analysis_traj(res)
             gen[gen_key].append([res_traj_ids, res_traj_lat_lngs, res_traj_acts])
         except FileNotFoundError:
@@ -409,6 +418,28 @@ def eval(dataset='normal', mode=0):
     # Print evaluation results
     
     #TODO：LLM as judge
+    if args.llmjudge:
+        for k in real_traj:
+            if k not in gen_traj:
+                raise ValueError(f"Person {k} in real_traj but not in gen_traj")
+
+        
+        llm_judge_result = dict()
+        size = 0
+        sum_score = 0
+        for k in person_to_test:
+            llm_judge_result[k] = []
+            for date_ in real_traj[k]:
+                t = real_traj[k][date_]
+                f = gen_traj[k][date_]
+                res = llm_as_judge_one_day(date_, t, f)
+                llm_judge_result[k].append(res)
+                sum_score += res
+                size += 1
+        
+        print("LLM Judge Result:")
+        for k in llm_judge_result:
+            print(f"{k} mean score {np.mean(llm_judge_result[k]):.4f}")
     
     print(
         f"{mode}: "
@@ -417,7 +448,8 @@ def eval(dataset='normal', mode=0):
         f"DARD: {np.mean(st_act_jsd_dict[mode]):.4f}, " # 评估空间-时间-活动的联合分布相似性
         f"STVD: {np.mean(st_loc_jsd_dict[mode]):.4f}" # 评估空间-时间-位置的联合分布相似性。
     )
-    print()
+    if args.llmjudge:
+        print(f"LLM Judge Result: {sum_score / size:.4f}")
 
 
 if __name__ == '__main__':
@@ -428,7 +460,8 @@ if __name__ == '__main__':
                         help='Specify the dataset: ')
     parser.add_argument('--mode', type=int, default=0,
                         help='Specify the mode type: 0 for llm_l, 1 for llm_e')
-
+    parser.add_argument('--llmjudge', type=int, default=0, help="whether use LLM as a Judge to eval")
+    
     args = parser.parse_args()  # Parse after defining arguments
 
     # Call the eval function with parsed arguments
