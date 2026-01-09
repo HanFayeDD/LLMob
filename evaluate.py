@@ -239,6 +239,41 @@ class Evaluation(object):
         assert len(sep) == len(f_list)
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
+    
+    def st_act_jsd_v2(self, p1, p2):
+        st_act_dict = {}
+        order = set()
+        for u in p1:
+            for i in u:
+                if str(i[0]) + '_' + str(i[1]) not in order:
+                    order.add(str(i[0]) + '_' + str(i[1]))
+        for u in p2:
+            for i in u:
+                if str(i[0]) + '_' + str(i[1]) not in order:
+                    order.add(str(i[0]) + '_' + str(i[1]))
+        
+        st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
+        # st_act_dict: 为每个轨迹点创建键：str(时间间隔) + '_' + str(活动ID)（活动ID 通过 p2id 映射）。将所有键映射到唯一ID
+        f, r = [], []
+        for u in p1:
+            for i in u:
+                f.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
+        for u in p2:
+            for i in u:
+                r.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
+        MIN = np.min(r + f)
+        MAX = np.max(r + f)
+        #TODO 分箱参数
+        bins = 1000
+        r = (np.array(r) - MIN) / (MAX - MIN)
+        f = (np.array(f) - MIN) / (MAX - MIN)
+        r_list, sep = self.arr_to_distribution(r, 0, 1, bins)
+        f_list, _ = self.arr_to_distribution(f, 0, 1, bins)
+        self.draw_fr_distribution(f_list, r_list, sep, "DARD")
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
+        JSD = self.get_js_divergence(r_list, f_list)
+        return JSD
 
     def st_loc_jsd(self, p1, p2):
         # TODO:DARD和STVD的数字化很奇怪
@@ -270,6 +305,41 @@ class Evaluation(object):
         self.draw_fr_distribution(f_list, r_list, sep, "STVD")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
+    
+    def st_loc_jsd_v2(self, p1, p2):
+        # TODO:DARD和STVD的数字化很奇怪
+        st_act_dict = {}
+        order = set()
+        for u in p1:
+            for i in u:
+                if str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1]) not in order:
+                    order.add(str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1]))
+        for u in p2:
+            for i in u:
+                if str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1]) not in order:
+                    order.add(str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1]))
+                    
+        st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
+        f, r = [], []
+        for u in p1:
+            for i in u:
+                f.append(st_act_dict[str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1])])
+        for u in p2:
+            for i in u:
+                r.append(st_act_dict[str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1])])
+        MIN = np.min(r + f)
+        MAX = np.max(r + f)
+        bins = 400 #TODO 分箱参数
+        r = (np.array(r) - MIN) / (MAX - MIN)
+        f = (np.array(f) - MIN) / (MAX - MIN)
+        r_list, sep = self.arr_to_distribution(np.array(r), 0, 1, bins)
+        f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
+        self.draw_fr_distribution(f_list, r_list, sep, "STVD")
+        JSD = self.get_js_divergence(r_list, f_list)
+        return JSD
+
 
     def duration_jsd(self, p1, p2):
         f = duration(p1)
@@ -321,8 +391,8 @@ class Evaluation(object):
         """
         duration_jsd = self.duration_jsd(real, fake) # 时长
         distance_step = self.distance_one_step(real, fake) # 距离
-        st_act_jsd = self.st_act_jsd(real, fake) # 时间 + 活动类型
-        st_loc_jsd = self.st_loc_jsd(real, fake) # 时间 + 经纬度
+        st_act_jsd = self.st_act_jsd_v2(real, fake) # 时间 + 活动类型
+        st_loc_jsd = self.st_loc_jsd_v2(real, fake) # 时间 + 经纬度
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 
 def llm_as_judge_one_day(id, judge, date_, t, f):
