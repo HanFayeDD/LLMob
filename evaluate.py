@@ -197,18 +197,16 @@ class Evaluation(object):
         MIN = 0
         MAX = 10
         bins = math.ceil(MAX - MIN)
+        self.draw_fr_distribution(f, r, None, "SD_no_bins_no_standard")
         r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        self.draw_fr_distribution(f_list, r_list, sep, "SD")
-        assert len(f_list) == len(r_list)
-        assert len(sep) == len(f_list)
+        self.draw_fr_distribution(f_list, r_list, sep, "SD_yes_bins_no_standard")
         r_list = r_list / (r_list.sum() + 1e-9) # 归一化
         f_list = f_list / (f_list.sum() + 1e-9)
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
 
     def st_act_jsd(self, p1, p2):
-        # TODO:DARD和STVD的数字化很奇怪
         st_act_dict = {}
         for u in p1:
             for i in u:
@@ -276,7 +274,6 @@ class Evaluation(object):
         return JSD
 
     def st_loc_jsd(self, p1, p2):
-        # TODO:DARD和STVD的数字化很奇怪
         st_act_dict = {}
         for u in p1:
             for i in u:
@@ -302,12 +299,13 @@ class Evaluation(object):
         f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
-        self.draw_fr_distribution(f_list, r_list, sep, "STVD")
+        self.draw_fr_distribution(f_list, r_list, sep, "STVD_v1")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
     def st_loc_jsd_v2(self, p1, p2):
-        # TODO:DARD和STVD的数字化很奇怪
+        # TODO:优化排序逻辑
+        # TODO:标准化、分桶、绘图过程不统一
         st_act_dict = {}
         order = set()
         for u in p1:
@@ -320,6 +318,7 @@ class Evaluation(object):
                     order.add(str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1]))
                     
         st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
+        print(len(st_act_dict))
         f, r = [], []
         for u in p1:
             for i in u:
@@ -336,9 +335,47 @@ class Evaluation(object):
         f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
-        self.draw_fr_distribution(f_list, r_list, sep, "STVD")
+        self.draw_fr_distribution(f_list, r_list, sep, "STVD_v2")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
+    
+    def st_loc_jsd_v3(self, p1, p2, rd=2):
+        def get_float_round_str(ipt, left):
+            return str(round(ipt, left))
+        st_act_dict = {}
+        order = set()
+        for u in p1:
+            for i in u:
+                if str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd) not in order:
+                    order.add(str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd))
+        for u in p2:
+            for i in u:
+                if str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd) not in order:
+                    order.add(str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd))
+                    
+        st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
+        print(len(st_act_dict))
+        f, r = [], []
+        for u in p1:
+            for i in u:
+                f.append(st_act_dict[str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)])
+        for u in p2:
+            for i in u:
+                r.append(st_act_dict[str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)])
+        MIN = np.min(r + f)
+        MAX = np.max(r + f)
+        bins = 400 #TODO 分箱参数
+        self.draw_fr_distribution(f, r, None, f"STVD_v3_no_box_float_{rd}")
+        r = (np.array(r) - MIN) / (MAX - MIN)
+        f = (np.array(f) - MIN) / (MAX - MIN)
+        r_list, sep = self.arr_to_distribution(np.array(r), 0, 1, bins)
+        f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
+        assert len(f_list) == len(r_list)
+        assert len(sep) == len(f_list)
+        self.draw_fr_distribution(f_list, r_list, sep, f"STVD_v3_float_{rd}")
+        JSD = self.get_js_divergence(r_list, f_list)
+        return JSD
+    
 
 
     def duration_jsd(self, p1, p2):
@@ -347,11 +384,10 @@ class Evaluation(object):
         MIN = 0
         MAX = 12
         bins = math.ceil(MAX - MIN)
+        self.draw_fr_distribution(f, r, None, "SI_no_bins_no_standard")
         r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        assert len(f_list) == len(r_list)
-        assert len(sep) == len(f_list)
-        self.draw_fr_distribution(f_list, r_list, sep, "SI")
+        self.draw_fr_distribution(f_list, r_list, sep, "SI_yes_bins_no_standard")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
@@ -389,10 +425,16 @@ class Evaluation(object):
             SI SD DARD STVD 
             SI、SD计算方法类似
         """
+        #TODO: 时间、活动类型、地点三个的联合分布
         duration_jsd = self.duration_jsd(real, fake) # 时长
         distance_step = self.distance_one_step(real, fake) # 距离
-        st_act_jsd = self.st_act_jsd_v2(real, fake) # 时间 + 活动类型
-        st_loc_jsd = self.st_loc_jsd_v2(real, fake) # 时间 + 经纬度
+        st_act_jsd = self.st_act_jsd_v2(real, fake) # DVRD:时间 + 活动类型
+        stvd1 = self.st_loc_jsd(real, fake) # STVD:时间 + 经纬度
+        st_loc_jsd = self.st_loc_jsd_v2(real, fake) # STVD:时间 + 经纬度
+        stvd3_float0 = self.st_loc_jsd_v3(real, fake, 0) # STVD:时间 + 经纬度
+        stvd3_float1 = self.st_loc_jsd_v3(real, fake, 1) # STVD:时间 + 经纬度
+        stvd3_float2 = self.st_loc_jsd_v3(real, fake, 2) # STVD:时间 + 经纬度
+        print(f"STVD:\nV1: {stvd1:.4f}\nV2: {st_loc_jsd:.4f}\nV3_float0: {stvd3_float0:.4f}\nV3_float1: {stvd3_float1:.4f}\nV3_float2: {stvd3_float2:.4f}")
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 
 def llm_as_judge_one_day(id, judge, date_, t, f):
