@@ -670,10 +670,10 @@ def eval(dataset='normal', mode=0):
     duration_jsd_dict[mode] = duration_jsd
     st_act_jsd_dict[mode] = st_act_jsd
     st_loc_jsd_dict[mode] = st_loc_jsd
-    print(type(distance_step))
-    print(type(duration_jsd))
-    print(type(st_act_jsd))
-    print(type(st_loc_jsd))
+    # print(type(distance_step))
+    # print(type(duration_jsd))
+    # print(type(st_act_jsd))
+    # print(type(st_loc_jsd))
 
     print(f"{scenario}")
     # Print evaluation results
