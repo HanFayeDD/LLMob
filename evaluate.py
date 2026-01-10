@@ -522,7 +522,11 @@ class Evaluation(object):
     def draw_fr_distribution_2d(self, data, figname, colnames=None):
         import seaborn as sns 
         import pandas as pd
-        plt.figure(dpi=800)
+        import matplotlib.pyplot as plt
+        
+        # 注意：jointplot 会创建自己的 figure，前面的 plt.figure(dpi=800) 可能不会生效
+        # 建议在最后保存时控制 dpi，或者使用 context 设置
+        
         sns.set_theme(style="darkgrid")
         if colnames is None:
             colnames = ["col1", "col2", "Tag"]
@@ -530,19 +534,34 @@ class Evaluation(object):
             colnames.append("Tag")
         else:
             raise ValueError("")
+            
         df = pd.DataFrame(data=data, columns=colnames)
+        
         g = sns.jointplot(
             data=df,
             x=colnames[0], y=colnames[1], hue=colnames[2],
             kind="kde"
         )
-        plt.title(f"{figname} Distribution (Kdeplot)", fontsize=20)
-        g.figure.tight_layout()
-        g.figure.set_dpi(400)
-        # plt.tight_layout()
-        # plt.show()
-        plt.savefig(f"{figname} Distribute (Kdeplot).png", dpi=400)
         
+        # =======================================================
+        # 【修改部分】：去掉图例标题
+        # =======================================================
+        # 获取主绘图区(ax_joint)的图例对象
+        legend = g.ax_joint.get_legend()
+        if legend:
+            # 将图例标题设置为空字符串
+            legend.set_title("")
+        # =======================================================
+
+        # 注意：对于 jointplot，建议使用 g.fig.suptitle 来设置总标题，
+        # 并需要调整顶部边距(y参数)以防重叠
+        g.figure.suptitle(f"{figname} Distribution (Kdeplot)", fontsize=20, y=1.03)
+        
+        # g.figure.tight_layout() # jointplot 内部已有布局管理，有时 tight_layout 会冲突，视情况保留
+        g.figure.set_dpi(400)
+        
+        plt.savefig(f"{figname} Distribute (Kdeplot).png", dpi=400, bbox_inches='tight')
+            
     
     def get_JSD(self, real, fake):
         """_summary_
