@@ -172,8 +172,11 @@ def transfer(data):
 
 
 class Evaluation(object):
+    
+    GENERATED = "Generated"
+    REAL = "Real"
     def __init__(self, args):
-        self.args = args
+        self.args = args    
 
     def arr_to_distribution(self, arr, Min, Max, bins):
         ## 得到计数与下边界
@@ -243,6 +246,9 @@ class Evaluation(object):
     def st_act_jsd_v2(self, p1, p2):
         st_act_dict = {}
         order = set()
+        id2p = revert_dict(p2id)
+        data_to_draw_2d = []
+        
         for u in p1:
             for i in u:
                 if str(i[0]) + '_' + str(i[1]) not in order:
@@ -258,9 +264,11 @@ class Evaluation(object):
         from collections import Counter
         for u in p1:
             for i in u:
+                data_to_draw_2d.append([int(i[0]), i[1], Evaluation.GENERATED])
                 f.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
         for u in p2:
             for i in u:
+                data_to_draw_2d.append([int(i[0]), i[1], Evaluation.REAL])
                 r.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
         
         st_act_dict_reverse = revert_dict(st_act_dict)
@@ -268,7 +276,9 @@ class Evaluation(object):
         rcnt = Counter(r)
         top_n = 10
         print("*"*5 + "DARD" + "*"*5)
-        id2p = revert_dict(p2id)
+        print(f"keys num:{len(st_act_dict)}")
+        print(f"generated:{len(f)}")
+        print(f"real:{len(r)}")
         top_n_f = fcnt.most_common(top_n)
         top_n_r = rcnt.most_common(top_n)
         print("Generated")
@@ -292,6 +302,7 @@ class Evaluation(object):
         print("*"*10)
         
         self.draw_fr_distribution(f, r, "DARD")
+        self.draw_fr_distribution_2d(data_to_draw_2d, "DARD 2d", ["Time Interval Id (10 mins an interval)", "Activity Type Id"])
         
         MIN = np.min(r + f)
         MAX = np.max(r + f)
@@ -351,7 +362,7 @@ class Evaluation(object):
                     order.add(str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1]))
                     
         st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
-        print(len(st_act_dict))
+        print("STVD_v2 keys nums:" + str(len(st_act_dict)))
         f, r = [], []
         for u in p1:
             for i in u:
@@ -379,30 +390,45 @@ class Evaluation(object):
             return str(round(ipt, left))
         st_act_dict = {}
         order = set()
+        
+        area_set = set()
+        area_dict = set()
         for u in p1:
             for i in u:
                 if str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd) not in order:
                     order.add(str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd))
+                    area_set.add(get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd))
         for u in p2:
             for i in u:
                 if str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd) not in order:
                     order.add(str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd))
+                    area_set.add(get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd))
                     
         st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
-        print(len(st_act_dict))
+        area_dict = {ele: idx for idx, ele in enumerate(sorted(area_set))}
         f, r = [], []
+        data_to_draw_2d = []
         for u in p1:
             for i in u:
                 f.append(st_act_dict[str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)])
+                data_to_draw_2d.append([int(i[0]), 
+                                        area_dict[get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)],
+                                        Evaluation.GENERATED])
         for u in p2:
             for i in u:
                 r.append(st_act_dict[str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)])
+                data_to_draw_2d.append([int(i[0]), 
+                                        area_dict[get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)],
+                                        Evaluation.REAL])
         
         st_act_dict_reverse = revert_dict(st_act_dict)
         fcnt = Counter(f)
         rcnt = Counter(r)
         top_n = 10
         print("*"*5 + f"STVD_v3_float_{rd}" + "*"*5)
+        print(f"keys num:{len(st_act_dict)}")
+        print(f"generated:{len(f)}")
+        print(f"real:{len(r)}")
         top_n_f = fcnt.most_common(top_n)
         top_n_r = rcnt.most_common(top_n)
         print("Generated")
@@ -428,7 +454,9 @@ class Evaluation(object):
         print("*"*10)
         
         self.draw_fr_distribution(f, r, f"STVD_v3_float_{rd}")
-        
+        self.draw_fr_distribution_2d(data_to_draw_2d, 
+                                     f"STVD 2d float {rd}",
+                                     ["Time Interval Id (10 mins an interval)", "Geo Location Area Id"])
            
         MIN = np.min(r + f)
         MAX = np.max(r + f)
@@ -469,10 +497,10 @@ class Evaluation(object):
             sep (_type_): _description_
         """
         import seaborn as sns 
-        xlabel = {"SD":"km",
-                  "SI":"min",
-                  "DARD":"time && activity type tuple id",
-                  "STVD":"time && geo location tuple id"}
+        xlabel = {"SD":"Km",
+                  "SI":"Min",
+                  "DARD":"Time Interval && Activity Type Id",
+                  "STVD":"Time Interval && Geo Location AreaId"}
         plt.figure(dpi=400)
         sns.set_theme(style="darkgrid")
         sns.kdeplot(f, label="Generated")
@@ -490,6 +518,31 @@ class Evaluation(object):
         plt.savefig(f"{figname} Distribute (Kdeplot).png")
         # plt.show()
         plt.close()
+        
+    def draw_fr_distribution_2d(self, data, figname, colnames=None):
+        import seaborn as sns 
+        import pandas as pd
+        plt.figure(dpi=800)
+        sns.set_theme(style="darkgrid")
+        if colnames is None:
+            colnames = ["col1", "col2", "Tag"]
+        elif type(colnames) == list and len(colnames) == 2:
+            colnames.append("Tag")
+        else:
+            raise ValueError("")
+        df = pd.DataFrame(data=data, columns=colnames)
+        g = sns.jointplot(
+            data=df,
+            x=colnames[0], y=colnames[1], hue=colnames[2],
+            kind="kde"
+        )
+        plt.title(f"{figname} Distribution (Kdeplot)", fontsize=20)
+        g.figure.tight_layout()
+        g.figure.set_dpi(400)
+        # plt.tight_layout()
+        # plt.show()
+        plt.savefig(f"{figname} Distribute (Kdeplot).png", dpi=400)
+        
     
     def get_JSD(self, real, fake):
         """_summary_
@@ -504,14 +557,14 @@ class Evaluation(object):
             SI、SD计算方法类似
         """
         #TODO: 时间、活动类型、地点三个的联合分布
-        duration_jsd = self.duration_jsd(real, fake) # 时长
-        distance_step = self.distance_one_step(real, fake) # 距离
-        st_act_jsd = self.st_act_jsd_v2(real, fake) # DVRD:时间 + 活动类型
-        stvd1 = self.st_loc_jsd(real, fake) # STVD:时间 + 经纬度
-        st_loc_jsd = self.st_loc_jsd_v2(real, fake) # STVD:时间 + 经纬度
-        stvd3_float0 = self.st_loc_jsd_v3(real, fake, 0) # STVD:时间 + 经纬度
-        stvd3_float1 = self.st_loc_jsd_v3(real, fake, 1) # STVD:时间 + 经纬度
-        stvd3_float2 = self.st_loc_jsd_v3(real, fake, 2) # STVD:时间 + 经纬度
+        duration_jsd = self.duration_jsd(fake, real) # 时长
+        distance_step = self.distance_one_step(fake, real) # 距离
+        st_act_jsd = self.st_act_jsd_v2(fake, real) # DVRD:时间 + 活动类型
+        stvd1 = self.st_loc_jsd(fake, real) # STVD:时间 + 经纬度
+        st_loc_jsd = self.st_loc_jsd_v2(fake, real) # STVD:时间 + 经纬度
+        stvd3_float0 = self.st_loc_jsd_v3(fake, real, 0) # STVD:时间 + 经纬度
+        stvd3_float1 = self.st_loc_jsd_v3(fake, real, 1) # STVD:时间 + 经纬度
+        stvd3_float2 = self.st_loc_jsd_v3(fake, real, 2) # STVD:时间 + 经纬度
         print(f"STVD:\nV1: {stvd1:.4f}\nV2: {st_loc_jsd:.4f}\nV3_float0: {stvd3_float0:.4f}\nV3_float1: {stvd3_float1:.4f}\nV3_float2: {stvd3_float2:.4f}")
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 

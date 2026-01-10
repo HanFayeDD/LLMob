@@ -41,6 +41,10 @@ python generate.py --dataset 20192021 --mode 1
 python evaluate.py --dataset 20192021 --mode 1 
 ```
 
+## now draw
+- DARD v2
+- STVD v2 v3
+
 ## 实验结果
 ### v1
 #### gemini
