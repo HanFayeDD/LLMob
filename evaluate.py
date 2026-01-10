@@ -183,6 +183,9 @@ class Evaluation(object):
         return distribution, base
 
     def get_js_divergence(self, p1, p2):
+        ## TODO:figure out
+        ## 长度是否需要一致
+        ## 里面的位置是否很关键
         p1 = p1 / (p1.sum() + 1e-9)
         p2 = p2 / (p2.sum() + 1e-9)
         m = (p1 + p2) / 2
@@ -194,13 +197,13 @@ class Evaluation(object):
         ## 错开计算
         f = [geodistance(i[2][0], i[2][1], u[index][2][0], u[index][2][1]) for u in p1 for index, i in enumerate(u[1:])] 
         r = [geodistance(i[2][0], i[2][1], u[index][2][0], u[index][2][1]) for u in p2 for index, i in enumerate(u[1:])]
+        self.draw_fr_distribution(f, r, "SD")
         MIN = 0
         MAX = 10
         bins = math.ceil(MAX - MIN)
-        self.draw_fr_distribution(f, r, None, "SD_no_bins_no_standard")
         r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        self.draw_fr_distribution(f_list, r_list, sep, "SD_yes_bins_no_standard")
+        # self.draw_fr_distribution(f_list, r_list, sep, "SD_yes_bins_no_standard")
         r_list = r_list / (r_list.sum() + 1e-9) # 归一化
         f_list = f_list / (f_list.sum() + 1e-9)
         JSD = self.get_js_divergence(r_list, f_list)
@@ -232,7 +235,6 @@ class Evaluation(object):
         f = (np.array(f) - MIN) / (MAX - MIN)
         r_list, sep = self.arr_to_distribution(r, 0, 1, bins)
         f_list, _ = self.arr_to_distribution(f, 0, 1, bins)
-        self.draw_fr_distribution(f_list, r_list, sep, "DARD")
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
         JSD = self.get_js_divergence(r_list, f_list)
@@ -253,12 +255,44 @@ class Evaluation(object):
         st_act_dict = {pair: idx for idx, pair in enumerate(sorted(order))}
         # st_act_dict: 为每个轨迹点创建键：str(时间间隔) + '_' + str(活动ID)（活动ID 通过 p2id 映射）。将所有键映射到唯一ID
         f, r = [], []
+        from collections import Counter
         for u in p1:
             for i in u:
                 f.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
         for u in p2:
             for i in u:
                 r.append(st_act_dict[str(i[0]) + '_' + str(i[1])])
+        
+        st_act_dict_reverse = revert_dict(st_act_dict)
+        fcnt = Counter(f)
+        rcnt = Counter(r)
+        top_n = 10
+        print("*"*5 + "DARD" + "*"*5)
+        id2p = revert_dict(p2id)
+        top_n_f = fcnt.most_common(top_n)
+        top_n_r = rcnt.most_common(top_n)
+        print("Generated")
+        for ele in top_n_f:
+            numid = ele[0]
+            cnt = ele[1]
+            strid = st_act_dict_reverse[numid]
+            a, b = strid.split("_")
+            a = int(float(a))
+            b = id2p[int(b)]
+            print(f"Numid:{numid} Time:{a//6}:{(a%6)*10} Activity Type:{b} Count:{cnt}")
+        print("Real")
+        for ele in top_n_r:
+            numid = ele[0]
+            cnt = ele[1]
+            strid = st_act_dict_reverse[numid]
+            a, b = strid.split("_")
+            a = int(float(a))
+            b = id2p[int(b)]
+            print(f"Numid:{numid} Time:{a//6}:{(a%6)*10} Activity Type:{b} Count:{cnt}")
+        print("*"*10)
+        
+        self.draw_fr_distribution(f, r, "DARD")
+        
         MIN = np.min(r + f)
         MAX = np.max(r + f)
         #TODO 分箱参数
@@ -267,7 +301,7 @@ class Evaluation(object):
         f = (np.array(f) - MIN) / (MAX - MIN)
         r_list, sep = self.arr_to_distribution(r, 0, 1, bins)
         f_list, _ = self.arr_to_distribution(f, 0, 1, bins)
-        self.draw_fr_distribution(f_list, r_list, sep, "DARD")
+        # self.draw_fr_distribution(f_list, r_list, sep, "DARD")
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
         JSD = self.get_js_divergence(r_list, f_list)
@@ -299,7 +333,6 @@ class Evaluation(object):
         f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
-        self.draw_fr_distribution(f_list, r_list, sep, "STVD_v1")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
@@ -326,6 +359,9 @@ class Evaluation(object):
         for u in p2:
             for i in u:
                 r.append(st_act_dict[str(i[0]) + '_' + str(i[2][0]) + '_' + str(i[2][1])])
+        
+        self.draw_fr_distribution(f, r, "STVD_v2")
+        
         MIN = np.min(r + f)
         MAX = np.max(r + f)
         bins = 400 #TODO 分箱参数
@@ -335,7 +371,6 @@ class Evaluation(object):
         f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
-        self.draw_fr_distribution(f_list, r_list, sep, "STVD_v2")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
@@ -362,17 +397,49 @@ class Evaluation(object):
         for u in p2:
             for i in u:
                 r.append(st_act_dict[str(i[0]) + '_' + get_float_round_str(i[2][0], rd) + '_' + get_float_round_str(i[2][1], rd)])
+        
+        st_act_dict_reverse = revert_dict(st_act_dict)
+        fcnt = Counter(f)
+        rcnt = Counter(r)
+        top_n = 10
+        print("*"*5 + f"STVD_v3_float_{rd}" + "*"*5)
+        top_n_f = fcnt.most_common(top_n)
+        top_n_r = rcnt.most_common(top_n)
+        print("Generated")
+        for ele in top_n_f:
+            numid = ele[0]
+            cnt = ele[1]
+            strid = st_act_dict_reverse[numid]
+            a, b, c = strid.split("_")
+            a = int(float(a))
+            b = round(float(b), rd)
+            c = round(float(c), rd)
+            print(f"Numid:{numid} Time:{a//6}:{(a%6)*10} Lat:{b} Lng:{c} Count:{cnt}")
+        print("Real")
+        for ele in top_n_r:
+            numid = ele[0]
+            cnt = ele[1]
+            strid = st_act_dict_reverse[numid]
+            a, b, c = strid.split("_")
+            a = int(float(a))
+            b = round(float(b), rd)
+            c = round(float(c), rd)
+            print(f"Numid:{numid} Time:{a//6}:{(a%6)*10} Lat:{b} Lng:{c} Count:{cnt}")
+        print("*"*10)
+        
+        self.draw_fr_distribution(f, r, f"STVD_v3_float_{rd}")
+        
+           
         MIN = np.min(r + f)
         MAX = np.max(r + f)
         bins = 400 #TODO 分箱参数
-        self.draw_fr_distribution(f, r, None, f"STVD_v3_no_box_float_{rd}")
         r = (np.array(r) - MIN) / (MAX - MIN)
         f = (np.array(f) - MIN) / (MAX - MIN)
         r_list, sep = self.arr_to_distribution(np.array(r), 0, 1, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), 0, 1, bins)
         assert len(f_list) == len(r_list)
         assert len(sep) == len(f_list)
-        self.draw_fr_distribution(f_list, r_list, sep, f"STVD_v3_float_{rd}")
+        # self.draw_fr_distribution(f_list, r_list, sep, f"STVD_v3_float_{rd}")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
@@ -381,17 +448,19 @@ class Evaluation(object):
     def duration_jsd(self, p1, p2):
         f = duration(p1)
         r = duration(p2)
+        
+        self.draw_fr_distribution(f, r, "SI")
+        
         MIN = 0
         MAX = 12
         bins = math.ceil(MAX - MIN)
-        self.draw_fr_distribution(f, r, None, "SI_no_bins_no_standard")
         r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        self.draw_fr_distribution(f_list, r_list, sep, "SI_yes_bins_no_standard")
+        # self.draw_fr_distribution(f_list, r_list, sep, "SI_yes_bins_no_standard")
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
-    def draw_fr_distribution(self, f, r, sep, figname):
+    def draw_fr_distribution(self, f, r, figname):
         """_summary_
             f、r、sep长度相同。本质是单变量绘图
         Args:
@@ -400,16 +469,25 @@ class Evaluation(object):
             sep (_type_): _description_
         """
         import seaborn as sns 
+        xlabel = {"SD":"km",
+                  "SI":"min",
+                  "DARD":"time && activity type tuple id",
+                  "STVD":"time && geo location tuple id"}
         plt.figure(dpi=400)
         sns.set_theme(style="darkgrid")
         sns.kdeplot(f, label="Generated")
         sns.kdeplot(r, label="Real")
-        plt.xlabel("Value")
+        label = ""
+        for k in xlabel.keys():
+            if k in figname:
+                label = xlabel[k]
+                break
+        plt.xlabel(label)
         plt.ylabel("Kde Density")
         plt.legend()
-        plt.title(f"{figname} Distribution (kdeplot)", fontsize=20)
+        plt.title(f"{figname} Distribution (Kdeplot)", fontsize=20)
         plt.tight_layout()
-        plt.savefig(f"{figname} Distribute (kdeplot).png")
+        plt.savefig(f"{figname} Distribute (Kdeplot).png")
         # plt.show()
         plt.close()
     

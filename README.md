@@ -3,7 +3,7 @@
 - change critic prompt way done
 - 命令行设置对比实验（默认参数）done
 - init role prompt done
-- llm as judge
+- llm as judge done
 - 绘制概率分布
 - 分箱参数
 - DARD和STVD的数字化很奇怪
