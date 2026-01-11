@@ -18,6 +18,8 @@ parser.add_argument('--critic', type=int, default=1)
 
 parser.add_argument('--loadpersona', type=int, default=1)
 
+parser.add_argument("--identify", type=int, default=1)
+
 def load_persona_mid_result():
     '''
     laod_persona_mid_result 的 Docstring
@@ -109,6 +111,9 @@ if __name__ == "__main__":
         # # break
         # continue      
         # # initialize the retriever
+        if args.identify == 0:
+            P.attribute = ""
+        
         print(f"{P.attribute}")
         if args.mode == 0:
             P.init_retriever()

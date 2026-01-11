@@ -195,16 +195,19 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         reals[date_] = test_route
         logging.info(f"\ndemo:{demo}")
         
-        if trial < max_trial or last_pass_with_no_critic is not None:
+        if trial < max_trial:
             results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
             logging.info(f"result is generated")
-            if last_pass_with_no_critic:
-                logging.info(f"critic is on.use last_pass_with_no_critic as result")
             cho["generated"] += 1
         else:
-            results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]
-            logging.info(f"result is from demo")
-            cho["from_demo"] += 1
+            if last_pass_with_no_critic is not None:
+                results[date_] = f"Activities at {date_}: " + ', '.join(res["plan"])
+                logging.info(f"result is generated. critic is on. use last_pass_with_no_critic as result")
+                cho["generated"] += 1
+            else:
+                results[date_] = f"Activities at {date_}: " + demo.split(": ")[-1]
+                logging.info(f"result is from demo")
+                cho["from_demo"] += 1
             
         if mode == 0:
             person.retriever.nodes.append(reals[date_])
