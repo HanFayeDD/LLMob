@@ -41,12 +41,13 @@ def semantic_critic(llm, plan_json, date_str):
 
 def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
     infer_template = "./engine/prompt_template/one-shot_infer_mot.txt"
-    # mode = 0 for learning based retrieval, 1 for evolving based retrieval
+    # mode = 0 for learning based retrieval, 1 for evolving based retrieval. 2 for no motivation
     describe_mot_template = "./engine/" + motivation_infer_prompt_paths[mode]
-    motivation_ways = ["Following are the motivation that you want to achieve:",
-                       "Following are the thing you focus in the last few days:"
-                       ]
-    mode_name = {0: "llm_l", 1: "llm_e"}
+    # 用于轨迹生成时候的引导
+    motivation_ways = ["Following are the motivation that you want to achieve:", ## 0 
+                       "Following are the thing you focus in the last few days:", ## 1
+                       ""]                                                       ## 2
+    mode_name = {0: "llm_l", 1: "llm_e", 2:"llm_nm"}
     generation_path = f"./result/{scenario_tag}/generated/{mode_name[mode]}/{str(person.id)}/"
     ground_truth_path = f"./result/{scenario_tag}/ground_truth/{mode_name[mode]}/{str(person.id)}/"
     if os.path.exists(generation_path) is False:
@@ -68,22 +69,28 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         week_day = date_to_weekday(date_)
         # get motivation
         consecutive_past_days = check_consecutive_dates(his_routine, date_)
+        ## demo虽然做轨迹生成输入，但其实不起作用，仅仅兜底
         if mode == 0:
             # learning based retrieved
             retrieve_route = person.retriever.retrieve(date_)
             demo = retrieve_route[0]
-        else:
+        elif mode == 1:
             # evolving based retrieved
+            demo = his_routine[-1]
+        elif mode == 2:
             demo = his_routine[-1]
 
         hint = ""  # add condition prompt for conditional generation, i.e., pandemic condition
+        # 对于 mode = 1来说，使用engine\prompt_template\history_motiviation_multi-shot_infer.txt。只有三个输入。hint不起作用
         curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, hint]
         ## 动机推断prompt
         prompt_mot = generate_prompt(curr_input, describe_mot_template)
         ## 根据demo，结合地点类型信息，获取相似地点推荐
         area = retrieve_loc(person, demo)
-        motivation = execute_prompt(prompt_mot, person.llm, objective=f"Think about motivation")
-        motivation = first2second(motivation)
+        motivation = ""
+        if mode != 2:
+            motivation = execute_prompt(prompt_mot, person.llm, objective=f"Think about motivation")
+            motivation = first2second(motivation)
         his_routine = his_routine[1:] + [test_route] ## 会更新his_routine，从而导致跟新demo
         weekday = find_detail_weekday(date_)
         hint = ""

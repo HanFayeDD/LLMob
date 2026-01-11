@@ -606,7 +606,7 @@ def llm_as_judge_one_day(id, judge, date_, t, f):
 
 def eval(dataset='normal', mode=0):
     # Load required data
-    mode_name = {0: "llm_l", 1: "llm_e"}
+    mode_name = {0: "llm_l", 1: "llm_e", 2:"llm_nm"}
     mode = mode_name[mode]
     truth = {}
     person_to_test = []
