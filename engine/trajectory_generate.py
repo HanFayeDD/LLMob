@@ -81,7 +81,8 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
             demo = his_routine[-1]
 
         hint = ""  # add condition prompt for conditional generation, i.e., pandemic condition
-        # 对于 mode = 1来说，使用engine\prompt_template\history_motiviation_multi-shot_infer.txt。只有三个输入。hint不起作用
+        # 对于 mode = 1来说，
+        # 使用engine\prompt_template\history_motiviation_multi-shot_infer.txt。只有三个输入。hint不起作用
         curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, hint]
         ## 动机推断prompt
         prompt_mot = generate_prompt(curr_input, describe_mot_template)

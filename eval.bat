@@ -40,6 +40,7 @@ echo 正在搜索包含 "critic" 的文件夹...
 for /d %%D in ("%SOURCE_ROOT%\*critic*") do (
     set "FOLDER_NAME=%%~nxD"
     set "FULL_SOURCE_PATH=%%D\traj\result"
+    set "CURRENT_CRITIC_DIR=%%D"
     
     echo.
     echo --------------------------------------------------------
@@ -72,6 +73,17 @@ for /d %%D in ("%SOURCE_ROOT%\*critic*") do (
 
         :: 清理临时文件
         del temp_output.log
+
+        :: 4. [新增] 将当前目录下的所有 png 图片剪切到对应的 critic 文件夹
+        echo 正在移动 PNG 图片到: !CURRENT_CRITIC_DIR! ...
+        
+        :: 检查当前目录下是否有 png 文件，避免报错
+        if exist "*.png" (
+            move "*.png" "!CURRENT_CRITIC_DIR!\" > nul
+            echo [成功] 图片已移动。
+        ) else (
+            echo [提示] 当前目录下没有找到 PNG 图片。
+        )
 
     ) else (
         echo [警告] 跳过: 在 "!FOLDER_NAME!" 中未找到 traj\result 路径

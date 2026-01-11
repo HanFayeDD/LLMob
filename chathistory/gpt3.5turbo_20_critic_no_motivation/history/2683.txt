@@ -1,0 +1,1506 @@
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_1/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-10-26 (Saturday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "On 2019-10-26, I plan to start my day with a visit to Park#4023 for some outdoor relaxation and then head to Supermarket#1788 in the evening to stock up on groceries for the upcoming week."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-10-26
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "The trajectory is plausible."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_2/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-10-27 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Other Event#26*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "My plan for today is to start off my Sunday by visiting Park#4023 for some fresh air and relaxation. In the evening, I will head to Supermarket#1788 to stock up on groceries for the upcoming week."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-10-27
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_3/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-04 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Library#442,  Bookstore#309,  Bookstore#514,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Laundry Service#36 at 08:30", "Library#442 at 11:00", "Supermarket#1788 at 14:00", "Platform#326 at 17:00"],
+"reason": "On 2019-11-04 (Monday), my plan is to start the day by dropping off my laundry at Laundry Service#36 at 08:30. Then, I will head to Library#442 at 11:00 to study and work on assignments. After that, I will stop by Supermarket#1788 at 14:00 to pick up some groceries. Finally, I will make my way to Platform#326 at 17:00 for my evening classes and academic commitments."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-04
+- Trajectory: ['Laundry Service#36 at 08:30', 'Library#442 at 11:00', 'Supermarket#1788 at 14:00', 'Platform#326 at 17:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_4/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-10 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start my day with a relaxing visit to Park#4023 to enjoy some fresh air and nature. Then, in the afternoon, I will head to Supermarket#1788 to do some grocery shopping and prepare for the upcoming week. This way, I can balance leisure and productivity on my weekend."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-10
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "error": "The trajectory is not plausible. Visiting a park at 08:00 followed by a supermarket at 17:30 on the same day is not a common urban life pattern."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_4/14_1/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-10 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start my day with a relaxing visit to Park#4023 to enjoy some fresh air and nature. Then, in the afternoon, I will head to Supermarket#1788 to do some grocery shopping and prepare for the upcoming week. This way, I can balance leisure and productivity on my weekend."}
+It contained the following errors: Logic Error: {
+    "error": "The trajectory is not plausible. Visiting a park at 08:00 followed by a supermarket at 17:30 on the same day is not a common urban life pattern."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 13:30", "Rest Area#336 at 16:00"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start my day with a refreshing visit to Park#4023 at 08:00 to enjoy the peaceful surroundings and nature. Following that, I will head to Supermarket#1788 at 13:30 to do my grocery shopping and prepare for the upcoming week. To unwind and relax before the end of the day, I will make a stop at Rest Area#336 at 16:00 for a break."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-10
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 13:30', 'Rest Area#336 at 16:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "error": "The trajectory is not plausible.",
+    "explanation": "Visiting a park at 08:00, then going to a supermarket at 13:30, and finally stopping at a rest area at 16:00 does not follow a common daily rhythm. Typically, people would go to a supermarket first before heading to a park or rest area."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_4/14_2/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-10 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 13:30", "Rest Area#336 at 16:00"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start my day with a refreshing visit to Park#4023 at 08:00 to enjoy the peaceful surroundings and nature. Following that, I will head to Supermarket#1788 at 13:30 to do my grocery shopping and prepare for the upcoming week. To unwind and relax before the end of the day, I will make a stop at Rest Area#336 at 16:00 for a break."}
+It contained the following errors: Logic Error: {
+    "error": "The trajectory is not plausible.",
+    "explanation": "Visiting a park at 08:00, then going to a supermarket at 13:30, and finally stopping at a rest area at 16:00 does not follow a common daily rhythm. Typically, people would go to a supermarket first before heading to a park or rest area."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Supermarket#1788 at 08:00", "Park#4023 at 11:30", "Rest Area#336 at 15:00"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start early by going to Supermarket#1788 at 08:00 to avoid the crowds and get my shopping done efficiently. After that, I will head to Park#4023 at 11:30 to enjoy a leisurely stroll and some fresh air. To take a break and relax in the afternoon, I will make a stop at Rest Area#336 at 15:00 before heading home."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-10
+- Trajectory: ['Supermarket#1788 at 08:00', 'Park#4023 at 11:30', 'Rest Area#336 at 15:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "error": "Rest Area#336 at 15:00 is highly suspicious as rest areas are not typical destinations for mid-afternoon activities."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_4/14_3/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-10 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Supermarket#1788 at 08:00", "Park#4023 at 11:30", "Rest Area#336 at 15:00"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start early by going to Supermarket#1788 at 08:00 to avoid the crowds and get my shopping done efficiently. After that, I will head to Park#4023 at 11:30 to enjoy a leisurely stroll and some fresh air. To take a break and relax in the afternoon, I will make a stop at Rest Area#336 at 15:00 before heading home."}
+It contained the following errors: Logic Error: {
+    "error": "Rest Area#336 at 15:00 is highly suspicious as rest areas are not typical destinations for mid-afternoon activities."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Supermarket#1788 at 08:00", "Park#4023 at 10:30", "Japanese Restaurant#340 at 13:00"],
+"reason": "My plan for 2019-11-10 (Sunday) is to start early by going to Supermarket#1788 at 08:00 to avoid the crowds and get my shopping done efficiently. After that, I will head to Park#4023 at 10:30 to enjoy a leisurely stroll and some fresh air. For lunch, I will try out a new cuisine at Japanese Restaurant#340 at 13:00 before heading home for the rest of the day."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-10
+- Trajectory: ['Supermarket#1788 at 08:00', 'Park#4023 at 10:30', 'Japanese Restaurant#340 at 13:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "The trajectory is plausible for the given date. Pass."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_5/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-17 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "On Sunday, I plan to start my day with a visit to Park#4023 at 08:00 to enjoy some outdoor time and fresh air. In the evening, around 17:30, I will head to Supermarket#1788 to pick up groceries for the upcoming week. This way, I can relax and also prepare for the busy week ahead."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-17
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_6/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-19 (Tuesday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Post Office#1310 at 08:00", "Platform#326 at 08:30", "Rest Area#336 at 13:30", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-11-19 (Tuesday) is to start my day by visiting Post Office#1310 at 08:00 to take care of any mail or packages. Then, I will head to Platform#326 at 08:30 for my classes. After a long day of studying, I will take a break at Rest Area#336 at 13:30 to recharge. Later in the evening, I have tutoring sessions at Middle School#147 at 17:30. Finally, I will grab dinner at Eatery#920 at 19:30 before heading home."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-19
+- Trajectory: ['Post Office#1310 at 08:00', 'Platform#326 at 08:30', 'Rest Area#336 at 13:30', 'Middle School#147 at 17:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "error": "Middle School#147 at 17:30 is highly suspicious as schools are usually closed by that time on a weekday."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_6/14_1/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-19 (Tuesday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Post Office#1310 at 08:00", "Platform#326 at 08:30", "Rest Area#336 at 13:30", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-11-19 (Tuesday) is to start my day by visiting Post Office#1310 at 08:00 to take care of any mail or packages. Then, I will head to Platform#326 at 08:30 for my classes. After a long day of studying, I will take a break at Rest Area#336 at 13:30 to recharge. Later in the evening, I have tutoring sessions at Middle School#147 at 17:30. Finally, I will grab dinner at Eatery#920 at 19:30 before heading home."}
+It contained the following errors: Logic Error: {
+  "error": "Middle School#147 at 17:30 is highly suspicious as schools are usually closed by that time on a weekday."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Post Office#1310 at 08:00", "Platform#326 at 08:30", "Rest Area#336 at 13:30", "Bank#457 at 17:30", "Supermarket#1788 at 19:30"],
+"reason": "My plan for 2019-11-19 (Tuesday) is to start my day by visiting Post Office#1310 at 08:00 to take care of any mail or packages. Then, I will head to Platform#326 at 08:30 for my classes. After a long day of studying, I will take a break at Rest Area#336 at 13:30 to recharge. In the evening, I have some banking to do at Bank#457 at 17:30. Finally, I will grab some groceries at Supermarket#1788 at 19:30 before heading home."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-19
+- Trajectory: ['Post Office#1310 at 08:00', 'Platform#326 at 08:30', 'Rest Area#336 at 13:30', 'Bank#457 at 17:30', 'Supermarket#1788 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "result": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_7/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-23 (Saturday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 11:30"],
+"reason": "My plan for 2019-11-23 (Saturday) is to start my day with a relaxing visit to Park#4023 to enjoy some fresh air and nature. Then, I will head to Supermarket#1788 at 11:30 to pick up some groceries for the upcoming week. This way, I can balance leisure time with necessary errands on the weekend."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-23
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 11:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_8/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-24 (Sunday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Library#442,  Bookstore#309,  Bookstore#514,  Library#442,  Bookstore#309,  Bookstore#514,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Supermarket#1788 at 08:00", "Park#4023 at 09:30", "Shopping Mall#865 at 15:00", "Library#442 at 17:00"],
+"reason": "My plan for Sunday, 2019-11-24, involves starting the day with a visit to Supermarket#1788 to stock up on groceries for the upcoming week. Then, I plan to unwind and relax at Park#4023 before heading to Shopping Mall#865 in the afternoon for some leisurely browsing. Finally, I will finish off the day by spending some time at Library#442 to catch up on some reading and prepare for the week ahead."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-24
+- Trajectory: ['Supermarket#1788 at 08:00', 'Park#4023 at 09:30', 'Shopping Mall#865 at 15:00', 'Library#442 at 17:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_9/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-25 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{
+"plan": ["Platform#326 at 08:00", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for November 25th, 2019, is to start my day at Platform#326 at 08:00 for my classes. In the evening, I will make a stop at Middle School#147 at 17:30 for my tutoring responsibilities. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home." 
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-25
+- Trajectory: ['Platform#326 at 08:00', 'Middle School#147 at 17:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "error": "Middle School visit at 17:30 is implausible on a Monday (weekday) as schools typically close by late afternoon."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_9/14_1/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-25 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {
+"plan": ["Platform#326 at 08:00", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for November 25th, 2019, is to start my day at Platform#326 at 08:00 for my classes. In the evening, I will make a stop at Middle School#147 at 17:30 for my tutoring responsibilities. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home." 
+}
+It contained the following errors: Logic Error: {
+    "error": "Middle School visit at 17:30 is implausible on a Monday (weekday) as schools typically close by late afternoon."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{
+"plan": ["Platform#326 at 08:00", "Laundry Service#36 at 13:30", "Supermarket#1788 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for November 25th, 2019, is to start my day at Platform#326 at 08:00 for my classes. I will then head to Laundry Service#36 at 13:30 to take care of my errands. In the evening, I will visit Supermarket#1788 at 17:30 to get some groceries. Finally, I will end the day at Eatery#920 at 19:30 for dinner before returning home."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-25
+- Trajectory: ['Platform#326 at 08:00', 'Laundry Service#36 at 13:30', 'Supermarket#1788 at 17:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_10/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-30 (Saturday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "My plan for 2019-11-30 (Saturday) is to start my day by visiting Park#4023 for some fresh air and relaxation. Then, in the evening, I will head to Supermarket#1788 to pick up groceries for the upcoming week. This will allow me to balance leisure time with necessary errands on my weekend."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-30
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "Error": "The activity 'Park' at 08:00 is plausible, but the activity 'Supermarket' at 17:30 is unlikely as supermarkets are typically closed by that time on a Saturday."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_10/14_1/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-30 (Saturday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "My plan for 2019-11-30 (Saturday) is to start my day by visiting Park#4023 for some fresh air and relaxation. Then, in the evening, I will head to Supermarket#1788 to pick up groceries for the upcoming week. This will allow me to balance leisure time with necessary errands on my weekend."}
+It contained the following errors: Logic Error: {
+  "Error": "The activity 'Park' at 08:00 is plausible, but the activity 'Supermarket' at 17:30 is unlikely as supermarkets are typically closed by that time on a Saturday."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Shopping Mall#865 at 12:30", "Supermarket#1788 at 15:00"],
+"reason": "My plan for 2019-11-30 (Saturday) is to start my day with a visit to Park#4023 for some relaxation and fresh air. Then, I will head to Shopping Mall#865 around 12:30 for some leisurely shopping and exploration. Finally, I will stop by Supermarket#1788 at 15:00 to pick up groceries for the upcoming week. This plan allows me to enjoy my weekend while also taking care of necessary errands."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-30
+- Trajectory: ['Park#4023 at 08:00', 'Shopping Mall#865 at 12:30', 'Supermarket#1788 at 15:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "error": "The trajectory is not plausible as the Shopping Mall is unlikely to be open at 12:30 AM."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_10/14_2/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-11-30 (Saturday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Park#4023 at 08:00", "Shopping Mall#865 at 12:30", "Supermarket#1788 at 15:00"],
+"reason": "My plan for 2019-11-30 (Saturday) is to start my day with a visit to Park#4023 for some relaxation and fresh air. Then, I will head to Shopping Mall#865 around 12:30 for some leisurely shopping and exploration. Finally, I will stop by Supermarket#1788 at 15:00 to pick up groceries for the upcoming week. This plan allows me to enjoy my weekend while also taking care of necessary errands."}
+It contained the following errors: Logic Error: {
+  "error": "The trajectory is not plausible as the Shopping Mall is unlikely to be open at 12:30 AM."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 11:30", "Shrine#1495 at 14:00"],
+"reason": "My plan for 2019-11-30 (Saturday) is to start my day with a visit to Park#4023 for some relaxation and fresh air. Following that, I will head to Supermarket#1788 at 11:30 to pick up groceries for the upcoming week. Finally, I plan to visit Shrine#1495 at 14:00 to take some time for personal reflection and gratitude. This plan allows me to enjoy my weekend while also taking care of necessary errands and spiritual well-being."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-11-30
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 11:30', 'Shrine#1495 at 14:00']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+```json
+"Pass"
+```
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_11/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-02 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Platform#326 at 08:00", "Rest Area#336 at 13:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-12-02 (Monday) is to start my day with the usual commute to Platform#326 at 08:00 for my studies. I will take a break at Rest Area#336 around 13:30 to relax and recharge. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-02
+- Trajectory: ['Platform#326 at 08:00', 'Rest Area#336 at 13:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "error": "The trajectory is not plausible.",
+    "explanation": "Rest Area#336 at 13:30 contradicts common sense flow as people usually do not visit a rest area in the middle of the day before heading to an Eatery at 19:30."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_11/14_1/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-02 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Platform#326 at 08:00", "Rest Area#336 at 13:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-12-02 (Monday) is to start my day with the usual commute to Platform#326 at 08:00 for my studies. I will take a break at Rest Area#336 around 13:30 to relax and recharge. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home."}
+It contained the following errors: Logic Error: {
+    "error": "The trajectory is not plausible.",
+    "explanation": "Rest Area#336 at 13:30 contradicts common sense flow as people usually do not visit a rest area in the middle of the day before heading to an Eatery at 19:30."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Platform#326 at 08:00", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-12-02 (Monday) is to start my day with the usual commute to Platform#326 at 08:00 for my studies. I will then make a stop at Middle School#147 at 17:30, most likely for tutoring or evening classes. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-02
+- Trajectory: ['Platform#326 at 08:00', 'Middle School#147 at 17:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "error": "Middle School visits are unlikely at 17:30 on 2019-12-02."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_11/14_2/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-02 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Platform#326 at 08:00", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-12-02 (Monday) is to start my day with the usual commute to Platform#326 at 08:00 for my studies. I will then make a stop at Middle School#147 at 17:30, most likely for tutoring or evening classes. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home."}
+It contained the following errors: Logic Error: {
+    "error": "Middle School visits are unlikely at 17:30 on 2019-12-02."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Platform#326 at 08:00", "Rest Area#336 at 13:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-12-02 (Monday) is to start my day with the usual commute to Platform#326 at 08:00 for my studies. I will take a break at Rest Area#336 at 13:30 for lunch or relaxation. Finally, I will head to Eatery#920 at 19:30 for dinner before returning home."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-02
+- Trajectory: ['Platform#326 at 08:00', 'Rest Area#336 at 13:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_12/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-14 (Saturday, is weekend) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Park#4023 at 08:00", "Supermarket#1788 at 17:30"],
+"reason": "My plan for 2019-12-14 (Saturday) is to start my day with a relaxing visit to Park#4023 for some fresh air and leisure time. Later in the day, I will head to Supermarket#1788 at 17:30 to pick up groceries and essentials for the upcoming week. This will help me stay organized and prepared for the following days."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-14
+- Trajectory: ['Park#4023 at 08:00', 'Supermarket#1788 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_13/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-23 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Library#442,  Bookstore#309,  Bookstore#514,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Library#442 at 08:00", "Platform#326 at 08:30", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "On 2019-12-23 (Monday), my plan is to start the day by studying at the Library#442 at 08:00, then head to my main campus at Platform#326 for classes at 08:30. In the evening, I will stop by Middle School#147 at 17:30 for tutoring or evening classes before ending the day with a meal at Eatery#920 at 19:30."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-23
+- Trajectory: ['Library#442 at 08:00', 'Platform#326 at 08:30', 'Middle School#147 at 17:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "error": "Middle School visit at 17:30 seems unlikely as schools are typically closed in the evening. Please verify the accuracy of this activity."
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_13/14_1/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-23 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Stadium#136,  Historic Site#585,  Planetarium#12,  Museum#82,  Outdoor Sculpture#411,  Multiplex#27,  Arcade#647,  Library#442,  Bookstore#309,  Bookstore#514,  Mountain#207,  Park#425,  Park#333,  Park#639,  Landmark#198,  Playground#276,  Park#4023,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[System Feedback - Self-Correction Required]
+Your previous generated plan was: {"plan": ["Library#442 at 08:00", "Platform#326 at 08:30", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "On 2019-12-23 (Monday), my plan is to start the day by studying at the Library#442 at 08:00, then head to my main campus at Platform#326 for classes at 08:30. In the evening, I will stop by Middle School#147 at 17:30 for tutoring or evening classes before ending the day with a meal at Eatery#920 at 19:30."}
+It contained the following errors: Logic Error: {
+  "error": "Middle School visit at 17:30 seems unlikely as schools are typically closed in the evening. Please verify the accuracy of this activity."
+}
+Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format.
+
+[Result]:
+{"plan": ["Library#442 at 08:00", "Platform#326 at 08:30", "Planetarium#12 at 13:30", "Historic Site#585 at 15:00", "Multiplex#27 at 17:30"],
+"reason": "On 2019-12-23 (Monday), my plan is to start the day by studying at the Library#442 at 08:00, then head to my main campus at Platform#326 for classes at 08:30. In the afternoon, I will visit the Planetarium#12 at 13:30 for some educational exploration. Later, I plan to stop by the Historic Site#585 at 15:00 for some historical learning. Finally, in the evening, I will relax and unwind at the Multiplex#27 at 17:30."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-23
+- Trajectory: ['Library#442 at 08:00', 'Platform#326 at 08:30', 'Planetarium#12 at 13:30', 'Historic Site#585 at 15:00', 'Multiplex#27 at 17:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+  "error": "Pass"
+}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+one_shot_infer_response_14/14_0/5
+
+[Prompt]:
+Instructions: Act as a person in an urban neighborhood. you are a student in this urban neighborhood,your weekday travel suggests a long commute to Platform#326 (likely a university or main campus) starting at 08:00, with a stop at Eatery#920 before 19:30. Weekend travel of 60+ km suggests trips outside the usual study area, visiting Park#4023 and Supermarket#1788. The visits to Middle School#147 at 17:30 on a weekday are unusual for a typical student unless you are involved in tutoring or evening classes there.you are a student in this urban neighborhood, and your daily routine is clearly structured around your academic commitments and necessary errands. On weekdays, your day begins promptly at 08:00 with a long commute, likely involving a stop at Post Office#544, to reach Platform#326, which serves as your main campus for studies. This intensive day of travel, spanning over 40 kilometers, includes a midday break around 13:30 at Rest Area#336, and concludes with a visit to Eatery#920 before your 19:30 return home. The notable inclusion of a 17:30 stop at Middle School#147 strongly suggests you are engaged in evening tutoring or supplementary classes there, adding a layer of responsibility beyond your primary studies. Weekends offer a different focus: starting at 08:00 with a visit to Park#4023, followed by a trip to Supermarket#1788 around 17:30, and concluding by 17:40, indicating longer excursions outside your usual study zones, likely for personal provisioning and recreation. 
+Query:  Think about your daily routine. Then tell me your plan for 2019-12-30 (Monday, is weekday) and exlpain it. The following are the locations you are likely to visit (<Location> in your response plan must be in the following locations):*Rest Area#336,  Platform#326,  Platform#1429,  Platform#1162,  Platform#1100,  Platform#495,  Platform#853,  Bank#457,  Post Office#1310,  Middle School#147,  Blood Donation Center#24,  Shrine#1495,  Post Office#1380,  Shrine#2741,  Laundry Service#36,  Kids Store#134,  Supermarket#1788,  Drugstore#477,  Supermarket#3315,  Pharmacy#125,  Shopping Mall#865,  Japanese Restaurant#340,  Ramen Restaurant#1480,  Fast Food Restaurant#1939,  Ramen Restaurant#5862,  Pastry Shop#269,  Eatery#920,  Fast Food Restaurant#1118*
+Response to the prompt above in json in the *following* format:
+{"plan": [<Location> at <Time>, <Location> at <Time>,...],
+"reason":...}
+Output Example:
+{"plan": ["Elementary School#125 at 9:10", "Town Hall#489 at 12:50", "Rest Area#585 at 13:40", "Seafood Restaurant#105 at 14:20"],
+"reason":"My plan today is to finish my teaching duty in the morning and find something delicious to taste."}
+
+[Result]:
+{"plan": ["Platform#326 at 08:00", "Rest Area#336 at 13:30", "Middle School#147 at 17:30", "Eatery#920 at 19:30"],
+"reason": "My plan for 2019-12-30 is to start my day with classes at Platform#326 at 08:00. After a long day of studying, I will take a break at Rest Area#336 at 13:30. Later in the evening, I have tutoring sessions at Middle School#147 at 17:30, and then I will grab dinner at Eatery#920 before heading home at 19:30."}
+==================== END RECORD ====================
+
+==================== START RECORD ====================
+[Objective]:
+Critic_Check
+
+[Prompt]:
+Role: you are an expert urban data analyst and human behavior specialist.
+Task: your goal is to critically evaluate a person's daily activity trajectory for semantic and logical plausibility based on common sense and typical urban life patterns.
+you will be given the date and a sequence of activities. Each activity is a string with a location/action and a timestamp.
+**Input Data:**
+- Date: 2019-12-30
+- Trajectory: ['Platform#326 at 08:00', 'Rest Area#336 at 13:30', 'Middle School#147 at 17:30', 'Eatery#920 at 19:30']
+**Critical Thinking Checklist:**
+1.  **Temporal Logic (Time-based Sense):**
+    -   **Opening Hours:** Is the venue (e.g., bank, store, educational institution) likely to be open at the specified time? Consider the day of the week (weekday/weekend/holiday) implied by the date.
+    -   **Activity-Time Congruence:** Does the activity make sense at that time of day? (e.g., visiting a nightclub at 9 AM is unusual).
+    -   **Duration Plausibility:** Is the time elapsed between consecutive events reasonable for the implied activity? For example, a 5-hour gap for "Travel to work" within the same city is highly suspicious. Pay close attention to long durations covered by `(Implied)` activities.
+2.  **Sequential & Causal Logic (Order of Events):**
+    -   **Common Sense Flow:** Does the sequence of activities follow a logical progression? (e.g., People usually go grocery shopping before returning home, not after).
+    -   **Daily Rhythm:** Does the trajectory represent a coherent part of a day? Does it start and end in a plausible manner (e.g., most daily trajectories start or end at a residential location, even if not explicitly stated)?
+**Output Format:**
+you MUST respond with a JSON object. Do not add any text before or after the JSON.
+- If the plan is reasonable, output exactly: "Pass"
+- If there are logical errors, briefly explain the specific error in one sentence.
+**Examples:**
+-   **Example 1 (Plausible):**
+    -   Date: 2026-01-05 (Monday)
+    -   Trajectory: ["Home at 08:00", "Office#123 at 09:00", "Restaurant#45 at 12:15", "Office#123 at 13:30", "Home at 18:00"]
+    -   Expected Output: `"Pass"`
+-   **Example 2 (Temporal Flaw):**
+    -   Date: 2026-01-06 (Tuesday)
+    -   Trajectory: ["Restaurant#50 at 22:00", "Bank#789 at 23:00"]
+    -   Expected Output: `"Banks are typically closed at 23:00 on a weekday."`
+Now, analyze the provided input data and generate your response.
+
+[Result]:
+{
+    "Pass": "Pass"
+}
+==================== END RECORD ====================
+
