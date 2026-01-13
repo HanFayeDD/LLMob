@@ -42,12 +42,12 @@ def load_loc_map():
             continue
     return d
 
+def parse_place_time(text:str):
+    place, time = text.split(" at ")
+    return (place.strip(), time.strip())
+
 def get_acticity_list(id:int, tag:DataTags=DataTags.ALL):
     global available1921, available2019, available2021
-    def parse_place_time(text:str):
-        place, time = text.split(" at ")
-        return (place.strip(), time.strip())
-    
     actyls = []
     # [
     # "Activities at 2019-01-02: Convenience Store#2322 at 12:00:00, Historic Site#2176 at 12:10:00, Platform#646 at 12:40:00, Shopping Mall#2228 at 12:50:00, Drugstore#1281 at 13:20:00, Ramen Restaurant#2062 at 13:40:00, Plaza#450 at 15:00:00, Clothing Store#521 at 15:50:00, Discount Store#177 at 16:10:00, Supermarket#627 at 16:50:00.",
@@ -161,12 +161,12 @@ def plot_htmap(acticity_list:list, loc_map:dict):
     colnames = ["name", "cnt", "wd", "jd", "time"]
     df = pd.DataFrame(data, columns=colnames)
     COLOR_BREWER_BLUE_SCALE = [
-        [240, 249, 232],
-        [204, 235, 197],
-        [168, 221, 181],
-        [123, 204, 196],
-        [67, 162, 202],
-        [8, 104, 172]
+        # [233,208,204],
+        # [253,212,158],
+        # [253,187,132],
+        [252,141,89],
+        [227,74,51],
+        # [179,0,0]
     ]
     hm_layer = pdk.Layer(
         "HeatmapLayer",
@@ -230,6 +230,163 @@ def draw_map(user_id:int):
         )
         st.pydeck_chart(r)
         
+def time_filter(activity_list:list, start:int, end:int):
+    res = []
+    for ele in activity_list:
+        tmp = [None, []]        
+        tmp[0] = ele[0]
+        for p_t in ele[1]:
+            if start <= int(p_t[1].split(":")[0]) < end:
+                tmp[1].append(p_t)
+        res.append(tmp)
+    return res 
+    
+def draw_result():
+    loc_map = load_loc_map()
+    f = get_result_list("normal", "generated", "llm_e")
+    r = get_result_list("normal", "ground_truth", "llm_e") 
+    # print(f[0])
+    cols = st.columns(2)
+    with cols[0]:
+        f_6_11 = time_filter(f, 6, 11)
+        st.title("Generated 6 11")
+        draw_result_map(f_6_11, loc_map)
+    with cols[1]:
+        r_6_11 = time_filter(r, 6, 11)
+        st.title("Real 6 11")
+        draw_result_map(r_6_11, loc_map)
+    
+    cols = st.columns(2)
+    with cols[0]:
+        f_11_16 = time_filter(f, 11, 16)
+        st.title("Generated 11 16")
+        draw_result_map(f_11_16, loc_map)
+    with cols[1]:
+        r_11_16 = time_filter(r, 11, 16)
+        st.title("Real 11 16")
+        draw_result_map(r_11_16, loc_map)
+        
+    cols = st.columns(2)
+    with cols[0]:
+        f_16_24 = time_filter(f, 16, 24)
+        st.title("Generated 16 24")
+        draw_result_map(f_16_24, loc_map)
+        
+    with cols[1]:
+        r_16_24 = time_filter(r, 16, 24)
+        st.title("Real 16 24")
+        draw_result_map(r_16_24, loc_map)
+    
+    draw_result_radar(f, r)
+    
+    
+def get_result_list(scene, tag, llm_way):
+    files = os.listdir(rf"result\{scene}\{tag}\{llm_way}")
+    actyls = []
+    for f in files:
+        person = pickle.load(open(rf".\result\{scene}\{tag}\{llm_way}\{f}\results.pkl", "rb"))
+        actyls.extend(list(person.values()))
+        
+    res = []
+    for ele in actyls:
+        try:
+            tmp = [None, []]
+            p1, p2 = ele.split(": ")
+            p1 = p1[-10:]
+            tmp[0] = p1
+            for pos in p2.split(","):
+                tmp[1].append(parse_place_time(pos))
+        except:
+            continue
+        res.append(tmp)
+    return res
+        
+def draw_result_map(acticity_list, loc_map):
+    arc_layer = plot_route(acticity_list, loc_map)
+    hm_layer = plot_htmap(acticity_list, loc_map)
+    r = pdk.Deck(
+        layers=[arc_layer, hm_layer],
+        initial_view_state=view_state,
+        map_provider="mapbox",
+        map_style=pdk.map_styles.CARTO_LIGHT,
+        tooltip={"html": "{day}<br />起点： {b_hour} {b_name} <br />终点：{e_hour} {e_name}",
+                    "style": {"backgroundColor": "steelblue", "color": "white"}}
+    )
+    st.pydeck_chart(r) 
+      
+def load_pickle(file_path):
+    with open(file_path, 'rb') as f:
+        data = pickle.load(f)
+    return data  
+
+def revert_dict(d:dict):
+    res = dict()
+    for k, v in d.items():
+        res[v] = k 
+    return res 
+
+def draw_result_radar(f, r):
+    def get_act_cnt(actls):
+        nonlocal loc2act
+        res = dict()
+        for k in p2id.keys():
+            res[k.strip()] = 0
+        
+        for ele in actls:
+            for p_t in ele[1]:
+                p = p_t[0].split("#")[0].strip()
+                p_act = loc2act[p]
+                if p_act in res:
+                    res[p_act] += 1
+                else:
+                    raise ValueError(f"{p_act} not in dict")
+        
+        return res 
+                
+    from evaluate import p2id
+    loc2act = load_pickle(r"data\location_activity_map.pkl")
+    fcnt = get_act_cnt(f) # {'Travel & Transport': 398, 'Food': 427, 'Shop & Service': 722, 'Nightlife Spot': 37, 'Arts & Entertainment': 116, 'Professional & Other Places': 201, 'Outdoors & Recreation': 379, 'College & University': 0, 'Residence': 30, 'Event': 11}
+    rcnt = get_act_cnt(r)
+       # 计算比例
+    total_f = sum(fcnt.values())
+    f_prop = {k: v / total_f if total_f > 0 else 0 for k, v in fcnt.items()}
+    total_r = sum(rcnt.values())
+    r_prop = {k: v / total_r if total_r > 0 else 0 for k, v in rcnt.items()}
+    print(f_prop)
+    print(r_prop)
+    # 绘制雷达图
+    import matplotlib.pyplot as plt
+    import numpy as np
+    
+    labels = list(fcnt.keys())
+    num_vars = len(labels)
+    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+    angles += angles[:1]  # 闭合图形
+    
+    f_values = [f_prop[label] for label in labels]
+    f_values += f_values[:1]
+    r_values = [r_prop[label] for label in labels]
+    r_values += r_values[:1]
+    f_color = (76/255, 114/255, 176/255, 1.00)
+    r_color = (221/255,132/255,82/255,1.00)
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='polar'))
+    ax.fill(angles, f_values, color=f_color, alpha=0.25)
+    ax.fill(angles, r_values, color=r_color, alpha=0.25)
+    ax.plot(angles, f_values, color=f_color, linewidth=2, linestyle="dashed", label='Generated')
+    ax.plot(angles, r_values, color=r_color, linewidth=2, label='Real')
+    # ax.set_yticklabels()
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels, fontdict={'fontsize':11})
+    # ax.set_title('Activity Proportion Comparison', size=16, fontweight='bold', pad=20)
+    ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
+    
+    fig.set_dpi(400)
+    fig.tight_layout()
+    # 使用streamlit展示
+    st.pyplot(fig)
+    if not os.path.exists("radar.png"):
+        fig.savefig("radar.png")
+        print("save radar")
     
     
     
