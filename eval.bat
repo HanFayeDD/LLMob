@@ -66,10 +66,10 @@ for /d %%D in ("%SOURCE_ROOT%\*critic*") do (
         python evaluate.py --dataset 2019 --mode 1 > temp_output.log 2>&1
         
         :: 使用 PowerShell 提取最后 9 行并追加到 bat_result.txt
-        powershell -Command "Get-Content temp_output.log -Tail 9 | Out-File -Append -FilePath '%OUTPUT_FILE%' -Encoding UTF8"
+        powershell -Command "Get-Content temp_output.log -Tail 10 | Out-File -Append -FilePath '%OUTPUT_FILE%' -Encoding UTF8"
         
         :: 也可以在控制台显示一下以便监控进度
-        powershell -Command "Get-Content temp_output.log -Tail 9"
+        powershell -Command "Get-Content temp_output.log -Tail 10"
 
         :: 清理临时文件
         del temp_output.log

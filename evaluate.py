@@ -137,11 +137,12 @@ def obtain_analysis_traj(data):
             lat_lng = [float(loc_with_lat_lng_.split(", ")[1]), float(loc_with_lat_lng_.split(", ")[2])]
             loc_id = pos_map[loc_with_lat_lng]
             t = times_interval[i]
+            ## 添加一个轨迹点
             traj_id.append([loc_id, t]) ## 地点id、时间间隙
             traj_act_t.append([acts[i], t]) ## 活动类型、时间间隙
             traj_lat_lng.append([lat_lng[0], lat_lng[1], t]) ## 经纬度、时间间隙
         traj_ids.append(traj_id)
-        traj_act_ts.append(traj_act_t)
+        traj_act_ts.append(traj_act_t) ## 添加天
         traj_lat_lngs.append(traj_lat_lng)
     return traj_ids, traj_lat_lngs, traj_act_ts
 
@@ -155,6 +156,7 @@ p2id = {'Travel & Transport': 0, 'Food': 1, 'Shop & Service': 2,
 def transfer(data):
     '''
     transfer 的 Docstring
+    传入的是一个人的所有数据
     return [时间间隔, 类型ID, (纬度, 经度)]
     :param data: 说明
     '''
@@ -162,9 +164,10 @@ def transfer(data):
     locs_id = data[0]
     lat_lngs = data[1]
     acts = data[2]
-    for i in range(len(locs_id)):
+    ## 对应此处上一个函数的返回
+    for i in range(len(locs_id)): ## 天
         this_day = []
-        for j in range(len(lat_lngs[i])):
+        for j in range(len(lat_lngs[i])): ## 哪一个点
             this_day.append([locs_id[i][j][1], p2id[acts[i][j][0]], [lat_lngs[i][j][0], lat_lngs[i][j][1]]])
         sorted_this_day = sorted(this_day, key=lambda x: x[0])
         transfer_data.append(sorted_this_day)
@@ -206,12 +209,37 @@ class Evaluation(object):
         bins = math.ceil(MAX - MIN)
         r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
         f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        # self.draw_fr_distribution(f_list, r_list, sep, "SD_yes_bins_no_standard")
-        r_list = r_list / (r_list.sum() + 1e-9) # 归一化
-        f_list = f_list / (f_list.sum() + 1e-9)
+        print("SD")
+        print(f_list)
+        print(r_list)
+        print(sep)
+        self.draw_box_bar(f_list, r_list, sep, "SD Binning Result",
+                          "Bin Lower Boundary (Km)")
+
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
-
+    
+    def duration_jsd(self, p1, p2):
+        f = duration(p1)
+        r = duration(p2)
+        
+        self.draw_fr_distribution(f, r, "SI")
+        ## fix me
+        MIN = 0
+        MAX = 240
+        bins = math.ceil((MAX - MIN) / 10)
+        r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
+        f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
+        print("SI")
+        print(f_list)
+        print(r_list)
+        print(sep)
+        self.draw_box_bar(f_list, r_list, sep, "SI Binning Result",
+                          "Bin Lower Boundary (Min)")
+        # self.draw_fr_distribution(f_list, r_list, sep, "SI_yes_bins_no_standard")
+        JSD = self.get_js_divergence(r_list, f_list)
+        return JSD
+    
     def st_act_jsd(self, p1, p2):
         st_act_dict = {}
         for u in p1:
@@ -471,23 +499,6 @@ class Evaluation(object):
         JSD = self.get_js_divergence(r_list, f_list)
         return JSD
     
-
-
-    def duration_jsd(self, p1, p2):
-        f = duration(p1)
-        r = duration(p2)
-        
-        self.draw_fr_distribution(f, r, "SI")
-        
-        MIN = 0
-        MAX = 12
-        bins = math.ceil(MAX - MIN)
-        r_list, sep = self.arr_to_distribution(np.array(r), MIN, MAX, bins)
-        f_list, _ = self.arr_to_distribution(np.array(f), MIN, MAX, bins)
-        # self.draw_fr_distribution(f_list, r_list, sep, "SI_yes_bins_no_standard")
-        JSD = self.get_js_divergence(r_list, f_list)
-        return JSD
-    
     def draw_fr_distribution(self, f, r, figname):
         """_summary_
             f、r、sep长度相同。本质是单变量绘图
@@ -518,6 +529,25 @@ class Evaluation(object):
         plt.savefig(f"{figname} Distribute (Kdeplot).png")
         # plt.show()
         plt.close()
+        
+    def draw_box_bar(self, f, r, sep, figname, xlabel="Bin Lower Boundary", ylabel="Cnt"):
+        df = pd.DataFrame()
+        sep = [int(ele) for ele in sep]
+        sns.set_theme(style="darkgrid")
+        plt.close()
+        df['Cnt'] = f.tolist() + r.tolist()
+        df['Tag'] = ["Generated"] * len(f) + ["Real"] * len(r)
+        df['Bound'] = sep + sep
+        g = sns.barplot(df, x="Bound", y="Cnt", hue="Tag")
+        g.set_xlabel(xlabel)
+        g.set_ylabel(ylabel)
+        g.set_title(f"{figname}", fontsize=20)
+        legend = g.get_legend()
+        if legend:
+            # 将图例标题设置为空字符串
+            legend.set_title("")
+        plt.tight_layout()
+        plt.savefig(f"{figname}.png", dpi=400)
         
     def draw_fr_distribution_2d(self, data, figname, colnames=None):
         import seaborn as sns 
@@ -580,11 +610,11 @@ class Evaluation(object):
         distance_step = self.distance_one_step(fake, real) # 距离
         st_act_jsd = self.st_act_jsd_v2(fake, real) # DVRD:时间 + 活动类型
         stvd1 = self.st_loc_jsd(fake, real) # STVD:时间 + 经纬度
-        st_loc_jsd = self.st_loc_jsd_v2(fake, real) # STVD:时间 + 经纬度
+        stvd2 = self.st_loc_jsd_v2(fake, real) # STVD:时间 + 经纬度
         stvd3_float0 = self.st_loc_jsd_v3(fake, real, 0) # STVD:时间 + 经纬度
-        stvd3_float1 = self.st_loc_jsd_v3(fake, real, 1) # STVD:时间 + 经纬度
+        st_loc_jsd   = self.st_loc_jsd_v3(fake, real, 1) # STVD:时间 + 经纬度
         stvd3_float2 = self.st_loc_jsd_v3(fake, real, 2) # STVD:时间 + 经纬度
-        print(f"STVD:\nV1: {stvd1:.4f}\nV2: {st_loc_jsd:.4f}\nV3_float0: {stvd3_float0:.4f}\nV3_float1: {stvd3_float1:.4f}\nV3_float2: {stvd3_float2:.4f}")
+        print(f"STVD:\nV1: {stvd1:.4f}\nV2: {stvd2:.4f}\nV3_float0: {stvd3_float0:.4f}\nV3_float1: {st_loc_jsd:.4f}\nV3_float2: {stvd3_float2:.4f}")
         return duration_jsd, distance_step, st_act_jsd, st_loc_jsd
 
 def llm_as_judge_one_day(id, judge, date_, t, f):
@@ -666,7 +696,7 @@ def eval(dataset='normal', mode=0):
     gen_data, real_data = {}, {}
     for p in person_to_test:
         gen_key = f"{p}_{mode}"
-        for i in range(len(gen[gen_key])):
+        for i in range(len(gen[gen_key])): ## 一个i是一个人的所有数据
             if mode not in gen_data:
                 gen_data[mode] = transfer(gen[gen_key][i])
                 real_data[mode] = transfer(truth[p]["test"])
@@ -733,6 +763,8 @@ def eval(dataset='normal', mode=0):
         f"DARD: {np.mean(st_act_jsd_dict[mode]):.4f}, " # 评估空间-时间-活动的联合分布相似性
         f"STVD: {np.mean(st_loc_jsd_dict[mode]):.4f}" # 评估空间-时间-位置的联合分布相似性。
     )
+    print(f"{np.mean(distance_step_dict[mode]):.4f} & {np.mean(duration_jsd_dict[mode]):.4f} & {np.mean(st_act_jsd_dict[mode]):.4f} & {np.mean(st_loc_jsd_dict[mode]):.4f}")    
+
     if args.llmjudge:
         print(f"LLM Judge Result: {sum_score / size:.4f}")
 
