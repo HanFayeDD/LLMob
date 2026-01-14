@@ -540,6 +540,15 @@ class Evaluation(object):
         df['Bound'] = sep + sep
         g = sns.barplot(df, x="Bound", y="Cnt", hue="Tag")
         g.set_xlabel(xlabel)
+        if len(sep) >= 15:
+            ## 部分x轴的值重合，帮我设置间隔
+            step = 3
+            current_ticks = g.get_xticks()
+            new_ticks = current_ticks[::step]
+            new_labels = sep[::step]
+            g.set_xticks(new_ticks)
+            g.set_xticklabels(new_labels)
+            
         g.set_ylabel(ylabel)
         g.set_title(f"{figname}", fontsize=20)
         legend = g.get_legend()
