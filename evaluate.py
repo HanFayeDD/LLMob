@@ -5,7 +5,6 @@ import math
 from datetime import datetime
 from math import sin, cos, asin, sqrt, radians
 import os
-import matplotlib.pyplot as plt 
 import argparse
 from engine.llm_configs.poe_api import PoeAPI as LLMJudge
 from engine.prompt_template.prompt_paths import *
@@ -13,7 +12,11 @@ from engine.utilities.process_tools import *
 from engine.llm_configs.gpt_structure import *
 from engine.utilities.retrieval_helper import *
 import engine.llm_configs.gpt_structure as gpt_structure
+import matplotlib.pyplot as plt 
+import seaborn as sns 
+plt.rcParams['font.family'] = 'Times New Roman'
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
+sns.set_theme(style="darkgrid", font="Times New Roman")
 
 def invert_dict(d):
     return {value: key for key, value in d.items()}
@@ -507,13 +510,11 @@ class Evaluation(object):
             r (_type_): _description_
             sep (_type_): _description_
         """
-        import seaborn as sns 
         xlabel = {"SD":"Km",
                   "SI":"Min",
                   "DARD":"Time Interval && Activity Type Id",
                   "STVD":"Time Interval && Geo Location AreaId"}
         plt.figure(dpi=400)
-        sns.set_theme(style="darkgrid")
         sns.kdeplot(f, label="Generated")
         sns.kdeplot(r, label="Real")
         label = ""
@@ -533,7 +534,7 @@ class Evaluation(object):
     def draw_box_bar(self, f, r, sep, figname, xlabel="Bin Lower Boundary", ylabel="Cnt"):
         df = pd.DataFrame()
         sep = [int(ele) for ele in sep]
-        sns.set_theme(style="darkgrid")
+        # sns.set_theme(style="darkgrid")
         plt.close()
         df['Cnt'] = f.tolist() + r.tolist()
         df['Tag'] = ["Generated"] * len(f) + ["Real"] * len(r)
@@ -559,14 +560,13 @@ class Evaluation(object):
         plt.savefig(f"{figname}.png", dpi=400)
         
     def draw_fr_distribution_2d(self, data, figname, colnames=None):
-        import seaborn as sns 
         import pandas as pd
         import matplotlib.pyplot as plt
         
         # 注意：jointplot 会创建自己的 figure，前面的 plt.figure(dpi=800) 可能不会生效
         # 建议在最后保存时控制 dpi，或者使用 context 设置
         
-        sns.set_theme(style="darkgrid")
+        # sns.set_theme(style="darkgrid")
         if colnames is None:
             colnames = ["col1", "col2", "Tag"]
         elif type(colnames) == list and len(colnames) == 2:

@@ -357,7 +357,7 @@ def draw_result_radar(f, r):
     # 绘制雷达图
     import matplotlib.pyplot as plt
     import numpy as np
-    
+    plt.rcParams['font.family'] = 'Times New Roman'
     labels = list(fcnt.keys())
     num_vars = len(labels)
     angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
