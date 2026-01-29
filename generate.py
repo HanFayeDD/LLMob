@@ -20,13 +20,13 @@ parser.add_argument('--loadpersona', type=int, default=1)
 
 parser.add_argument("--identify", type=int, default=1)
 
-def load_persona_mid_result():
+def load_persona_mid_result(ds):
     '''
     laod_persona_mid_result 的 Docstring
     use gemini-2.5-flash-lite
     '''
     try:
-        with open(r"persona_result\results.txt", "r") as f:
+        with open(rf"persona_result\results{ds}.txt", "r") as f:
             content = f.readlines()
             content = [x.strip() for x in content]
             res = dict()
@@ -67,8 +67,10 @@ if __name__ == "__main__":
         '20192021': 'normal_abnormal'
     }
     
-    
-    persona_dict = load_persona_mid_result()
+    if args.loadpersona == 1:
+        persona_dict = load_persona_mid_result(args.dataset)
+    else:
+        persona_dict = dict()
     # print(persona_dict)
     
     for idx, k in enumerate(data[args.dataset]):
@@ -104,11 +106,14 @@ if __name__ == "__main__":
             if k in persona_dict:
                 P.attribute = persona_dict[k]
             else:
-                exit()
+                raise ValueError(f"Person {k} not found in persona_dict")
         else:
             P = identify(P)
-        # with open(r"persona_result/results.txt", "a") as f:
-        #     f.write(f"{idx}-{k}\n{P.attribute}\n")  
+            with open(rf"persona_result/results{args.dataset}.txt", "a") as f:
+                f.write(f"{idx}-{k}\n{P.attribute}\n")  
+            if idx + 1 == 20:
+                break
+            continue
         # # break
         # continue      
         # # initialize the retriever
