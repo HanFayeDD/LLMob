@@ -80,7 +80,11 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         elif mode == 2:
             demo = his_routine[-1]
 
-        hint = ""  # add condition prompt for conditional generation, i.e., pandemic condition
+        hint = "" 
+        if scenario_tag == "normal_abnormal":
+            hint = '''Now it is the pandemic period. The government has asked residents to postpone travel and events and to telecommute as much as possible.'''
+            hint = hint.replace("\n", " ").strip()
+        # add condition prompt for conditional generation, i.e., pandemic condition
         # 对于 mode = 1来说，
         # 使用engine\prompt_template\history_motiviation_multi-shot_infer.txt。只有三个输入。hint不起作用
         curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, hint]
@@ -94,8 +98,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
             motivation = first2second(motivation)
         his_routine = his_routine[1:] + [test_route] ## 会更新his_routine，从而导致跟新demo
         weekday = find_detail_weekday(date_)
-        hint = ""
-        
+  
         ## 动机驱动生成轨迹
         if motivation is not None:
             curr_input = [person.attribute, motivation, date_, ',  '.join(area), weekday, demo,
