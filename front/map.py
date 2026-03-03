@@ -12,7 +12,7 @@ view_state = pdk.ViewState(
         longitude=139.703,
         bearing=0,
         pitch=20,
-        zoom=5,
+        zoom=7,
 )
 
 class DataTags(Enum):
@@ -343,7 +343,12 @@ def draw_result_radar(f, r):
         
         return res 
                 
-    from evaluate import p2id
+    
+    p2id = {'Travel & Transport': 0, 'Food': 1, 'Shop & Service': 2,
+            'Nightlife Spot': 3, 'Arts & Entertainment': 4, 'Professional & Other Places': 5,
+            'Outdoors & Recreation': 6,
+            'College & University': 7, 'Residence': 8, 'Event': 9}
+
     loc2act = load_pickle(r"data\location_activity_map.pkl")
     fcnt = get_act_cnt(f) # {'Travel & Transport': 398, 'Food': 427, 'Shop & Service': 722, 'Nightlife Spot': 37, 'Arts & Entertainment': 116, 'Professional & Other Places': 201, 'Outdoors & Recreation': 379, 'College & University': 0, 'Residence': 30, 'Event': 11}
     rcnt = get_act_cnt(r)
@@ -381,12 +386,10 @@ def draw_result_radar(f, r):
     ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
     
     fig.set_dpi(400)
-    fig.tight_layout()
+    # fig.tight_layout()
     # 使用streamlit展示
-    st.pyplot(fig)
-    if not os.path.exists("radar.png"):
-        fig.savefig("radar.png")
-        print("save radar")
-    
-    
+    _, col2, _ = st.columns([1, 3, 1])    # 中间列宽度大一点
+    with col2:
+        st.pyplot(fig, width=800)
+        
     
