@@ -180,55 +180,6 @@ def plot_htmap(acticity_list:list, loc_map:dict):
         pickable=True,
     )
     return hm_layer
-
-
-def draw_map(user_id:int):
-    loc_map = load_loc_map()
-    
-    st.title(f"用户{user_id}的轨迹图ALL")
-    acticity_list = get_acticity_list(user_id)  # 使用用户输入的ID
-    arc_layer = plot_route(acticity_list, loc_map)
-    hm_layer = plot_htmap(acticity_list, loc_map)
-    r = pdk.Deck(
-        layers=[arc_layer, hm_layer],
-        initial_view_state=view_state,
-        map_provider="mapbox",
-        map_style=pdk.map_styles.CARTO_LIGHT,
-        tooltip={"html": "{day}<br />起点： {b_hour} {b_name} <br />终点：{e_hour} {e_name}",
-                    "style": {"backgroundColor": "steelblue", "color": "white"}}
-    )
-    st.pydeck_chart(r)
-    
-    cols = st.columns(2)
-    with cols[0]:
-        st.title(f"TESTTRUTH")
-        acticity_list = get_acticity_list(user_id, DataTags.TESTTRUTH)  # 使用用户输入的ID
-        arc_layer = plot_route(acticity_list, loc_map)
-        hm_layer = plot_htmap(acticity_list, loc_map)
-        r = pdk.Deck(
-            layers=[arc_layer, hm_layer],
-            initial_view_state=view_state,
-            map_provider="mapbox",
-            map_style=pdk.map_styles.CARTO_LIGHT,
-            tooltip={"html": "{day}<br />起点： {b_hour} {b_name} <br />终点：{e_hour} {e_name}",
-                        "style": {"backgroundColor": "steelblue", "color": "white"}}
-        )
-        st.pydeck_chart(r)
-    
-    with cols[1]:
-        st.title(f"TESTGENERATED")
-        acticity_list = get_acticity_list(user_id, DataTags.TESTGENERATED)  # 使用用户输入的ID
-        arc_layer = plot_route(acticity_list, loc_map)
-        hm_layer = plot_htmap(acticity_list, loc_map)
-        r = pdk.Deck(
-            layers=[arc_layer, hm_layer],
-            initial_view_state=view_state,
-            map_provider="mapbox",
-            map_style=pdk.map_styles.CARTO_LIGHT,
-            tooltip={"html": "{day}<br />起点： {b_hour} {b_name} <br />终点：{e_hour} {e_name}",
-                        "style": {"backgroundColor": "steelblue", "color": "white"}}
-        )
-        st.pydeck_chart(r)
         
 def time_filter(activity_list:list, start:int, end:int):
     res = []
@@ -240,67 +191,7 @@ def time_filter(activity_list:list, start:int, end:int):
                 tmp[1].append(p_t)
         res.append(tmp)
     return res 
-    
-def draw_result():
-    loc_map = load_loc_map()
-    f = get_result_list("normal", "generated", "llm_e")
-    r = get_result_list("normal", "ground_truth", "llm_e") 
-    # print(f[0])
-    cols = st.columns(2)
-    with cols[0]:
-        f_6_11 = time_filter(f, 6, 11)
-        st.title("Generated 6 11")
-        draw_result_map(f_6_11, loc_map)
-    with cols[1]:
-        r_6_11 = time_filter(r, 6, 11)
-        st.title("Real 6 11")
-        draw_result_map(r_6_11, loc_map)
-    
-    cols = st.columns(2)
-    with cols[0]:
-        f_11_16 = time_filter(f, 11, 16)
-        st.title("Generated 11 16")
-        draw_result_map(f_11_16, loc_map)
-    with cols[1]:
-        r_11_16 = time_filter(r, 11, 16)
-        st.title("Real 11 16")
-        draw_result_map(r_11_16, loc_map)
-        
-    cols = st.columns(2)
-    with cols[0]:
-        f_16_24 = time_filter(f, 16, 24)
-        st.title("Generated 16 24")
-        draw_result_map(f_16_24, loc_map)
-        
-    with cols[1]:
-        r_16_24 = time_filter(r, 16, 24)
-        st.title("Real 16 24")
-        draw_result_map(r_16_24, loc_map)
-    
-    draw_result_radar(f, r)
-    
-    
-def get_result_list(scene, tag, llm_way):
-    files = os.listdir(rf"result\{scene}\{tag}\{llm_way}")
-    actyls = []
-    for f in files:
-        person = pickle.load(open(rf".\result\{scene}\{tag}\{llm_way}\{f}\results.pkl", "rb"))
-        actyls.extend(list(person.values()))
-        
-    res = []
-    for ele in actyls:
-        try:
-            tmp = [None, []]
-            p1, p2 = ele.split(": ")
-            p1 = p1[-10:]
-            tmp[0] = p1
-            for pos in p2.split(","):
-                tmp[1].append(parse_place_time(pos))
-        except:
-            continue
-        res.append(tmp)
-    return res
-        
+            
 def draw_result_map(acticity_list, loc_map):
     arc_layer = plot_route(acticity_list, loc_map)
     hm_layer = plot_htmap(acticity_list, loc_map)
