@@ -62,7 +62,7 @@ class ContrastiveDataset(Dataset):
             sorted_indices = sorted(range(len(self.data)), key=lambda k: scores[k].reshape(-1).tolist(), reverse=True)
             query_date = node_dates[i] # 固定第i天
             node_date = node_dates[sorted_indices[0]] # most similar / positive sample 选出最相似的一天
-            input_ = input_from_date(query_date, node_date) # 得到三维相似度矩阵
+            input_ = input_from_date(query_date, node_date) # 得到1*3相似度矩阵
             sample.append(input_)
             
             # num_pairs 表示每个锚点（anchor）样本包含的样本数（包括 1 个正样本 + num_pairs - 1 个负样本
@@ -71,7 +71,7 @@ class ContrastiveDataset(Dataset):
                 input_ = input_from_date(query_date, node_date) 
                 sample.append(input_)
             # 第 0 行是与 i 最相似的“正样本”对应的日期特征，其余行为按相似度最不相似选出的负样本的日期特征，最终存入 self.eval_pairs
-            sample = np.array(sample).reshape(self.num_pairs, -1)
+            sample = np.array(sample).reshape(self.num_pairs, -1) # 转为2维3*3矩阵，每一行是一个日期相似衡量1*3矩阵
             self.eval_pairs.append(sample)
 
     def __len__(self):

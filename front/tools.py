@@ -119,6 +119,7 @@ def load_pkl_from_id(tag, fold, id):
     base_path = f"./chathistory/{tag}/{fold}/traj/result/{tag}/"
     
     tmp = os.listdir(base_path + "generated")
+    # 保证只有一种方式
     assert len(tmp) == 1 
     tmp = tmp[0]
     traj_g_path = os.path.join(base_path + "generated", tmp, f"{id}", "results.pkl")
