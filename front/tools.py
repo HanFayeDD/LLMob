@@ -1,6 +1,7 @@
 import os
 import pickle
 import re
+from front.conversations import parse_conversation_log, draw_conversations
 # import pydeck as pdk
 
 ##辅助函数
@@ -85,4 +86,52 @@ def load_pkl_from_selected_folder(tag:str, fold:str):
     
     return parser_actyls(res_r), parser_actyls(res_g)
 
+
+## page3
+def ls_id_from_history_dir(tag:str, fold:str):
+    base_path = f"./chathistory/{tag}/{fold}/history/"
+    files = os.listdir(base_path)
+    filtered_files = [f.split(".")[0] for f in files if f.endswith(".txt")]
+    return filtered_files
+
+def show_identify_history(tag:str, fold:str, id:str):
+    path = f"./chathistory/{tag}/identify_history/{id}.txt"
+    with open(path, "r", encoding="utf-8") as f:  
+        content = f.read()
+    draw_conversations(content)
+
+
+def show_traj_gen_history(tag:str, fold:str, id:str):
+    path = f"./chathistory/{tag}/{fold}/history/{id}.txt"
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    draw_conversations(content)
+    
+def show_llm_judge_history(tag:str, fold:str, id:str):
+    path = f"./chathistory/{tag}/{fold}/llmjudge/{id}_llmjudge.txt"
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    draw_conversations(content)
+    
+def load_pkl_from_id(tag, fold, id):
+    base_path = f"./chathistory/{tag}/{fold}/traj/result/{tag}/"
+    
+    tmp = os.listdir(base_path + "generated")
+    assert len(tmp) == 1 
+    tmp = tmp[0]
+    traj_g_path = os.path.join(base_path + "generated", tmp, f"{id}", "results.pkl")
+    traj_g = list(pickle.load(open(traj_g_path, "rb")).values())
+    
+    tmp = os.listdir(base_path + "ground_truth")
+    assert len(tmp) == 1 
+    tmp = tmp[0]
+    traj_r_path = os.path.join(base_path + "ground_truth", tmp, f"{id}", "results.pkl")
+    traj_r = list(pickle.load(open(traj_r_path, "rb")).values())
+    
+    return parser_actyls(traj_r), parser_actyls(traj_g)
+    
+    
+    
 loc_map = load_loc_map()

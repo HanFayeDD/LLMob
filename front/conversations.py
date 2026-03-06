@@ -60,25 +60,7 @@ def parse_conversation_log(file_content):
             
     return conversations
 
-def draw_conversations(user_id: int):
-    abso_path = get_abso_path(user_id)
-    
-    # 检查文件是否存在
-    if not os.path.exists(abso_path):
-        st.warning(f"No conversation history found for User ID: {user_id}")
-        st.info(f"Expected path: {abso_path}")
-        return 
-    
-    # 读取文件内容
-    try:
-        with open(abso_path, "r", encoding="utf-8") as f:
-            content = f.read()
-    except Exception as e:
-        st.error(f"Error reading file: {e}")
-        return
-
-    st.title(f"Conversation History (User {user_id})")
-    
+def draw_conversations(content):    
     # 解析内容
     records = parse_conversation_log(content)
     
