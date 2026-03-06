@@ -79,6 +79,10 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
             demo = his_routine[-1]
         elif mode == 2:
             demo = his_routine[-1]
+            
+        logging.info(f"mode1 demo: {his_routine[-1]}")
+        if mode == 0:
+            logging.info(f"mode0 retrieve_route: {retrieve_route[0]}")
 
         hint = "" 
         if scenario_tag == "normal_abnormal":

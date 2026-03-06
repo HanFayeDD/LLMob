@@ -20,6 +20,13 @@ def encode_dates(date1, date2):
     return np.array(relative_features)
 
 def input_from_date(query_date, node_date):
+    '''
+    返回 3 维特征：
+    delta.days/365.：归一化的天数差（反映时间长短影响）。
+    int(delta.days % 7 == 0)：是否为整周间隔（与星期相关的周期性）。
+    date1.month == date2.month：是否同月（反映季节/月份相关行为）。
+    '''
+    
     f = encode_dates(query_date, node_date)
     return f
 
@@ -29,16 +36,18 @@ class ContrastiveDataset(Dataset):
     def __init__(self, data, eval=None, num_pairs=10, class_id_map=None):
         self.data = data
         self.eval = eval
-        self.num_pairs = num_pairs
-        self.eval_pairs = []
-        self.class_id_map = class_id_map
+        self.num_pairs = num_pairs # 传入了3
+        self.eval_pairs = [] # 每一个元素是对应一个轨迹的一个最相似轨迹和num_pairs-1个不相似轨迹的日期特征
+        self.class_id_map = class_id_map # 传入地点>活动类型映射
 
         self._create_pairs()
 
 
     def _create_pairs(self):
         scores = np.zeros((len(self.data), len(self.data))) - 100.
+        # 日期列表
         node_dates = [datetime.strptime(s.split(": ")[0].split(" ")[-1], "%Y-%m-%d") for s in self.data]
+        # 轨迹列表，一个元素是一天的轨迹
         activities = [s.split(": ")[1] for s in self.data]
         l = len(self.data)
         # l = self.num_pairs
@@ -51,15 +60,17 @@ class ContrastiveDataset(Dataset):
                     scores[j][i] = score
 
             sorted_indices = sorted(range(len(self.data)), key=lambda k: scores[k].reshape(-1).tolist(), reverse=True)
-            query_date = node_dates[i]
-            node_date = node_dates[sorted_indices[0]] # most similar / positive sample
-            input_ = input_from_date(query_date, node_date)
+            query_date = node_dates[i] # 固定第i天
+            node_date = node_dates[sorted_indices[0]] # most similar / positive sample 选出最相似的一天
+            input_ = input_from_date(query_date, node_date) # 得到三维相似度矩阵
             sample.append(input_)
-
+            
+            # num_pairs 表示每个锚点（anchor）样本包含的样本数（包括 1 个正样本 + num_pairs - 1 个负样本
             for k in range(self.num_pairs-1):
                 node_date = node_dates[sorted_indices[-k+1]] # least similar / negative sample
-                input_ = input_from_date(query_date, node_date)
+                input_ = input_from_date(query_date, node_date) 
                 sample.append(input_)
+            # 第 0 行是与 i 最相似的“正样本”对应的日期特征，其余行为按相似度最不相似选出的负样本的日期特征，最终存入 self.eval_pairs
             sample = np.array(sample).reshape(self.num_pairs, -1)
             self.eval_pairs.append(sample)
 
@@ -70,6 +81,13 @@ class ContrastiveDataset(Dataset):
         return self.eval_pairs[idx]
 
 def map_traj2mat(traj, class_loc_map, act_map, interval=60):
+    '''
+    入参：
+        一条轨迹、地点>地点类型、地点类型>数字映射    
+    出参：
+        矩阵形状（24，len(act_map)）计数矩阵
+    '''
+    # 矩阵形状（24，len(act_map)）
     mat = np.zeros((int(1440 / interval), len(act_map)))
     traj = traj.replace(":00, ", " at ")
     traj_ = traj.split(" at ")
@@ -92,9 +110,17 @@ def map_traj2mat(traj, class_loc_map, act_map, interval=60):
 
 
 def act_mat_compute(traj1, traj2, class_loc_map):
+    '''
+        计算两条轨迹在时间-地点类型上的相似度
+        先转为二维矩阵，在进行相似度计算
+    '''
+    # 地点类型去重后作序列化映射
     act_map = {v: id_ for id_, v in enumerate(list(set(class_loc_map.values())))}
+    # 轨迹、地点>地点类型、地点类型>数字映射
     mat1 = map_traj2mat(traj1, class_loc_map, act_map)
     mat2 = map_traj2mat(traj2, class_loc_map, act_map)
+    # 计算“重合槽位数”（numerator）：满足同时两矩阵在某时间槽和类型列上“相等且至少为 1”的格子数量
+    # 计算分母（denominator）：两矩阵各自非零槽位数量的较大值
     comp = np.where((mat1 == mat2) & (mat1 >= 1))[0].shape[0] / max(np.where((mat1 >= 1))[0].shape[0],
                                                                     np.where((mat2 >= 1))[0].shape[0])
     return comp
@@ -127,6 +153,7 @@ class TemporalRetriever:
         self.similarity_top_k = similarity_top_k
         self.feature_size = 3
         if is_train is not None:
+            ## 组织正负样本训练数据集
             self.calibrate_dataset = ContrastiveDataset(nodes,
                                                         eval=act_mat_compute,
                                                         num_pairs=3,
