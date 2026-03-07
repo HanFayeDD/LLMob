@@ -23,6 +23,13 @@ class PoeAPI(BaseGPTAPI):
             base_url=CONFIG.poe_api_base,
         )
         print(f"{CONFIG.poe_api_model} loaded")
+        
+    def set_model(self, model_name: str):
+        """
+        允许动态切换模型。
+        """
+        self.model = model_name
+        print(f"PoeAPI model switched to {self.model}")
 
     # --- 修改点: 应用装饰器 ---
     # 示例：限制每 60 秒最多请求 10 次

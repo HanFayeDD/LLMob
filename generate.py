@@ -20,6 +20,8 @@ parser.add_argument('--loadpersona', type=int, default=1)
 
 parser.add_argument("--identify", type=int, default=1)
 
+parser.add_argument("--model", type=str, default="") 
+
 def load_persona_mid_result(ds):
     '''
     laod_persona_mid_result 的 Docstring
@@ -83,6 +85,8 @@ if __name__ == "__main__":
         with open(folder + str(k) + ".pkl", "rb") as f:
             att = pickle.load(f)
             P = Person(name=k, model=PoeAPI(), person_id=k)
+            if args.model != "":
+                P.llm.set_model(args.model)
             # train_routine_list>>>
             # test_routine_list>>>
             # attribute>>>none

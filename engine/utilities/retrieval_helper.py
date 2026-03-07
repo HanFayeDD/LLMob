@@ -4,6 +4,7 @@ import torch.optim as optim
 import numpy as np
 from datetime import datetime
 from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
@@ -139,6 +140,9 @@ class NodeWithScore:
 
 
 class DeepModel(nn.Module):
+    """原始简单两层 MLP，保留以供对比。
+    结构: Linear(3->64) -> ReLU -> Linear(64->1)
+    """
     def __init__(self, input_size, hidden_size, output_size):
         super(DeepModel, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
@@ -149,6 +153,68 @@ class DeepModel(nn.Module):
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)
+        return x
+
+
+class EnhancedDeepModel(nn.Module):
+    """增强版时间相似度评分网络。
+
+    改进点（相比 DeepModel）：
+    1. 更深的网络：4 层全连接（3→64→128→64→1），提升非线性拟合能力。
+    2. BatchNorm：每层后接 BatchNorm，稳定训练、加速收敛、**显著抑制 loss 震荡**。
+    3. Dropout（p=0.1）：轻量正则化，防止在小数据集上过拟合。
+    4. 残差连接：中间两层（64→128→64）构成残差块，缓解梯度消失，
+       让浅层特征可以直接传递到深层，提升训练稳定性。
+    5. GELU 激活函数：比 ReLU 更平滑，梯度过渡更自然，有助于减少训练抖动。
+
+    参数量估算：
+      - fc1: 3×64 + 64 = 256
+      - fc2: 64×128 + 128 = 8,320
+      - fc3: 128×64 + 64 = 8,256
+      - fc_out: 64×1 + 1 = 65
+      - BN 参数: ~512
+      总计 ≈ 17,409 参数（原模型 ≈ 321 参数）
+      依然极其轻量，1500 epoch 训练时间预计 1-3 分钟。
+    """
+    def __init__(self, input_size, hidden_size, output_size, dropout=0.1):
+        super(EnhancedDeepModel, self).__init__()
+
+        # 输入映射层: input_size -> hidden_size (3 -> 64)
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.bn1 = nn.BatchNorm1d(hidden_size)
+
+        # 残差块: hidden_size -> hidden_size*2 -> hidden_size (64 -> 128 -> 64)
+        self.fc2 = nn.Linear(hidden_size, hidden_size * 2)
+        self.bn2 = nn.BatchNorm1d(hidden_size * 2)
+        self.fc3 = nn.Linear(hidden_size * 2, hidden_size)
+        self.bn3 = nn.BatchNorm1d(hidden_size)
+
+        # 输出层: hidden_size -> output_size (64 -> 1)
+        self.fc_out = nn.Linear(hidden_size, output_size)
+
+        self.activation = nn.GELU()
+        self.dropout = nn.Dropout(p=dropout)
+
+    def forward(self, x):
+        # 输入映射
+        x = self.fc1(x)
+        x = self.bn1(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+
+        # 残差块
+        residual = x  # 保存残差 (64 维)
+        x = self.fc2(x)
+        x = self.bn2(x)
+        x = self.activation(x)
+        x = self.dropout(x)
+        x = self.fc3(x)
+        x = self.bn3(x)
+        x = x + residual  # 残差连接
+        x = self.activation(x)
+
+        # 输出
+        x = self.fc_out(x)
         return x
 
 
@@ -192,10 +258,11 @@ class TemporalRetriever:
         dataloader = DataLoader(self.calibrate_dataset, batch_size=batch_size, shuffle=True)
         print(f"训练样本天数: {len(self.calibrate_dataset)}")
         loss_list = []
-        for epoch in range(num_epochs):
+        for epoch in tqdm(range(num_epochs), desc="Training", unit="epoch"):
+            epoch_loss_sum = 0.0  # 初始化当前 epoch 的总 loss
+            batch_count = 0       # 记录 batch 数量
             for batch in dataloader:
                 # 每个batch的形状： (B, num_pairs, feature_size) = (B, 3, 3)
-                # print(batch.shape)
                 positive_pairs = batch[:, 0, :].reshape(-1, self.feature_size) ## B，3
                 positive_scores = self._model(torch.tensor(positive_pairs).float()) ## B，1 
                 negative_pairs = batch[:, 1:, :].reshape(-1, self.calibrate_dataset.num_pairs - 1, self.feature_size) ## B,2,3
@@ -206,7 +273,12 @@ class TemporalRetriever:
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
-            loss_list.append(loss.item())
+                # 累加 loss
+                epoch_loss_sum += loss.item()
+                batch_count += 1
+            # 计算并记录平均 loss
+            avg_epoch_loss = epoch_loss_sum / batch_count
+            loss_list.append(avg_epoch_loss)
         draw_loss_curve(loss_list)
         print("Calibration finished!")
         
@@ -270,7 +342,7 @@ def draw_loss_curve(losses: list, save_name: str = "loss_curve.png"):
 
 if __name__ == "__main__":
     import pickle
-    with open(r"data\2019\884.pkl", "rb") as f:
+    with open(r"data\2019\2575.pkl", "rb") as f:
         att = pickle.load(f)
         train_routine_list = att[0]
         loc_cat = att[11]

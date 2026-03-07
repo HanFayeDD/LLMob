@@ -23,7 +23,8 @@ def draw_page3():
         id = st.selectbox("选择ID", idls)
 
     st.subheader("活动模式识别结果")
-    st.text(persona_map[tag + id])
+    with st.expander("活动模式识别", expanded=False):
+        st.text(persona_map[tag + id])
     
     st.subheader("活动轨迹")
     actyls_r, actyls_g = tools.load_pkl_from_id(tag, fold, id)

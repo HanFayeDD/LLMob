@@ -15,6 +15,8 @@ def draw_page2():
     fs = os.listdir(f"./chathistory/{tag}")
        
     folders = [f for f in fs if os.path.isdir(os.path.join(f"./chathistory/{tag}", f))]
+    folders.remove("identify_history")
+    
     
     with cols[1]:
         fold = st.selectbox("选择模型与方式", folders)

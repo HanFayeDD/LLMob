@@ -283,4 +283,81 @@ def draw_result_radar(f, r):
     with col2:
         st.pyplot(fig, width=800)
         
+def draw_result_radar_combination(data:list, labels:list):
+    """绘制雷达图，支持多组数据叠加显示。
     
+    Args:
+        data: 活动列表的列表，例如 [f, r, ...], 每个元素与 draw_result_radar 中的 f/r 格式相同
+        labels: 对应每组数据的标签，例如 ["Generated", "Real", ...]
+    """
+    def get_act_cnt(actls):
+        nonlocal loc2act
+        res = dict()
+        for k in p2id.keys():
+            res[k.strip()] = 0
+        
+        for ele in actls:
+            for p_t in ele[1]:
+                p = p_t[0].split("#")[0].strip()
+                p_act = loc2act[p]
+                if p_act in res:
+                    res[p_act] += 1
+                else:
+                    raise ValueError(f"{p_act} not in dict")
+        
+        return res
+    
+    p2id = {'Travel & Transport': 0, 'Food': 1, 'Shop & Service': 2,
+            'Nightlife Spot': 3, 'Arts & Entertainment': 4, 'Professional & Other Places': 5,
+            'Outdoors & Recreation': 6,
+            'College & University': 7, 'Residence': 8, 'Event': 9}
+
+    loc2act = load_pickle(r"data\location_activity_map.pkl")
+    
+    # 计算每组数据的比例
+    proportions = []
+    for d in data:
+        cnt = get_act_cnt(d)
+        total = sum(cnt.values())
+        prop = {k: v / total if total > 0 else 0 for k, v in cnt.items()}
+        proportions.append(prop)
+    
+    # 绘制雷达图
+    import matplotlib.pyplot as plt
+    import numpy as np
+    plt.rcParams['font.family'] = 'Times New Roman'
+    category_labels = list(p2id.keys())
+    num_vars = len(category_labels)
+    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+    angles += angles[:1]  # 闭合图形
+    
+    # 预定义颜色列表
+    default_colors = [
+        (76/255, 114/255, 176/255, 1.00),
+        (221/255, 132/255, 82/255, 1.00),
+        (85/255, 168/255, 104/255, 1.00),
+        (196/255, 78/255, 82/255, 1.00),
+        (129/255, 114/255, 179/255, 1.00),
+        (204/255, 185/255, 116/255, 1.00),
+        (100/255, 181/255, 205/255, 1.00),
+    ]
+    linestyles = ["dashed", "solid", "dotted", "dashdot"]
+    
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='polar'))
+    
+    for i, (prop, label) in enumerate(zip(proportions, labels)):
+        color = default_colors[i % len(default_colors)]
+        ls = linestyles[i % len(linestyles)]
+        values = [prop[l] for l in category_labels]
+        values += values[:1]
+        ax.fill(angles, values, color=color, alpha=0.25)
+        ax.plot(angles, values, color=color, linewidth=2, linestyle=ls, label=label)
+    
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(category_labels, fontdict={'fontsize': 11})
+    ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
+    
+    fig.set_dpi(400)
+    _, col2, _ = st.columns([1, 3, 1])
+    with col2:
+        st.pyplot(fig, width=800)

@@ -738,6 +738,7 @@ def eval(dataset='normal', mode=0):
     
     #LLM as judge
     llmjudge = LLMJudge()
+    llmjudge.set_model("gpt-3.5-turbo")
     if args.llmjudge:
         for k in real_traj:
             if k not in gen_traj:
