@@ -4,6 +4,11 @@ import torch.optim as optim
 import numpy as np
 from datetime import datetime
 from torch.utils.data import Dataset, DataLoader
+import seaborn as sns
+import matplotlib.pyplot as plt
+import os
+sns.set_theme(style="darkgrid", font="Times New Roman")
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 def calculate_relative_features(date1, date2):
     delta = date1 - date2
@@ -185,19 +190,26 @@ class TemporalRetriever:
 
     def calibrate_score_function(self, batch_size=64, num_epochs=10):
         dataloader = DataLoader(self.calibrate_dataset, batch_size=batch_size, shuffle=True)
+        print(f"训练样本天数: {len(self.calibrate_dataset)}")
+        loss_list = []
         for epoch in range(num_epochs):
             for batch in dataloader:
-                positive_pairs = batch[:, 0, :].reshape(-1, self.feature_size)
-                positive_scores = self._model(torch.tensor(positive_pairs).float())
-                negative_pairs = batch[:, 1:, :].reshape(-1, self.calibrate_dataset.num_pairs - 1, self.feature_size)
-                negative_scores = self._model(torch.tensor(negative_pairs).float()).reshape(batch.shape[0], -1)
-                logits = torch.cat([positive_scores, negative_scores], dim=1)
+                # 每个batch的形状： (B, num_pairs, feature_size) = (B, 3, 3)
+                # print(batch.shape)
+                positive_pairs = batch[:, 0, :].reshape(-1, self.feature_size) ## B，3
+                positive_scores = self._model(torch.tensor(positive_pairs).float()) ## B，1 
+                negative_pairs = batch[:, 1:, :].reshape(-1, self.calibrate_dataset.num_pairs - 1, self.feature_size) ## B,2,3
+                negative_scores = self._model(torch.tensor(negative_pairs).float()).reshape(batch.shape[0], -1) ## B, 2
+                logits = torch.cat([positive_scores, negative_scores], dim=1) ## B，3 正+负分数拼接
                 loss = -torch.log_softmax(logits, dim=1)[:, 0]
                 loss = loss.mean()
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
+            loss_list.append(loss.item())
+        draw_loss_curve(loss_list)
         print("Calibration finished!")
+        
 
 
 def retrieve_loc(person, route):
@@ -232,3 +244,35 @@ def retrieve_loc(person, route):
                 else:
                     break
     return area
+
+
+def draw_loss_curve(losses: list, save_name: str = "loss_curve.png"):
+    """绘制损失曲线并保存到工作根目录。
+
+    Args:
+        losses: 每个 epoch 对应的 loss 值列表。
+        save_name: 保存的文件名，默认为 loss_curve.png。
+    """
+    epochs = list(range(1, len(losses) + 1))
+
+    plt.figure(figsize=(8, 5))
+    sns.lineplot(x=epochs, y=losses)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Loss Curve")
+    plt.tight_layout()
+
+    save_path = os.path.join(os.getcwd(), save_name)
+    plt.savefig(save_path, dpi=500)
+    plt.close()
+    print(f"Loss curve saved to {save_path}")
+
+
+if __name__ == "__main__":
+    import pickle
+    with open(r"data\2019\884.pkl", "rb") as f:
+        att = pickle.load(f)
+        train_routine_list = att[0]
+        loc_cat = att[11]
+        
+    retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat)
