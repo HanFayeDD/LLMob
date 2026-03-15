@@ -6,6 +6,16 @@ import streamlit as st
 from enum import Enum
 import os 
 from front.defines import *
+import pandas as pd
+import seaborn as sns 
+import matplotlib.pyplot as plt 
+plt.rcParams['font.family'] = 'Times New Roman'
+from pyecharts.charts import *
+from pyecharts.components import Table
+from pyecharts import options as opts
+from pyecharts.commons.utils import JsCode
+
+sns.set_theme(style="darkgrid", font="Times New Roman")
 
 view_state = pdk.ViewState(
         latitude=35.69,
@@ -251,7 +261,6 @@ def draw_result_radar(f, r):
     print(f_prop)
     print(r_prop)
     # 绘制雷达图
-    import matplotlib.pyplot as plt
     import numpy as np
     plt.rcParams['font.family'] = 'Times New Roman'
     labels = list(fcnt.keys())
@@ -316,14 +325,39 @@ def draw_result_radar_combination(data:list, labels:list):
     
     # 计算每组数据的比例
     proportions = []
-    for d in data:
+    df = []
+    for idx, d in enumerate(data):
         cnt = get_act_cnt(d)
+        print(labels[idx], "\n", cnt)
+        for k, v in cnt.items():
+            if k not in ('College & University', 'Residence', "Event",  'Nightlife Spot'):
+                df.append([labels[idx], k, v])
         total = sum(cnt.values())
         prop = {k: v / total if total > 0 else 0 for k, v in cnt.items()}
         proportions.append(prop)
+        
+    ## draw_bar
+    df = pd.DataFrame(df, columns=["Group", "ActivityType", "Count"])
+    g = sns.catplot(data=df, x="ActivityType", y="Count", hue="Group", kind="bar")
+    g.set_xticklabels(rotation=-20, horizontalalignment='left')
+    g.savefig("temp_bar.png", dpi=400)
+
+    # 使用 Streamlit 直接展示 seaborn 返回的 FacetGrid 图（优先）
+    try:
+        fig = g.figure
+        _, col2, _ = st.columns([1, 3, 1])
+        with col2:
+            st.pyplot(fig, use_container_width=True)
+        # 释放 figure 占用的内存
+        plt.close(fig)
+    except Exception:
+        # 回退到加载保存的图片文件
+        if os.path.exists("temp_bar.png"):
+            _, col2, _ = st.columns([1, 3, 1])
+            with col2:
+                st.image("temp_bar.png")
     
     # 绘制雷达图
-    import matplotlib.pyplot as plt
     import numpy as np
     plt.rcParams['font.family'] = 'Times New Roman'
     category_labels = list(p2id.keys())
@@ -356,8 +390,14 @@ def draw_result_radar_combination(data:list, labels:list):
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(category_labels, fontdict={'fontsize': 11})
     ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
-    
+
     fig.set_dpi(400)
     _, col2, _ = st.columns([1, 3, 1])
     with col2:
         st.pyplot(fig, width=800)
+        
+        
+    ## use pyecharts
+    for idx, d in enumerate(data):
+        cnt = get_act_cnt(d)
+        

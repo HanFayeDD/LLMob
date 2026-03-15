@@ -130,8 +130,7 @@ def act_mat_compute(traj1, traj2, class_loc_map):
     comp = np.where((mat1 == mat2) & (mat1 >= 1))[0].shape[0] / max(np.where((mat1 >= 1))[0].shape[0],
                                                                     np.where((mat2 >= 1))[0].shape[0])
     return comp
-
-
+    
 class NodeWithScore:
     def __init__(self, node, score, input_):
         self.node = node
@@ -339,12 +338,47 @@ def draw_loss_curve(losses: list, save_name: str = "loss_curve.png"):
     plt.close()
     print(f"Loss curve saved to {save_path}")
 
+def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=None):
+    act_map = {v: id_ for id_, v in enumerate(list(set(class_loc_map.values())))}
+    mat1 = map_traj2mat(traj, class_loc_map, act_map)
 
+    # 将 act_map 按 id 顺序还原为类别列表（保证 y 轴顺序一致）
+    act_list = [None] * len(act_map)
+    for act, idx in act_map.items():
+        act_list[idx] = act
+
+    # 绘制热力图
+    plt.figure(figsize=(12, max(4, len(act_list) * 0.4)))
+    sns.heatmap(
+        mat1.T,
+        cmap="YlGnBu",
+        cbar_kws={"label": "Count"},
+        xticklabels=4,  # 只显示部分 x 轴刻度
+        yticklabels=act_list,
+        annot=False,
+        fmt="d"
+    )
+    plt.xlabel("Time Slot (1h an interval)")
+    plt.ylabel("Activity Type")
+    plt.title(title)
+    plt.tight_layout()
+
+    save_path = os.path.join(os.getcwd(), save_name)
+    plt.savefig(save_path, dpi=300)
+    plt.close()
+    print(f"Heatmap saved to {save_path}")
+# ...existing code...   
+    
 if __name__ == "__main__":
     import pickle
     with open(r"data\2019\2575.pkl", "rb") as f:
         att = pickle.load(f)
         train_routine_list = att[0]
         loc_cat = att[11]
-        
-    retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat)
+    idx = 8
+    # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat)
+    print(train_routine_list[idx])
+    t = train_routine_list[idx].split(": ")[0].split("at")[-1].strip()
+    draw_mat_from_traj(train_routine_list[idx].split(": ")[1], loc_cat,
+                       title = f"Trajectory Time-Activity Matrix Heatmap of Person 2575 on {t}")
+    
