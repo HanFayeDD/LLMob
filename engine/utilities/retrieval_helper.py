@@ -73,7 +73,7 @@ class ContrastiveDataset(Dataset):
             
             # num_pairs 表示每个锚点（anchor）样本包含的样本数（包括 1 个正样本 + num_pairs - 1 个负样本
             for k in range(self.num_pairs-1):
-                node_date = node_dates[sorted_indices[-k+1]] # least similar / negative sample
+                node_date = node_dates[sorted_indices[-(k+1)]] # least similar / negative sample
                 input_ = input_from_date(query_date, node_date) 
                 sample.append(input_)
             # 第 0 行是与 i 最相似的“正样本”对应的日期特征，其余行为按相似度最不相似选出的负样本的日期特征，最终存入 self.eval_pairs
@@ -219,7 +219,7 @@ class EnhancedDeepModel(nn.Module):
 
 class TemporalRetriever:
     def __init__(self, nodes, similarity_top_k, is_train=None, class_id_map=None,
-                 model_type="DeepModel"):
+                 model_type="DeepModel", person_id = ""):
         """
         Args:
             nodes: 轨迹节点列表。
@@ -232,6 +232,7 @@ class TemporalRetriever:
         self.nodes = nodes
         self.similarity_top_k = similarity_top_k
         self.feature_size = 3
+        self.person_id = person_id
         self.model_type = model_type
         if is_train is not None:
             ## 组织正负样本训练数据集
@@ -297,7 +298,7 @@ class TemporalRetriever:
             # 计算并记录平均 loss
             avg_epoch_loss = epoch_loss_sum / batch_count
             loss_list.append(avg_epoch_loss)
-        draw_loss_curve(loss_list)
+        draw_loss_curve(loss_list, self.person_id + "_" + self.model_type + "_loss_curve.png")
         print("Calibration finished!")
         
 
@@ -391,14 +392,37 @@ def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=
     
 if __name__ == "__main__":
     import pickle
-    with open(r"data\2019\13.pkl", "rb") as f:
-        att = pickle.load(f)
-        train_routine_list = att[0]
-        loc_cat = att[11]
-    idx = 8
-    retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel")
+    # with open(r"data\2019\1492.pkl", "rb") as f:
+    #     att = pickle.load(f)
+    #     train_routine_list = att[0]
+    #     loc_cat = att[11]
+    # idx = 8
+    # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel")
+    # res = retriever.retrieve("2019-12-25")
+    # print(res)
+    # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel")
+    # res = retriever.retrieve("2019-12-25")
+    # print(res)
     # print(train_routine_list[idx])
     # t = train_routine_list[idx].split(": ")[0].split("at")[-1].strip()
     # draw_mat_from_traj(train_routine_list[idx].split(": ")[1], loc_cat,
     #                    title = f"Trajectory Time-Activity Matrix Heatmap of Person 2575 on {t}")
+    
+    available2019 = [2575, 1481, 1784, 2721, 638, 7626, 1626, 7266, 1568, 2078, 2610, 1908, 2683, 1883, 3637, 225, 914,
+                     6863, 6670, 323, 3282, 2390, 2337, 4396, 7259, 1310, 3802, 1522, 1219, 1004, 4105, 540,
+                     6157, 1556, 2266, 13, 1874, 317, 2513, 3255, 934, 3599, 1775, 606, 3033, 3784, 5252, 3365, 6581,
+                     6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
+                     1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
+                     2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
+    available2019 = [2575]
+    for i in range(len(available2019)):
+        with open(rf"data\2019\{available2019[i]}.pkl", "rb") as f:
+            att = pickle.load(f)
+            train_routine_list = att[0]
+            loc_cat = att[11]
+  
+            retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
+            retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel", person_id=str(available2019[i]))
+        if i == 1:
+            break
     
