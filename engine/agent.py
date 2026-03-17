@@ -25,4 +25,4 @@ class Person:
     def init_retriever(self, ):
         self.retriever = TemporalRetriever(self.train_routine_list,
                                            6,
-                                           is_train=1, class_id_map=self.loc_cat)
+                                           is_train=1, class_id_map=self.loc_cat, person_id=self.name)

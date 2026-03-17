@@ -298,7 +298,7 @@ class TemporalRetriever:
             # 计算并记录平均 loss
             avg_epoch_loss = epoch_loss_sum / batch_count
             loss_list.append(avg_epoch_loss)
-        draw_loss_curve(loss_list, self.person_id + "_" + self.model_type + "_loss_curve.png")
+        draw_loss_curve(loss_list, str(self.person_id) + "_" + self.model_type + "_loss_curve.png")
         print("Calibration finished!")
         
 
