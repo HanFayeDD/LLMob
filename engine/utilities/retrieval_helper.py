@@ -218,17 +218,32 @@ class EnhancedDeepModel(nn.Module):
 
 
 class TemporalRetriever:
-    def __init__(self, nodes, similarity_top_k, is_train=None, class_id_map=None):
+    def __init__(self, nodes, similarity_top_k, is_train=None, class_id_map=None,
+                 model_type="DeepModel"):
+        """
+        Args:
+            nodes: 轨迹节点列表。
+            similarity_top_k: 检索时返回的 top-k 数量。
+            is_train: 非 None 时触发训练流程。
+            class_id_map: 地点→活动类型映射。
+            model_type: 使用的模型类型，可选 "DeepModel" 或 "EnhancedDeepModel"，
+                        默认为 "DeepModel"。
+        """
         self.nodes = nodes
         self.similarity_top_k = similarity_top_k
         self.feature_size = 3
+        self.model_type = model_type
         if is_train is not None:
             ## 组织正负样本训练数据集
             self.calibrate_dataset = ContrastiveDataset(nodes,
                                                         eval=act_mat_compute,
                                                         num_pairs=3,
                                                         class_id_map=class_id_map)
-            self._model = DeepModel(self.feature_size, 64, 1)
+            # 根据 model_type 选择模型
+            if self.model_type == "EnhancedDeepModel":
+                self._model = EnhancedDeepModel(self.feature_size, 64, 1)
+            else:
+                self._model = DeepModel(self.feature_size, 64, 1)
             self.optimizer = optim.Adam(self._model.parameters(), lr=0.002)
             self.criterion = torch.nn.MSELoss()
             self.calibrate_score_function(num_epochs=1500)
@@ -250,21 +265,25 @@ class TemporalRetriever:
 
     def get_similarity_score(self, query_date, node_date):
         input_ = input_from_date(query_date, node_date)
-        score = self._model(torch.tensor(input_).float())
+        self._model.eval()
+        with torch.no_grad():
+            # unsqueeze 保证 batch 维度存在，兼容 BatchNorm（EnhancedDeepModel）
+            score = self._model(torch.tensor(input_).float().unsqueeze(0)).squeeze(0)
         return score
 
     def calibrate_score_function(self, batch_size=64, num_epochs=10):
         dataloader = DataLoader(self.calibrate_dataset, batch_size=batch_size, shuffle=True)
-        print(f"训练样本天数: {len(self.calibrate_dataset)}")
+        print(f"训练样本天数: {len(self.calibrate_dataset)}, 模型: {self.model_type}")
         loss_list = []
         for epoch in tqdm(range(num_epochs), desc="Training", unit="epoch"):
+            self._model.train()  # 确保 BatchNorm / Dropout 处于训练模式
             epoch_loss_sum = 0.0  # 初始化当前 epoch 的总 loss
             batch_count = 0       # 记录 batch 数量
             for batch in dataloader:
                 # 每个batch的形状： (B, num_pairs, feature_size) = (B, 3, 3)
                 positive_pairs = batch[:, 0, :].reshape(-1, self.feature_size) ## B，3
-                positive_scores = self._model(torch.tensor(positive_pairs).float()) ## B，1 
-                negative_pairs = batch[:, 1:, :].reshape(-1, self.calibrate_dataset.num_pairs - 1, self.feature_size) ## B,2,3
+                positive_scores = self._model(torch.tensor(positive_pairs).float()) ## B，1
+                negative_pairs = batch[:, 1:, :].reshape(-1, self.feature_size) ## B*(num_pairs-1), 3  展平为2D以兼容BatchNorm
                 negative_scores = self._model(torch.tensor(negative_pairs).float()).reshape(batch.shape[0], -1) ## B, 2
                 logits = torch.cat([positive_scores, negative_scores], dim=1) ## B，3 正+负分数拼接
                 loss = -torch.log_softmax(logits, dim=1)[:, 0]
@@ -336,6 +355,7 @@ def draw_loss_curve(losses: list, save_name: str = "loss_curve.png"):
     save_path = os.path.join(os.getcwd(), save_name)
     plt.savefig(save_path, dpi=500)
     plt.close()
+    print(losses[-10:])
     print(f"Loss curve saved to {save_path}")
 
 def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=None):
@@ -371,14 +391,14 @@ def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=
     
 if __name__ == "__main__":
     import pickle
-    with open(r"data\2019\2575.pkl", "rb") as f:
+    with open(r"data\2019\13.pkl", "rb") as f:
         att = pickle.load(f)
         train_routine_list = att[0]
         loc_cat = att[11]
     idx = 8
-    # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat)
-    print(train_routine_list[idx])
-    t = train_routine_list[idx].split(": ")[0].split("at")[-1].strip()
-    draw_mat_from_traj(train_routine_list[idx].split(": ")[1], loc_cat,
-                       title = f"Trajectory Time-Activity Matrix Heatmap of Person 2575 on {t}")
+    retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel")
+    # print(train_routine_list[idx])
+    # t = train_routine_list[idx].split(": ")[0].split("at")[-1].strip()
+    # draw_mat_from_traj(train_routine_list[idx].split(": ")[1], loc_cat,
+    #                    title = f"Trajectory Time-Activity Matrix Heatmap of Person 2575 on {t}")
     
