@@ -65,7 +65,7 @@ class ContrastiveDataset(Dataset):
                     scores[i][j] = score
                     scores[j][i] = score
 
-            sorted_indices = sorted(range(len(self.data)), key=lambda k: scores[k].reshape(-1).tolist(), reverse=True)
+            sorted_indices = sorted(range(len(self.data)), key=lambda k: scores[i][k], reverse=True)
             query_date = node_dates[i] # 固定第i天
             node_date = node_dates[sorted_indices[0]] # most similar / positive sample 选出最相似的一天
             input_ = input_from_date(query_date, node_date) # 得到1*3相似度矩阵
@@ -414,15 +414,15 @@ if __name__ == "__main__":
                      6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
                      1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
                      2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
-    # available2019 = [540]
+    available2019 = [540]
     for i in range(len(available2019)):
         with open(rf"data\2019\{available2019[i]}.pkl", "rb") as f:
             att = pickle.load(f)
             train_routine_list = att[0]
             loc_cat = att[11]
   
-            # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
             retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
+            retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel", person_id=str(available2019[i]))
         if i == 19:
             break
     
