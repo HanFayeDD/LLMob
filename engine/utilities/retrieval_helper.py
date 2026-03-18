@@ -245,7 +245,7 @@ class TemporalRetriever:
                 self._model = EnhancedDeepModel(self.feature_size, 64, 1)
             else:
                 self._model = DeepModel(self.feature_size, 64, 1)
-            self.optimizer = optim.Adam(self._model.parameters(), lr=0.002)
+            self.optimizer = optim.Adam(self._model.parameters(), lr=0.001)
             self.criterion = torch.nn.MSELoss()
             self.calibrate_score_function(num_epochs=1500)
 
@@ -272,7 +272,7 @@ class TemporalRetriever:
             score = self._model(torch.tensor(input_).float().unsqueeze(0)).squeeze(0)
         return score
 
-    def calibrate_score_function(self, batch_size=64, num_epochs=10):
+    def calibrate_score_function(self, batch_size=128, num_epochs=10):
         dataloader = DataLoader(self.calibrate_dataset, batch_size=batch_size, shuffle=True)
         print(f"训练样本天数: {len(self.calibrate_dataset)}, 模型: {self.model_type}")
         loss_list = []
@@ -414,15 +414,15 @@ if __name__ == "__main__":
                      6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
                      1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
                      2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
-    available2019 = [2575]
+    # available2019 = [540]
     for i in range(len(available2019)):
         with open(rf"data\2019\{available2019[i]}.pkl", "rb") as f:
             att = pickle.load(f)
             train_routine_list = att[0]
             loc_cat = att[11]
   
+            # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
             retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
-            retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel", person_id=str(available2019[i]))
-        if i == 1:
+        if i == 19:
             break
     

@@ -22,7 +22,7 @@ class Person:
         self.top_k_routine = 6
         print("Person {} is created".format(self.name))
 
-    def init_retriever(self, ):
+    def init_retriever(self, model_type="DeepModel"):
         self.retriever = TemporalRetriever(self.train_routine_list,
-                                           6,
-                                           is_train=1, class_id_map=self.loc_cat, person_id=self.name)
+                                           self.top_k_routine,
+                                           is_train=1, class_id_map=self.loc_cat, person_id=self.name, model_type=model_type)

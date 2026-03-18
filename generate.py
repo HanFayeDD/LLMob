@@ -126,7 +126,7 @@ if __name__ == "__main__":
         
         print(f"{P.attribute}")
         if args.mode == 0:
-            P.init_retriever()
+            P.init_retriever(model_type="EnhanceModel")
         # mobility generation
         mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic)
         logging.info(f"Person {idx}/{k} done")
