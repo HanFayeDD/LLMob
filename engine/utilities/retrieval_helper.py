@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+import random
 from datetime import datetime
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
@@ -10,6 +11,22 @@ import matplotlib.pyplot as plt
 import os
 sns.set_theme(style="darkgrid", font="Times New Roman")
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+def set_seed(seed=42):
+    """设置所有随机数生成器的种子，确保实验可复现。
+
+    Args:
+        seed: 随机种子值，默认为42
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    # 确保 cuDNN 的确定性行为
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def calculate_relative_features(date1, date2):
     delta = date1 - date2
@@ -66,6 +83,7 @@ class ContrastiveDataset(Dataset):
                     scores[j][i] = score
 
             sorted_indices = sorted(range(len(self.data)), key=lambda k: scores[i][k], reverse=True)
+            sorted_indices.remove(i)
             query_date = node_dates[i] # 固定第i天
             node_date = node_dates[sorted_indices[0]] # most similar / positive sample 选出最相似的一天
             input_ = input_from_date(query_date, node_date) # 得到1*3相似度矩阵
@@ -121,7 +139,7 @@ def act_mat_compute(traj1, traj2, class_loc_map):
         先转为二维矩阵，在进行相似度计算
     '''
     # 地点类型去重后作序列化映射
-    act_map = {v: id_ for id_, v in enumerate(list(set(class_loc_map.values())))}
+    act_map = {v: id_ for id_, v in enumerate(sorted(set(class_loc_map.values())))}
     # 轨迹、地点>地点类型、地点类型>数字映射
     mat1 = map_traj2mat(traj1, class_loc_map, act_map)
     mat2 = map_traj2mat(traj2, class_loc_map, act_map)
@@ -219,7 +237,7 @@ class EnhancedDeepModel(nn.Module):
 
 class TemporalRetriever:
     def __init__(self, nodes, similarity_top_k, is_train=None, class_id_map=None,
-                 model_type="DeepModel", person_id = ""):
+                 model_type="DeepModel", person_id = "", seed=42):
         """
         Args:
             nodes: 轨迹节点列表。
@@ -228,7 +246,11 @@ class TemporalRetriever:
             class_id_map: 地点→活动类型映射。
             model_type: 使用的模型类型，可选 "DeepModel" 或 "EnhancedDeepModel"，
                         默认为 "DeepModel"。
+            seed: 随机种子，用于复现实验结果，默认为42。
         """
+        # 设置随机种子，确保实验可复现
+        set_seed(seed)
+
         self.nodes = nodes
         self.similarity_top_k = similarity_top_k
         self.feature_size = 3
@@ -243,8 +265,10 @@ class TemporalRetriever:
             # 根据 model_type 选择模型
             if self.model_type == "EnhancedDeepModel":
                 self._model = EnhancedDeepModel(self.feature_size, 64, 1)
-            else:
+            elif self.model_type == "DeepModel":
                 self._model = DeepModel(self.feature_size, 64, 1)
+            else:
+                raise ValueError(f"Unsupported model type: {self.model_type}")
             self.optimizer = optim.Adam(self._model.parameters(), lr=0.001)
             self.criterion = torch.nn.MSELoss()
             self.calibrate_score_function(num_epochs=1500)
@@ -356,11 +380,12 @@ def draw_loss_curve(losses: list, save_name: str = "loss_curve.png"):
     save_path = os.path.join(os.getcwd(), save_name)
     plt.savefig(save_path, dpi=500)
     plt.close()
+    print("loss:")
     print(losses[-10:])
     print(f"Loss curve saved to {save_path}")
 
 def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=None):
-    act_map = {v: id_ for id_, v in enumerate(list(set(class_loc_map.values())))}
+    act_map = {v: id_ for id_, v in enumerate(sorted(set(class_loc_map.values())))}
     mat1 = map_traj2mat(traj, class_loc_map, act_map)
 
     # 将 act_map 按 id 顺序还原为类别列表（保证 y 轴顺序一致）
@@ -420,7 +445,6 @@ if __name__ == "__main__":
             att = pickle.load(f)
             train_routine_list = att[0]
             loc_cat = att[11]
-  
             retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
             retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel", person_id=str(available2019[i]))
         if i == 19:
