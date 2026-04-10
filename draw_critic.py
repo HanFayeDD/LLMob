@@ -52,11 +52,14 @@ for i, mode in enumerate(modes):
                 str(val), ha='center', va='bottom', fontsize=11,
                 fontweight='bold', color='black')
     for bar, val in zip(bars_f, fail_vals):
-        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_y() - 2,
-                str(abs(val)), ha='center', va='top', fontsize=11,
-                fontweight='bold', color='black')
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_y() + bar.get_height() - 2,
+            str(abs(val)), ha='center', va='top', fontsize=11,
+            fontweight='bold', color='black'
+        )
 
-# x 轴
+# x 轴  
 ax.set_xticks(x_positions + bar_width * (n_modes - 1) / 2)
 ax.set_xticklabels(models, fontsize=12)
 
