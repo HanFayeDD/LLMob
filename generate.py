@@ -76,8 +76,6 @@ if __name__ == "__main__":
     # print(persona_dict)
     
     for idx, k in enumerate(data[args.dataset]):
-        if idx <= 7:
-            continue
         # if k != 2721:
         #     continue
         log_filename = f"chathistory/{k}.txt"
