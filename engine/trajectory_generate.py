@@ -64,7 +64,11 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
     
     MAX_DAYS = 14
     try_times = 0
-    for idx, test_route in enumerate(person.test_routine_list[:]):
+    
+    ## M contrast
+    for idx, test_route in enumerate(person.test_routine_list[-MAX_DAYS:]):
+    ## normal
+    # for idx, test_route in enumerate(person.test_routine_list[:]):
         date_ = test_route.split(": ")[0].split(" ")[-1]
         week_day = date_to_weekday(date_)
         # get motivation
