@@ -292,7 +292,7 @@ def draw_result_radar(f, r):
     with col2:
         st.pyplot(fig, width=800)
         
-def draw_result_radar_combination(data:list, labels:list):
+def draw_result_radar_combination(data:list, labels:list, num_days=14, num_person=20):
     """绘制雷达图，支持多组数据叠加显示。
     
     Args:
@@ -328,13 +328,20 @@ def draw_result_radar_combination(data:list, labels:list):
     df = []
     for idx, d in enumerate(data):
         cnt = get_act_cnt(d)
-        print(labels[idx], "\n", cnt)
-        for k, v in cnt.items():
-            if k not in ('College & University', 'Residence', "Event",  'Nightlife Spot'):
-                df.append([labels[idx], k, v])
-        total = sum(cnt.values())
-        prop = {k: v / total if total > 0 else 0 for k, v in cnt.items()}
+        sumall = sum(cnt.values())
+        
+        # 计算比例
+        prop = {k: round(v/(num_days*num_person), 6)  for k, v in cnt.items()}
         proportions.append(prop)
+        
+        # 以表格形式打印：表头是 category，下一行是比例
+        print(f"\n=== {labels[idx]} ===")
+        prop_df = pd.DataFrame([prop])  # 单行 DataFrame，列名为 category
+        print(prop_df.to_string(index=False))
+        for k, v in cnt.items():
+            # if k not in ('College & University', 'Residence', "Event",  'Nightlife Spot'):
+            df.append([labels[idx], k, v])
+        total = sum(cnt.values())
         
     ## draw_bar
     df = pd.DataFrame(df, columns=["Group", "ActivityType", "Count"])
@@ -395,9 +402,4 @@ def draw_result_radar_combination(data:list, labels:list):
     _, col2, _ = st.columns([1, 3, 1])
     with col2:
         st.pyplot(fig, width=800)
-        
-        
-    ## use pyecharts
-    for idx, d in enumerate(data):
-        cnt = get_act_cnt(d)
         

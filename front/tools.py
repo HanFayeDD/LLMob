@@ -135,4 +135,76 @@ def load_pkl_from_id(tag, fold, id):
     
     
     
+## page5 - 轨迹生成工具辅助函数
+def get_person_choices(dataset: str, limit: int = 20):
+    """获取可选的个体ID列表（前20个）"""
+    from front.defines import available2019, available1921
+    if dataset == "2019":
+        return available2019[:limit]
+    elif dataset == "20192021":
+        return available1921[:limit]
+    return []
+
+def get_max_days(dataset: str, person_id: int):
+    """获取测试轨迹的最大天数"""
+    with open(f"./data/{dataset}/{person_id}.pkl", "rb") as f:
+        data = pickle.load(f)
+        # data[1] 是 test_routine_list
+        return len(data[1])
+
+def save_results_to_frontdata(real_traj: dict, gen_traj: dict, person_id: int,
+                               dataset: str, mode: int, model: str):
+    """保存结果到frontdata文件夹"""
+    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+    save_dir = f"./frontdata/{dataset}/{mode_name[mode]}/{model}/{person_id}"
+    os.makedirs(save_dir, exist_ok=True)
+    
+    with open(f"{save_dir}/real_traj.pkl", "wb") as f:
+        pickle.dump(real_traj, f)
+    with open(f"{save_dir}/gen_traj.pkl", "wb") as f:
+        pickle.dump(gen_traj, f)
+    return save_dir
+
+def load_results_from_frontdata(person_id: int, dataset: str, mode: int, model: str):
+    """从frontdata加载结果"""
+    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+    save_dir = f"./frontdata/{dataset}/{mode_name[mode]}/{model}/{person_id}"
+    
+    real_path = f"{save_dir}/real_traj.pkl"
+    gen_path = f"{save_dir}/gen_traj.pkl"
+    
+    if not os.path.exists(real_path) or not os.path.exists(gen_path):
+        return None, None
+    
+    with open(real_path, "rb") as f:
+        real_traj = pickle.load(f)
+    with open(gen_path, "rb") as f:
+        gen_traj = pickle.load(f)
+    
+    # 转换为可视化格式
+    real_actyls = parser_actyls(list(real_traj.values()))
+    gen_actyls = parser_actyls(list(gen_traj.values()))
+    
+    return real_actyls, gen_actyls
+
+def has_results_in_frontdata(person_id: int, dataset: str, mode: int, model: str):
+    """检查frontdata中是否存在结果"""
+    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+    save_dir = f"./frontdata/{dataset}/{mode_name[mode]}/{model}/{person_id}"
+    return os.path.exists(f"{save_dir}/real_traj.pkl") and os.path.exists(f"{save_dir}/gen_traj.pkl")
+
+def load_persona_mid_result(ds):
+    """加载persona中间结果"""
+    try:
+        with open(rf"persona_result\results{ds}.txt", "r") as f:
+            content = f.readlines()
+            content = [x.strip() for x in content]
+            res = dict()
+            for i in range(0, len(content), 2):
+                res[int(content[i].split("-")[1])] = content[i+1]
+            return res
+    except Exception as e:
+        print(e)
+        return dict()
+
 loc_map = load_loc_map()

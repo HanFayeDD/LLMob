@@ -39,7 +39,7 @@ def semantic_critic(llm, plan_json, date_str):
 # 主生成逻辑
 # ==============================================================================
 
-def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
+def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14, progress_callback=None):
     infer_template = "./engine/prompt_template/one-shot_infer_mot.txt"
     # mode = 0 for learning based retrieval, 1 for evolving based retrieval. 2 for no motivation
     describe_mot_template = "./engine/" + motivation_infer_prompt_paths[mode]
@@ -62,13 +62,18 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
     cho["generated"] = 0 
     cho["from_demo"] = 0
     
-    MAX_DAYS = 14
+    MAX_DAYS = g_days
     try_times = 0
     
     ## M contrast
-    for idx, test_route in enumerate(person.test_routine_list[-MAX_DAYS:]):
+    # for idx, test_route in enumerate(person.test_routine_list[-MAX_DAYS:]):
     ## normal
-    # for idx, test_route in enumerate(person.test_routine_list[:]):
+    total_days = min(MAX_DAYS, len(person.test_routine_list))
+    for idx, test_route in enumerate(person.test_routine_list[:]):
+        # 调用进度回调函数
+        if progress_callback:
+            progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...")
+        
         date_ = test_route.split(": ")[0].split(" ")[-1]
         week_day = date_to_weekday(date_)
         # get motivation
@@ -95,7 +100,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True):
         # add condition prompt for conditional generation, i.e., pandemic condition
         # 对于 mode = 1来说，
         # 使用engine\prompt_template\history_motiviation_multi-shot_infer.txt。只有三个输入。hint不起作用
-        curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, hint]
+        curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, ""] 
         ## 动机推断prompt
         prompt_mot = generate_prompt(curr_input, describe_mot_template)
         ## 根据demo，结合地点类型信息，获取相似地点推荐

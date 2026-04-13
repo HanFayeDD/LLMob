@@ -22,6 +22,6 @@ def draw_page4():
     _, gpt3_g_np = tools.load_pkl_from_selected_folder("normal_abnormal", "gpt3.5turbo_PMC_no_pendemic_prompt")
     
     draw_result_radar_combination(      
-        [gemini_r_np, gpt3_g_np, gpt3_g_p, gemini_g_np, gemini_g_p],
-        ["Ground Truth(2021)", "GPT3.5 No Prompt", "GPT3.5 Prompt", "Gemini No Prompt", "Gemini Prompt"]
+        [gemini_g_np, gemini_g_p, gemini_r_np],
+        ["GPT3.5 No Prompt", "GPT3.5 Prompt", "Ground Truth(2021)"]
     )
