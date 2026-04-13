@@ -28,6 +28,25 @@ def load_pickle(file_path):
         return pickle.load(f)
 
 
+def load_persona_mid_result(ds):
+    '''
+    load_persona_mid_result 的 Docstring
+    根据dataset分文件读取用户的个性化特征
+    '''
+    try:
+        with open(rf"persona_result\results{ds}.txt", "r", encoding="utf-8") as f:
+            content = f.readlines()
+            content = [x.strip() for x in content]
+            res = dict()
+            for i in range(0, len(content), 2):
+                if i + 1 < len(content):
+                    res[int(content[i].split("-")[1])] = content[i+1]
+            return res
+    except Exception as e:
+        print(f"Error loading persona result for dataset {ds}: {e}")
+        return dict()
+
+
 # Key: location name + latitude + longitude
 # Value: ID in the city network
 pos_map = load_pickle('./data/pos_map.pkl')
@@ -632,7 +651,7 @@ def llm_as_judge_one_day(id, judge, date_, t, f):
     ipt_data = [f"{date_}(is {week_day})", t, f]
     prompt = generate_prompt(ipt_data, critic_prompt_template_path)
     while True:
-        contents = execute_prompt(prompt, judge, 
+        contents = execute_prompt(prompt, judge,
                                   objective=f"llm judge...{id}/{date_}")
         try:
             score = int(re.search(r'\d+', contents).group())
@@ -641,6 +660,49 @@ def llm_as_judge_one_day(id, judge, date_, t, f):
         break
     print(score)
     return score
+
+
+def llm_as_judge_preference_rate(id, judge, persona, date_, real_traj, gen_traj):
+    """
+    根据用户的个性化特征、真实轨迹、输出轨迹，计算模型的偏好率。
+    将三个参数传给llm，问他哪个轨迹更符合个性化特征并给出原因。
+    
+    Args:
+        id: 用户ID
+        judge: LLM Judge实例
+        persona: 用户的个性化特征
+        date_: 日期
+        real_traj: 真实轨迹
+        gen_traj: 生成轨迹
+    
+    Returns:
+        int: 0表示真实轨迹更符合，1表示生成轨迹更符合
+    """
+    preference_prompt_template_path = r"engine\prompt_template\preference_rate.txt"
+    ipt_data = [persona, real_traj, gen_traj]
+    prompt = generate_prompt(ipt_data, preference_prompt_template_path)
+    while True:
+        contents = execute_prompt(prompt, judge,
+                                  objective=f"preference rate judge...{id}/{date_}")
+        try:
+            # 从输出中提取数字（0或1）
+            match = re.search(r'\b[01]\b', contents.strip())
+            if match:
+                preference = int(match.group())
+                if preference in [0, 1]:
+                    break
+            # 如果没有找到0或1，尝试从文本中判断
+            if "real" in contents.lower() or "真实" in contents:
+                preference = 0
+                break
+            elif "generated" in contents.lower() or "生成" in contents:
+                preference = 1
+                break
+        except Exception as e:
+            print(f"Error parsing preference result: {e}, content: {contents}")
+            continue
+    print(f"Preference for {id}/{date_}: {preference}")
+    return preference
         
 
 def eval(dataset='normal', mode=0):
@@ -655,6 +717,12 @@ def eval(dataset='normal', mode=0):
         '20192021': 'normal_abnormal'
     }
     scenario = scenario_tag[dataset]
+    
+    # Load persona data if preference rate evaluation is enabled
+    persona_dict = dict()
+    if args.preference:
+        persona_dict = load_persona_mid_result(dataset)
+        print(f"Loaded persona data for {len(persona_dict)} users")
     # Define paths
     ground_truth_paths = {
         'normal': f'./result/normal/ground_truth/{mode}/',
@@ -773,10 +841,71 @@ def eval(dataset='normal', mode=0):
         f"DARD: {np.mean(st_act_jsd_dict[mode]):.4f}, " # 评估空间-时间-活动的联合分布相似性
         f"STVD: {np.mean(st_loc_jsd_dict[mode]):.4f}" # 评估空间-时间-位置的联合分布相似性。
     )
-    print(f"{np.mean(distance_step_dict[mode]):.4f} & {np.mean(duration_jsd_dict[mode]):.4f} & {np.mean(st_act_jsd_dict[mode]):.4f} & {np.mean(st_loc_jsd_dict[mode]):.4f}")    
+    print(f"{np.mean(distance_step_dict[mode]):.4f} & {np.mean(duration_jsd_dict[mode]):.4f} & {np.mean(st_act_jsd_dict[mode]):.4f} & {np.mean(st_loc_jsd_dict[mode]):.4f}")
 
     if args.llmjudge:
         print(f"LLM Judge Result: {sum_score / size:.4f}")
+    
+    # Preference Rate Evaluation
+    if args.preference:
+        print("\n" + "="*50)
+        print("Starting Preference Rate Evaluation...")
+        print("="*50)
+        
+        # Initialize LLM Judge for preference rate
+        pref_judge = LLMJudge()
+        pref_judge.set_model("gpt-3.5-turbo")
+        
+        preference_results = dict()
+        total_preference_count = 0
+        gen_preference_count = 0  # 生成轨迹被偏好的次数
+        
+        for k in person_to_test:
+            if k not in real_traj or k not in gen_traj:
+                continue
+            if k not in persona_dict:
+                print(f"Warning: Person {k} not found in persona_dict, skipping...")
+                continue
+            
+            persona = persona_dict[k]
+            preference_results[k] = []
+            log_filename = f"chathistory/{k}_preference.txt"
+            gpt_structure.set_current_log_file(log_filename)
+            
+            for date_ in real_traj[k]:
+                if date_ not in gen_traj[k]:
+                    continue
+                t = real_traj[k][date_]
+                f = gen_traj[k][date_]
+                
+                # 调用偏好率评估函数
+                res = llm_as_judge_preference_rate(k, pref_judge, persona, date_, t, f)
+                preference_results[k].append(res)
+                total_preference_count += 1
+                if res == 1:  # 1表示生成轨迹更符合
+                    gen_preference_count += 1
+        
+        # 计算偏好率
+        if total_preference_count > 0:
+            preference_rate = gen_preference_count / total_preference_count
+        else:
+            preference_rate = 0.0
+        
+        print("\n" + "="*50)
+        print("Preference Rate Evaluation Results:")
+        print("="*50)
+        for k in preference_results:
+            if len(preference_results[k]) > 0:
+                user_gen_pref = sum(preference_results[k])
+                user_total = len(preference_results[k])
+                user_pref_rate = user_gen_pref / user_total
+                print(f"Person {k}: {user_gen_pref}/{user_total} = {user_pref_rate:.4f}")
+                with open(f"preference_rate_result.txt", "a") as f:
+                    f.write(f"{k}\n{preference_results[k]}\n{user_pref_rate:.4f}\n")
+        
+        print(f"\nOverall Preference Rate: {gen_preference_count}/{total_preference_count} = {preference_rate:.4f}")
+        print(f"(Preference Rate = Number of times generated trajectory is preferred / Total number of trajectories)")
+        print("="*50)
 
 
 if __name__ == '__main__':
@@ -788,6 +917,7 @@ if __name__ == '__main__':
     parser.add_argument('--mode', type=int, default=0,
                         help='Specify the mode type: 0 for llm_l, 1 for llm_e')
     parser.add_argument('--llmjudge', type=int, default=0, help="whether use LLM as a Judge to eval")
+    parser.add_argument('--preference', type=int, default=0, help="whether use LLM to evaluate preference rate")
     
     args = parser.parse_args()  # Parse after defining arguments
 
