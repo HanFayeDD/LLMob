@@ -108,6 +108,8 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
         area = retrieve_loc(person, demo)
         motivation = ""
         if mode != 2:
+            if progress_callback:
+                progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(动机挖掘中)")
             motivation = execute_prompt(prompt_mot, person.llm, objective=f"Think about motivation")
             motivation = first2second(motivation)
         his_routine = his_routine[1:] + [test_route] ## 会更新his_routine，从而导致跟新demo
@@ -160,6 +162,8 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
                 # [修改] 增强校验与 Critic 介入 (Reflexion Loop)
                 # ==========================================
                 
+                if progress_callback:
+                    progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(硬性校验中)")
                 # 1. 硬约束检查 (Hard Constraints)
                 if (res_place := valid_place_return(res["plan"], person.area_freq)):
                     error_msgs.append(f"Error: Some locations({res_place}) in the plan are invalid or do not match the area frequency.")
@@ -175,8 +179,12 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
                 
                 # 2. 软约束检查 (Soft Constraints / Semantic Critic)
                 # 只有当硬约束通过时，才进行昂贵的语义检查，节省 Token
-                if not error_msgs and critic_check:
+                if not error_msgs and critic_check:     
+                    if progress_callback:
+                        progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(软性校验中)")
                     last_pass_with_no_critic = res["plan"]
+                    if progress_callback:
+                        progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(兜底轨迹已生成)")
                     semantic_error = semantic_critic(person.llm, res["plan"], date_)
                     if semantic_error:
                         error_msgs.append(f"Logic Error: {semantic_error}")
@@ -202,6 +210,8 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
                                        f"Please re-generate the plan. Fix these errors specifically. Ensure valid JSON format."
                 
                     logging.info(f"feedback:{feedback_instruction}")
+                if progress_callback:
+                    progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(重试次数 {trial+1}/{max_trial})")
                 trial += 1
                 continue
         

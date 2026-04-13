@@ -382,7 +382,7 @@ def draw_result_radar_combination(data:list, labels:list, num_days=14, num_perso
         (204/255, 185/255, 116/255, 1.00),
         (100/255, 181/255, 205/255, 1.00),
     ]
-    linestyles = ["dashed", "solid", "dotted", "dashdot"]
+    linestyles = ["dashed", "dotted", "solid", "dashdot"]
     
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='polar'))
     
@@ -396,9 +396,10 @@ def draw_result_radar_combination(data:list, labels:list, num_days=14, num_perso
     
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(category_labels, fontdict={'fontsize': 11})
-    ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
+    ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
 
-    fig.set_dpi(400)
+    fig.set_dpi(800)
+    fig.savefig("pendemic_radar.png", dpi=800, bbox_inches='tight')
     _, col2, _ = st.columns([1, 3, 1])
     with col2:
         st.pyplot(fig, width=800)
