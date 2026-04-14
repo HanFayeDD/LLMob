@@ -34,7 +34,7 @@ def load_persona_mid_result(ds):
     根据dataset分文件读取用户的个性化特征
     '''
     try:
-        with open(rf"persona_result\results{ds}.txt", "r", encoding="utf-8") as f:
+        with open(rf"persona_result\results{ds}.txt", "r") as f:
             content = f.readlines()
             content = [x.strip() for x in content]
             res = dict()
@@ -662,7 +662,7 @@ def llm_as_judge_one_day(id, judge, date_, t, f):
     return score
 
 
-def llm_as_judge_preference_rate(id, judge, persona, date_, real_traj, gen_traj):
+def llm_as_judge_preference_rate(id, judge, persona, date_, real_traj, gen_traj, scenario):
     """
     根据用户的个性化特征、真实轨迹、输出轨迹，计算模型的偏好率。
     将三个参数传给llm，问他哪个轨迹更符合个性化特征并给出原因。
@@ -679,14 +679,21 @@ def llm_as_judge_preference_rate(id, judge, persona, date_, real_traj, gen_traj)
         int: 0表示真实轨迹更符合，1表示生成轨迹更符合
     """
     preference_prompt_template_path = r"engine\prompt_template\preference_rate.txt"
-    ipt_data = [persona, real_traj, gen_traj]
+    hint = ""
+    if "abnormal" in scenario:
+            hint = '''Now it is the pandemic period. The government has asked residents to postpone travel and events and to telecommute as much as possible.'''
+            hint = hint.replace("\n", " ").strip()
+    ipt_data = [persona, real_traj, gen_traj, hint]
     prompt = generate_prompt(ipt_data, preference_prompt_template_path)
     while True:
         contents = execute_prompt(prompt, judge,
                                   objective=f"preference rate judge...{id}/{date_}")
         try:
             # 从输出中提取数字（0或1）
+            print(contents.strip())
             match = re.search(r'\b[01]\b', contents.strip())
+            print(match.group())
+            exit(0)
             if match:
                 preference = int(match.group())
                 if preference in [0, 1]:
@@ -860,14 +867,15 @@ def eval(dataset='normal', mode=0):
         total_preference_count = 0
         gen_preference_count = 0  # 生成轨迹被偏好的次数
         
+        print(persona_dict)
         for k in person_to_test:
             if k not in real_traj or k not in gen_traj:
                 continue
-            if k not in persona_dict:
+            if int(k) not in persona_dict:
                 print(f"Warning: Person {k} not found in persona_dict, skipping...")
                 continue
             
-            persona = persona_dict[k]
+            persona = persona_dict[int(k)]
             preference_results[k] = []
             log_filename = f"chathistory/{k}_preference.txt"
             gpt_structure.set_current_log_file(log_filename)
@@ -879,7 +887,7 @@ def eval(dataset='normal', mode=0):
                 f = gen_traj[k][date_]
                 
                 # 调用偏好率评估函数
-                res = llm_as_judge_preference_rate(k, pref_judge, persona, date_, t, f)
+                res = llm_as_judge_preference_rate(k, pref_judge, persona, date_, t, f, scenario)
                 preference_results[k].append(res)
                 total_preference_count += 1
                 if res == 1:  # 1表示生成轨迹更符合
