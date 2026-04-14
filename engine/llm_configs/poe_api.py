@@ -33,7 +33,7 @@ class PoeAPI(BaseGPTAPI):
 
     # --- 修改点: 应用装饰器 ---
     # 示例：限制每 60 秒最多请求 10 次
-    @SimpleRateLimiter(max_calls=5, period=10)
+    @SimpleRateLimiter(max_calls=10, period=10)
     def completion(self, messages: list[dict]) -> dict:
         """
         实现对 Poe API 的调用。
@@ -42,7 +42,8 @@ class PoeAPI(BaseGPTAPI):
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=messages
+                messages=messages,
+                timeout=30
             )
 
             # 格式转换

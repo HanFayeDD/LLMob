@@ -693,7 +693,6 @@ def llm_as_judge_preference_rate(id, judge, persona, date_, real_traj, gen_traj,
             print(contents.strip())
             match = re.search(r'\b[01]\b', contents.strip())
             print(match.group())
-            exit(0)
             if match:
                 preference = int(match.group())
                 if preference in [0, 1]:
