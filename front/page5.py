@@ -19,6 +19,7 @@ from front.map import draw_result_map, draw_result_radar, time_filter
 DATASET_CHOICES = ["2019", "20192021"]
 MODE_CHOICES = {"基于检索": 0, "基于演化": 1}
 MODEL_CHOICES = ["gemini-2.5-flash-lite", "gpt-3.5-turbo"]
+DEFAULT_CRITIC = True
 
 # scenario_tag映射
 SCENARIO_TAG = {
@@ -31,7 +32,7 @@ def draw_page5():
     
     # === 第一部分：参数选择 ===
     st.subheader("参数配置")
-    cols = st.columns([1, 1, 1])
+    cols = st.columns([1, 1, 1, 3])
     with cols[0]:
         dataset = st.selectbox("选择数据集", DATASET_CHOICES, key="dataset_select")
     with cols[1]:
@@ -39,7 +40,11 @@ def draw_page5():
         mode = MODE_CHOICES[mode_display]
     with cols[2]:
         model = st.selectbox("选择模型", MODEL_CHOICES, key="model_select")
-    
+    # with cols[3]:
+    #     critic_check = st.toggle("启用critic", value=DEFAULT_CRITIC, key="critic_toggle")
+    colss = st.columns([1, 5])
+    with colss[0]:
+        critic_check = st.toggle("启用critic", value=DEFAULT_CRITIC, key="critic_toggle")
     # === 第二部分：个体选择 ===
     st.subheader("个体选择")
     person_choices = get_person_choices(dataset)
@@ -58,7 +63,7 @@ def draw_page5():
     )
     
     # 显示当前配置信息
-    st.info(f"当前配置: 数据集={dataset}, 个体ID={person_id}, 模式={mode_display}, 模型={model}, 天数={g_days}")
+    st.info(f"当前配置: 数据集={dataset}, 个体ID={person_id}, 模式={mode_display}, 模型={model}, 天数={g_days}, critic={'开启' if critic_check else '关闭'}")
     
     # === 第四部分：执行按钮 ===
     st.subheader("轨迹生成")
@@ -137,7 +142,7 @@ def draw_page5():
             
             # 执行轨迹生成
             scenario_tag = SCENARIO_TAG[dataset]
-            mob_gen(P, mode=mode, scenario_tag=scenario_tag, critic_check=True, 
+            mob_gen(P, mode=mode, scenario_tag=scenario_tag, critic_check=critic_check,
                     g_days=g_days, progress_callback=progress_callback)
             
             # 从result目录读取生成结果
