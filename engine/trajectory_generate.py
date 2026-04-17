@@ -2,6 +2,7 @@ from engine.prompt_template.prompt_paths import *
 from engine.utilities.process_tools import *
 from engine.llm_configs.gpt_structure import *
 from engine.utilities.retrieval_helper import *
+from engine.motivation_fusion import *
 import logging
 import os
 import pickle
@@ -39,15 +40,39 @@ def semantic_critic(llm, plan_json, date_str):
 # 主生成逻辑
 # ==============================================================================
 
-def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14, progress_callback=None):
+def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14, progress_callback=None, fusion_config=None):
+    """
+    动机驱动的活动轨迹生成函数。
+    
+    Args:
+        person: Person对象，包含轨迹数据和LLM实例
+        mode: 生成模式
+            - 0: 基于检索的动机推断（learning-based retrieval）
+            - 1: 基于演化的动机推断（evolving-based inference）
+            - 2: 无动机（no motivation）
+            - 3: 混合动机推演（hybrid motivation inference）- 新增
+        scenario_tag: 场景标签（如 "normal", "normal_abnormal"）
+        critic_check: 是否启用Critic检查
+        g_days: 生成天数
+        progress_callback: 进度回调函数
+        fusion_config: 混合模式配置字典，包含:
+            - "k": 近期天数窗口（默认7）
+            - "weight_params": 权重参数 {"w": [w1, w2, w3], "b": b}
+            - "use_mlp": 是否使用MLP计算权重
+            - "mlp_weights": MLP权重列表
+            - "mlp_biases": MLP偏置列表
+            - "use_heuristic": 是否使用启发式融合
+            - "heuristic_config": 启发式融合配置
+    """
     infer_template = "./engine/prompt_template/one-shot_infer_mot.txt"
-    # mode = 0 for learning based retrieval, 1 for evolving based retrieval. 2 for no motivation
+    # mode = 0 for learning based retrieval, 1 for evolving based retrieval. 2 for no motivation. 3 for hybrid.
     describe_mot_template = "./engine/" + motivation_infer_prompt_paths[mode]
     # 用于轨迹生成时候的引导
-    motivation_ways = ["Following are the motivation that you want to achieve:", ## 0 
+    motivation_ways = ["Following are the motivation that you want to achieve:", ## 0
                        "Following are the thing you focus in the last few days:", ## 1
-                       ""]                                                       ## 2
-    mode_name = {0: "llm_l", 1: "llm_e", 2:"llm_nm"}
+                       "",                                                        ## 2
+                       "Following are the fused motivation from both retrieval and evolving sources:"]  ## 3
+    mode_name = {0: "llm_l", 1: "llm_e", 2:"llm_nm", 3:"llm_hybrid"}
     generation_path = f"./result/{scenario_tag}/generated/{mode_name[mode]}/{str(person.id)}/"
     ground_truth_path = f"./result/{scenario_tag}/ground_truth/{mode_name[mode]}/{str(person.id)}/"
     if os.path.exists(generation_path) is False:
@@ -63,6 +88,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
     cho["from_demo"] = 0
     
     MAX_DAYS = g_days
+    MAX_DAYS = 2
     try_times = 0
     
     ## M contrast
@@ -88,10 +114,21 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
             demo = his_routine[-1]
         elif mode == 2:
             demo = his_routine[-1]
+        elif mode == 3:
+            # hybrid motivation inference
+            # 获取检索动机（宏观周期先验）
+            retrieve_route = person.retriever.retrieve(date_)
+            M_r_demo = retrieve_route[0] if retrieve_route else his_routine[-1]
+            # 获取演化动机（短期行为惯性）
+            M_e_demo = his_routine[-1]
+            demo = M_r_demo  # 初始demo用于生成Prompt
             
         logging.info(f"mode1 demo: {his_routine[-1]}")
         if mode == 0:
             logging.info(f"mode0 retrieve_route: {retrieve_route[0]}")
+        if mode == 3:
+            logging.info(f"mode3 M_r_demo: {M_r_demo}")
+            logging.info(f"mode3 M_e_demo: {M_e_demo}")
 
         hint = "" 
         if scenario_tag == "normal_abnormal":
@@ -101,17 +138,97 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
         # 对于 mode = 1来说，
         # 使用engine\prompt_template\history_motiviation_multi-shot_infer.txt。只有三个输入。hint不起作用
         # 对于mode 0 idx为0、1、3起作用
-        curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, ""] 
-        ## 动机推断prompt
-        prompt_mot = generate_prompt(curr_input, describe_mot_template)
-        ## 根据demo，结合地点类型信息，获取相似地点推荐
-        area = retrieve_loc(person, demo)
-        motivation = ""
-        if mode != 2:
+        
+        if mode == 3:
+            # ====== 混合动机推演模式 ======
+            # Step 1: 计算检索动机 M_r（使用mode 0的prompt模板）
+            M_r_template = "./engine/" + motivation_infer_prompt_paths[0]
+            curr_input_r = [person.attribute, "Go to " + M_r_demo.split(": ")[-1], consecutive_past_days, ""]
+            prompt_mot_r = generate_prompt(curr_input_r, M_r_template)
+            
+            # Step 2: 计算演化动机 M_e（使用mode 1的prompt模板）
+            M_e_template = "./engine/" + motivation_infer_prompt_paths[1]
+            curr_input_e = [person.attribute, "Go to " + M_e_demo.split(": ")[-1], consecutive_past_days, ""]
+            prompt_mot_e = generate_prompt(curr_input_e, M_e_template)
+            
+            # Step 3: 构建上下文门控向量与自适应权重
+            if fusion_config is None:
+                fusion_config = {}
+            k_window = fusion_config.get("k", 7)
+            weight_params = fusion_config.get("weight_params", None)
+            use_mlp = fusion_config.get("use_mlp", False)
+            mlp_weights_cfg = fusion_config.get("mlp_weights", None)
+            mlp_biases_cfg = fusion_config.get("mlp_biases", None)
+            use_heuristic = fusion_config.get("use_heuristic", False)
+            heuristic_config = fusion_config.get("heuristic_config", None)
+            
+            context_vector = build_context_gating_vector(
+                person.train_routine_list, date_, k=k_window
+            )
+            alpha = compute_adaptive_weight(
+                context_vector, weight_params,
+                use_mlp, mlp_weights_cfg, mlp_biases_cfg
+            )
+            logging.info(f"mode3 alpha: {alpha:.4f}, context_vector: {context_vector}")
+            
+            # Step 4: 分别调用LLM推断M_r和M_e的动机
             if progress_callback:
-                progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(动机挖掘中)")
-            motivation = execute_prompt(prompt_mot, person.llm, objective=f"Think about motivation")
-            motivation = first2second(motivation)
+                progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(检索动机挖掘中)")
+            M_r_motivation = execute_prompt(prompt_mot_r, person.llm, objective=f"Think about retrieval motivation")
+            M_r_motivation = first2second(M_r_motivation)
+            
+            if progress_callback:
+                progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(演化动机挖掘中)")
+            M_e_motivation = execute_prompt(prompt_mot_e, person.llm, objective=f"Think about evolving motivation")
+            M_e_motivation = first2second(M_e_motivation)
+            
+            # Step 5: 动机融合
+            if progress_callback:
+                progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(动机融合中)")
+            
+            if use_heuristic:
+                # 启发式融合（不调用LLM）
+                motivation = heuristic_fusion(M_r_motivation, M_e_motivation, alpha, heuristic_config)
+            else:
+                # LLM驱动的融合
+                fusion_prompt = hybrid_motivation_fusion(
+                    M_r_motivation, M_e_motivation, alpha,
+                    date_, week_day
+                )
+                fusion_result = execute_prompt(fusion_prompt, person.llm, objective=f"Fuse motivations (alpha={alpha:.3f})")
+                try:
+                    fusion_json = json.loads(filter_json_part(fusion_result))
+                    motivation = fusion_json.get("fused_motivation", fusion_result)
+                except:
+                    # 如果JSON解析失败，直接使用融合结果
+                    motivation = fusion_result
+                motivation = first2second(motivation)
+            
+            logging.info(f"mode3 M_r_motivation: {M_r_motivation}")
+            logging.info(f"mode3 M_e_motivation: {M_e_motivation}")
+            logging.info(f"mode3 fused_motivation: {motivation}")
+            
+            # 使用检索demo作为基础demo（alpha高时偏向检索，低时偏向演化）
+            # 选择alpha加权最高的demo作为地点推荐基础
+            if alpha > 0.5:
+                demo = M_r_demo
+            else:
+                demo = M_e_demo
+            area = retrieve_loc(person, demo)
+            
+        else:
+            # ====== 原有模式 (0, 1, 2) ======
+            curr_input = [person.attribute, "Go to " + demo.split(": ")[-1], consecutive_past_days, ""]
+            ## 动机推断prompt
+            prompt_mot = generate_prompt(curr_input, describe_mot_template)
+            ## 根据demo，结合地点类型信息，获取相似地点推荐
+            area = retrieve_loc(person, demo)
+            motivation = ""
+            if mode != 2:
+                if progress_callback:
+                    progress_callback(idx, total_days, f"正在生成第 {idx+1} 天轨迹...(动机挖掘中)")
+                motivation = execute_prompt(prompt_mot, person.llm, objective=f"Think about motivation")
+                motivation = first2second(motivation)
         his_routine = his_routine[1:] + [test_route] ## 会更新his_routine，从而导致跟新demo
         weekday = find_detail_weekday(date_)
   
@@ -244,7 +361,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
                 logging.info(f"result is from demo")
                 cho["from_demo"] += 1
             
-        if mode == 0:
+        if mode == 0 or mode == 3:
             person.retriever.nodes.append(reals[date_])
             
         logging.info(f"Generated{date_}: {results[date_]}")

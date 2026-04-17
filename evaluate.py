@@ -713,7 +713,7 @@ def llm_as_judge_preference_rate(id, judge, persona, date_, real_traj, gen_traj,
 
 def eval(dataset='normal', mode=0):
     # Load required data
-    mode_name = {0: "llm_l", 1: "llm_e", 2:"llm_nm"}
+    mode_name = {0: "llm_l", 1: "llm_e", 2:"llm_nm", 3:"llm_hybrid"}
     mode = mode_name[mode]
     truth = {}
     person_to_test = []

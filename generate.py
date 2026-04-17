@@ -44,8 +44,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(f"args:\n{args}")
     random.seed(args.seed)
-    if args.mode not in (0, 1, 2):
-        raise ValueError()
+    if args.mode not in (0, 1, 2, 3):
+        raise ValueError(f"Invalid mode: {args.mode}. Supported modes: 0 (retrieval), 1 (evolving), 2 (no motivation), 3 (hybrid)")
     available1921 = [1004, 1032, 1172, 1184, 13, 1310, 1431, 1481, 1492, 1556, 1568, 1626, 1775, 1784, 1874, 1883,
                      1974, 2078, 225, 2266, 2337, 2356, 2402, 2513, 2542, 2610, 2680, 2683, 2721, 2956, 317, 323, 3255,
                      3282, 3453, 3534, 3599, 3637, 3638, 3781, 3784, 4007, 4105, 439, 4396, 4768, 5252, 5326, 540,
@@ -123,12 +123,24 @@ if __name__ == "__main__":
             P.attribute = ""
         
         print(f"{P.attribute}")
-        if args.mode == 0:
+        if args.mode == 0 or args.mode == 3:
             P.init_retriever(model_type="DeepModel")
         # mobility generation
-        mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic)
+        if args.mode == 3:
+            # 混合动机推演模式，传入fusion_config
+            fusion_config = {
+                "k": 9,                     # 近期天数窗口
+                "weight_params": None,       # 使用默认权重参数
+                "use_mlp": False,            # 不使用MLP（可后续优化）
+                "use_heuristic": True,      # 使用LLM融合（可设为True启用启发式）
+                "heuristic_config": None     # 启发式配置
+            }
+            mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic, fusion_config=fusion_config)
+        else:
+            mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic)
         logging.info(f"Person {idx}/{k} done")
         # break
         if idx+1 == 20:
             break
+        break
     print("done")
