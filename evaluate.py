@@ -541,10 +541,12 @@ class Evaluation(object):
             if k in figname:
                 label = xlabel[k]
                 break
-        plt.xlabel(label)
-        plt.ylabel("Kde Density")
-        plt.legend()
-        plt.title(f"{figname} Distribution (Kdeplot)", fontsize=20)
+        plt.xlabel(label, fontsize=23)
+        plt.ylabel("Kde Density", fontsize=23)
+        plt.legend(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=20)
+        plt.title(f"{figname} Distribution (Kdeplot)", fontsize=25)
         plt.tight_layout()
         plt.savefig(f"{figname} Distribute (Kdeplot).png")
         # plt.show()
@@ -559,7 +561,7 @@ class Evaluation(object):
         df['Tag'] = ["Generated"] * len(f) + ["Real"] * len(r)
         df['Bound'] = sep + sep
         g = sns.barplot(df, x="Bound", y="Cnt", hue="Tag")
-        g.set_xlabel(xlabel)
+        g.set_xlabel(xlabel, fontsize=23)
         if len(sep) >= 15:
             ## 部分x轴的值重合，帮我设置间隔
             step = 3
@@ -567,14 +569,19 @@ class Evaluation(object):
             new_ticks = current_ticks[::step]
             new_labels = sep[::step]
             g.set_xticks(new_ticks)
-            g.set_xticklabels(new_labels)
+            g.set_xticklabels(new_labels, fontsize=20)
+        else:
+            g.set_xticklabels(g.get_xticklabels(), fontsize=20)
             
-        g.set_ylabel(ylabel)
+        g.set_ylabel(ylabel, fontsize=23)
+        g.set_yticklabels(g.get_yticklabels(), fontsize=20)
         g.set_title(f"{figname}", fontsize=20)
         legend = g.get_legend()
         if legend:
             # 将图例标题设置为空字符串
             legend.set_title("")
+            for text in legend.get_texts():
+                text.set_fontsize(20)
         plt.tight_layout()
         plt.savefig(f"{figname}.png", dpi=400)
         
@@ -602,18 +609,27 @@ class Evaluation(object):
         )
         
         # =======================================================
-        # 【修改部分】：去掉图例标题
+        # 【修改部分】：去掉图例标题，统一字体大小
         # =======================================================
         # 获取主绘图区(ax_joint)的图例对象
         legend = g.ax_joint.get_legend()
         if legend:
             # 将图例标题设置为空字符串
             legend.set_title("")
+            for text in legend.get_texts():
+                text.set_fontsize(20)
         # =======================================================
 
+        # 设置横纵坐标轴名称字体大小
+        g.ax_joint.set_xlabel(g.ax_joint.get_xlabel(), fontsize=23)
+        g.ax_joint.set_ylabel(g.ax_joint.get_ylabel(), fontsize=23)
+        
+        # 设置横纵坐标刻度值字体大小
+        g.ax_joint.tick_params(axis='both', labelsize=20)
+        
         # 注意：对于 jointplot，建议使用 g.fig.suptitle 来设置总标题，
         # 并需要调整顶部边距(y参数)以防重叠
-        g.figure.suptitle(f"{figname} Distribution (Kdeplot)", fontsize=20, y=1.03)
+        g.figure.suptitle(f"{figname} Distribution (Kdeplot)", fontsize=25, y=1.03)
         
         # g.figure.tight_layout() # jointplot 内部已有布局管理，有时 tight_layout 会冲突，视情况保留
         g.figure.set_dpi(400)

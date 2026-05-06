@@ -322,7 +322,7 @@ class TemporalRetriever:
             # 计算并记录平均 loss
             avg_epoch_loss = epoch_loss_sum / batch_count
             loss_list.append(avg_epoch_loss)
-        # draw_loss_curve(loss_list, str(self.person_id) + "_" + self.model_type + "_loss_curve.png")
+        draw_loss_curve(loss_list, str(self.person_id) + "_" + self.model_type + "_loss_curve.png")
         print("Calibration finished!")
         
 
@@ -372,9 +372,12 @@ def draw_loss_curve(losses: list, save_name: str = "loss_curve.png"):
 
     plt.figure(figsize=(8, 5))
     sns.lineplot(x=epochs, y=losses)
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.title("Loss Curve")
+    plt.xlabel("Epoch", fontsize=23)
+    plt.ylabel("Loss", fontsize=23)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.ylim(-0.05, 1.2)
+    plt.title("Loss Curve", fontsize=25)
     plt.tight_layout()
 
     save_path = os.path.join(os.getcwd(), save_name)
@@ -439,7 +442,7 @@ if __name__ == "__main__":
                      6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
                      1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
                      2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
-    available2019 = [540]
+    available2019 = [2610, 7626, 6863, 2078]
     for i in range(len(available2019)):
         with open(rf"data\2019\{available2019[i]}.pkl", "rb") as f:
             att = pickle.load(f)
