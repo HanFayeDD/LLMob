@@ -15,7 +15,7 @@ from pyecharts.components import Table
 from pyecharts import options as opts
 from pyecharts.commons.utils import JsCode
 
-sns.set_theme(style="darkgrid", font="Times New Roman")
+sns.set_theme(style="white", font="Times New Roman")
 
 view_state = pdk.ViewState(
         latitude=35.69,
@@ -242,7 +242,7 @@ def draw_result_radar(f, r):
                 else:
                     raise ValueError(f"{p_act} not in dict")
         
-        return res 
+        return res
                 
     
     p2id = {'Travel & Transport': 0, 'Food': 1, 'Shop & Service': 2,
@@ -274,16 +274,16 @@ def draw_result_radar(f, r):
     r_values += r_values[:1]
     f_color = (76/255, 114/255, 176/255, 1.00)
     r_color = (221/255,132/255,82/255,1.00)
-    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='polar'))
+    fig, ax = plt.subplots(figsize=(8, 6), subplot_kw=dict(projection='polar'))
     ax.fill(angles, f_values, color=f_color, alpha=0.25)
     ax.fill(angles, r_values, color=r_color, alpha=0.25)
     ax.plot(angles, f_values, color=f_color, linewidth=2, linestyle="dashed", label='Generated')
     ax.plot(angles, r_values, color=r_color, linewidth=2, label='Real')
     # ax.set_yticklabels()
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels, fontdict={'fontsize':11})
+    ax.set_xticklabels(labels, fontsize=17)
     # ax.set_title('Activity Proportion Comparison', size=16, fontweight='bold', pad=20)
-    ax.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
+    ax.legend(loc='upper right', bbox_to_anchor=(1.35, 1.1), fontsize=20)
     
     fig.set_dpi(400)
     # fig.tight_layout()
@@ -384,7 +384,7 @@ def draw_result_radar_combination(data:list, labels:list, num_days=14, num_perso
     ]
     linestyles = ["dashed", "dotted", "solid", "dashdot"]
     
-    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(projection='polar'))
+    fig, ax = plt.subplots(figsize=(8, 6), subplot_kw=dict(projection='polar'))
     
     for i, (prop, label) in enumerate(zip(proportions, labels)):
         color = default_colors[i % len(default_colors)]
@@ -395,8 +395,8 @@ def draw_result_radar_combination(data:list, labels:list, num_days=14, num_perso
         ax.plot(angles, values, color=color, linewidth=2, linestyle=ls, label=label)
     
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(category_labels, fontdict={'fontsize': 11})
-    ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+    ax.set_xticklabels(category_labels, fontsize=17)
+    ax.legend(loc='upper right', bbox_to_anchor=(1.75, 1.2), fontsize=20)
 
     fig.set_dpi(800)
     fig.savefig("pendemic_radar.png", dpi=800, bbox_inches='tight')
@@ -404,3 +404,4 @@ def draw_result_radar_combination(data:list, labels:list, num_days=14, num_perso
     with col2:
         st.pyplot(fig, width=800)
         
+
