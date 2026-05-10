@@ -17,7 +17,7 @@ from front.map import draw_result_map, draw_result_radar, time_filter
 
 # 常量定义
 DATASET_CHOICES = ["2019", "20192021"]
-MODE_CHOICES = {"基于检索": 0, "基于演化": 1}
+MODE_CHOICES = {"基于检索": 0, "基于演化": 1, "混合动机": 3}
 MODEL_CHOICES = ["gemini-2.5-flash-lite", "gpt-3.5-turbo"]
 DEFAULT_CRITIC = True
 
@@ -127,8 +127,8 @@ def draw_page5():
                 status_text.text("正在识别persona...")
                 P = identify(P)
             
-            # 初始化retriever (仅mode=0需要)
-            if mode == 0:
+            # 初始化retriever (mode=0和mode=3需要)
+            if mode == 0 or mode == 3:
                 status_text.text("正在初始化检索器...")
                 P.init_retriever(model_type="DeepModel")
             
@@ -142,11 +142,23 @@ def draw_page5():
             
             # 执行轨迹生成
             scenario_tag = SCENARIO_TAG[dataset]
-            mob_gen(P, mode=mode, scenario_tag=scenario_tag, critic_check=critic_check,
-                    g_days=g_days, progress_callback=progress_callback)
+            if mode == 3:
+                # 混合动机推演模式，传入fusion_config
+                fusion_config = {
+                    "k": 7,
+                    "weight_params": None,
+                    "use_mlp": False,
+                    "use_heuristic": False,
+                    "heuristic_config": None
+                }
+                mob_gen(P, mode=mode, scenario_tag=scenario_tag, critic_check=critic_check,
+                        g_days=g_days, progress_callback=progress_callback, fusion_config=fusion_config)
+            else:
+                mob_gen(P, mode=mode, scenario_tag=scenario_tag, critic_check=critic_check,
+                        g_days=g_days, progress_callback=progress_callback)
             
             # 从result目录读取生成结果
-            mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+            mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm", 3: "llm_hybrid"}
             generation_path = f"./result/{scenario_tag}/generated/{mode_name[mode]}/{person_id}/results.pkl"
             ground_truth_path = f"./result/{scenario_tag}/ground_truth/{mode_name[mode]}/{person_id}/results.pkl"
             

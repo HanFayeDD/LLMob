@@ -155,7 +155,7 @@ def get_max_days(dataset: str, person_id: int):
 def save_results_to_frontdata(real_traj: dict, gen_traj: dict, person_id: int,
                                dataset: str, mode: int, model: str):
     """保存结果到frontdata文件夹"""
-    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm", 3: "llm_hybrid"}
     save_dir = f"./frontdata/{dataset}/{mode_name[mode]}/{model}/{person_id}"
     os.makedirs(save_dir, exist_ok=True)
     
@@ -167,7 +167,7 @@ def save_results_to_frontdata(real_traj: dict, gen_traj: dict, person_id: int,
 
 def load_results_from_frontdata(person_id: int, dataset: str, mode: int, model: str):
     """从frontdata加载结果"""
-    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm", 3: "llm_hybrid"}
     save_dir = f"./frontdata/{dataset}/{mode_name[mode]}/{model}/{person_id}"
     
     real_path = f"{save_dir}/real_traj.pkl"
@@ -189,7 +189,7 @@ def load_results_from_frontdata(person_id: int, dataset: str, mode: int, model: 
 
 def has_results_in_frontdata(person_id: int, dataset: str, mode: int, model: str):
     """检查frontdata中是否存在结果"""
-    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm"}
+    mode_name = {0: "llm_l", 1: "llm_e", 2: "llm_nm", 3: "llm_hybrid"}
     save_dir = f"./frontdata/{dataset}/{mode_name[mode]}/{model}/{person_id}"
     return os.path.exists(f"{save_dir}/real_traj.pkl") and os.path.exists(f"{save_dir}/gen_traj.pkl")
 
