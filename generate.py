@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 "k": 9,                     # 近期天数窗口
                 "weight_params": None,       # 使用默认权重参数
                 "use_mlp": False,            # 不使用MLP（可后续优化）
-                "use_heuristic": True,      # 使用LLM融合（可设为True启用启发式）
+                "use_heuristic": True,      # 使用LLM融合（可设为True启用启发式，不调用llm）
                 "heuristic_config": None     # 启发式配置
             }
             mob_gen(P, mode=args.mode, scenario_tag=scenario_tag[args.dataset], critic_check=args.critic, fusion_config=fusion_config)

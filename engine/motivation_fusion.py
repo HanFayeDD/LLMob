@@ -281,12 +281,15 @@ def heuristic_fusion(
     
     if alpha > high_alpha_threshold:
         # 高度依赖检索先验
+        logging.info(f"heuristic_fusion: use retrive")
         return f"{M_r} Given the current context, this long-term pattern is particularly relevant."
     elif alpha < low_alpha_threshold:
         # 高度依赖演化惯性
+        logging.info(f"heuristic_fusion: use evolve") 
         return f"{M_e} Based on recent behavior trends, this is the dominant motivation."
     else:
         # 平衡融合
+        logging.info(f"heuristic_fusion: use balance")
         return f"{M_r} Meanwhile, {M_e} This reflects both long-term patterns and recent trends."
 
 

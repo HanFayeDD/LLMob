@@ -25,8 +25,7 @@ def draw_page4():
     
     
     draw_result_radar_combination(      
-        [gpt3_g_np, gemini_r_np, gpt3_g_p],
-        # ["GPT3.5 No Prompt", "GPT3.5 Prompt", "Ground Truth(2021)"]
-        ["Gemini Pendemic(exp13)", "Gemini(exp14)", "Ground Truth"]
+        [gpt3_g_p, gpt3_g_np, gemini_r_np],
+        ["Ground Truth", "Gemini Pendemic(exp13)", "Gemini(exp14)"]
         
     )

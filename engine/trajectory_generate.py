@@ -88,7 +88,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
     cho["from_demo"] = 0
     
     MAX_DAYS = g_days
-    MAX_DAYS = 2
+    # MAX_DAYS = 2
     try_times = 0
     
     ## M contrast
@@ -206,7 +206,7 @@ def mob_gen(person, mode=0, scenario_tag="normal", critic_check=True, g_days=14,
             
             logging.info(f"mode3 M_r_motivation: {M_r_motivation}")
             logging.info(f"mode3 M_e_motivation: {M_e_motivation}")
-            logging.info(f"mode3 fused_motivation: {motivation}")
+            logging.info(f"mode3 mixed_motivation: {motivation}")
             
             # 使用检索demo作为基础demo（alpha高时偏向检索，低时偏向演化）
             # 选择alpha加权最高的demo作为地点推荐基础

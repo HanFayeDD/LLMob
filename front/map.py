@@ -379,7 +379,6 @@ def draw_result_radar_combination(data:list, labels:list, num_days=14, num_perso
         (85/255, 168/255, 104/255, 1.00),
         (196/255, 78/255, 82/255, 1.00),
         (129/255, 114/255, 179/255, 1.00),
-        (204/255, 185/255, 116/255, 1.00),
         (100/255, 181/255, 205/255, 1.00),
     ]
     linestyles = ["dashed", "dotted", "solid", "dashdot"]
