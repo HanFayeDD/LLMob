@@ -398,7 +398,7 @@ def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=
 
     # 绘制热力图
     plt.figure(figsize=(12, max(4, len(act_list) * 0.4)))
-    sns.heatmap(
+    ax = sns.heatmap(
         mat1.T,
         cmap="YlGnBu",
         cbar_kws={"label": "Count"},
@@ -407,49 +407,47 @@ def draw_mat_from_traj(traj, class_loc_map, save_name="traj_heatmap.png", title=
         annot=False,
         fmt="d"
     )
-    plt.xlabel("Time Slot (1h an interval)")
-    plt.ylabel("Activity Type")
-    plt.title(title)
+    ax.tick_params(axis='x', labelsize=18)
+    ax.tick_params(axis='y', labelsize=18)
+    plt.xlabel("Time Slot (1h an interval)", fontsize=18)
+    plt.ylabel("Activity Type", fontsize=18)
+    plt.title(title, fontsize=20)
+    ax.collections[0].colorbar.ax.tick_params(labelsize=14)
+    ax.collections[0].colorbar.set_label("Count", fontsize=14)
     plt.tight_layout()
 
     save_path = os.path.join(os.getcwd(), save_name)
-    plt.savefig(save_path, dpi=300)
+    plt.savefig(save_path, dpi=1000)
     plt.close()
     print(f"Heatmap saved to {save_path}")
 # ...existing code...   
     
 if __name__ == "__main__":
     import pickle
-    # with open(r"data\2019\1492.pkl", "rb") as f:
-    #     att = pickle.load(f)
-    #     train_routine_list = att[0]
-    #     loc_cat = att[11]
-    # idx = 8
-    # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel")
-    # res = retriever.retrieve("2019-12-25")
-    # print(res)
-    # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel")
-    # res = retriever.retrieve("2019-12-25")
-    # print(res)
-    # print(train_routine_list[idx])
-    # t = train_routine_list[idx].split(": ")[0].split("at")[-1].strip()
-    # draw_mat_from_traj(train_routine_list[idx].split(": ")[1], loc_cat,
-    #                    title = f"Trajectory Time-Activity Matrix Heatmap of Person 2575 on {t}")
+    with open(r"data\2019\2575.pkl", "rb") as f:
+        att = pickle.load(f)
+        train_routine_list = att[0]
+        loc_cat = att[11]
+    idx = 20
+    print(train_routine_list[idx])
+    t = train_routine_list[idx].split(": ")[0].split("at")[-1].strip()
+    draw_mat_from_traj(train_routine_list[idx].split(": ")[1], loc_cat,
+                       title = f"Trajectory Time-Activity Matrix Heatmap of Person 2575 on {t}")
     
-    available2019 = [2575, 1481, 1784, 2721, 638, 7626, 1626, 7266, 1568, 2078, 2610, 1908, 2683, 1883, 3637, 225, 914,
-                     6863, 6670, 323, 3282, 2390, 2337, 4396, 7259, 1310, 3802, 1522, 1219, 1004, 4105, 540,
-                     6157, 1556, 2266, 13, 1874, 317, 2513, 3255, 934, 3599, 1775, 606, 3033, 3784, 5252, 3365, 6581,
-                     6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
-                     1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
-                     2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
-    available2019 = [2610, 7626, 6863, 2078]
-    for i in range(len(available2019)):
-        with open(rf"data\2019\{available2019[i]}.pkl", "rb") as f:
-            att = pickle.load(f)
-            train_routine_list = att[0]
-            loc_cat = att[11]
-            retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
-            retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel", person_id=str(available2019[i]))
-        if i == 19:
-            break
+    # available2019 = [2575, 1481, 1784, 2721, 638, 7626, 1626, 7266, 1568, 2078, 2610, 1908, 2683, 1883, 3637, 225, 914,
+    #                  6863, 6670, 323, 3282, 2390, 2337, 4396, 7259, 1310, 3802, 1522, 1219, 1004, 4105, 540,
+    #                  6157, 1556, 2266, 13, 1874, 317, 2513, 3255, 934, 3599, 1775, 606, 3033, 3784, 5252, 3365, 6581,
+    #                  6171, 5326, 2831, 3453, 3781, 2402, 4843, 439, 1172, 3501, 1032, 2542, 1184, 1531, 6615, 7228,
+    #                  1492 , 6973, 67, 2680, 2956, 3138, 3638, 5765, 835, 1431, 6249, 6998, 573, 884,
+    #                  2356, 6463, 930, 3534, 6814, 5551, 5449, 6144, 6156, 4768, 2620, 4007, 1974]
+    # available2019 = [2610, 7626, 6863, 2078]
+    # for i in range(len(available2019)):
+    #     with open(rf"data\2019\{available2019[i]}.pkl", "rb") as f:
+    #         att = pickle.load(f)
+    #         train_routine_list = att[0]
+    #         loc_cat = att[11]
+    #         retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="DeepModel", person_id=str(available2019[i]))
+    #         # retriever = TemporalRetriever(train_routine_list, 6, is_train=1, class_id_map=loc_cat, model_type="EnhancedDeepModel", person_id=str(available2019[i]))
+    #     if i == 0:
+    #         break
     
